@@ -1,0 +1,229 @@
+@import "tailwindcss";
+
+/* Design tokens — see docs/DESIGN.md. Tailwind's default palette, sizes and radii are
+   disabled so that only these values can be used. */
+@theme {
+  --color-*: initial;
+  --color-ink: #18233a;
+  --color-ink-muted: #586174;
+  --color-ink-subtle: #6b7383;
+  --color-paper: #ffffff;
+  --color-stone: #eef0ec;
+  --color-stone-strong: #e3e6e0;
+  --color-line: #d5d9d2;
+  --color-line-strong: #868e83;
+  --color-cobalt: #2447d6;
+  --color-cobalt-hover: #1c39b0;
+  --color-cobalt-press: #172e8f;
+  --color-cobalt-tint: #e9edfc;
+  --color-highlighter: #ffe45c;
+  --color-success: #1e7a4c;
+  --color-success-tint: #e6f2ec;
+  --color-danger: #b3261e;
+  --color-danger-tint: #fbeae9;
+  --color-danger-hover: #931f18;
+  --color-danger-press: #7a1913;
+  --color-warning: #a15c00;
+  --color-warning-tint: #fbf0e0;
+
+  --text-*: initial;
+  --text-12: 0.75rem;
+  --text-12--line-height: 1rem;
+  --text-13: 0.8125rem;
+  --text-13--line-height: 1.125rem;
+  --text-14: 0.875rem;
+  --text-14--line-height: 1.25rem;
+  --text-16: 1rem;
+  --text-16--line-height: 1.5rem;
+  --text-20: 1.25rem;
+  --text-20--line-height: 1.75rem;
+  --text-24: 1.5rem;
+  --text-24--line-height: 2rem;
+  --text-32: 2rem;
+  --text-32--line-height: 2.5rem;
+  --text-48: 3rem;
+  --text-48--line-height: 3.5rem;
+
+  --radius-*: initial;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  --shadow-*: initial;
+  --shadow-float: 0 1px 2px rgb(24 35 58 / 0.08), 0 8px 24px -6px rgb(24 35 58 / 0.18);
+  --shadow-lift: 0 2px 4px rgb(24 35 58 / 0.1), 0 16px 40px -8px rgb(24 35 58 / 0.28);
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-panel-in: panel-in 180ms var(--ease-out);
+  --animate-fade-in: fade-in 180ms var(--ease-out);
+  --animate-dialog-in: dialog-in 180ms var(--ease-out);
+  --animate-toast-in: toast-in 180ms var(--ease-out);
+
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+      transform: translateX(16px);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+}
+
+/* Values that depend on runtime variables (fonts from next/font, brand colour). */
+@theme inline {
+  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  --font-heading: var(--heading-font, var(--font-serif));
+  --color-brand: var(--brand, #2447d6);
+  --color-brand-hover: var(--brand-hover, #1c39b0);
+  --color-brand-fg: var(--brand-fg, #ffffff);
+  --color-brand-link: var(--brand-link, #2447d6);
+}
+
+@layer base {
+  html {
+    color: var(--color-ink);
+    background: var(--color-stone);
+    font-family: var(--font-sans);
+    font-size: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-size: var(--text-14);
+    line-height: var(--text-14--line-height);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-cobalt);
+    outline-offset: 2px;
+  }
+
+  [data-focus-inset]:focus-visible {
+    outline-offset: -2px;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-ink-subtle);
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Reading style for rich text: job descriptions, company presentation, notes. */
+@layer components {
+  .rich-text {
+    font-size: var(--text-16);
+    line-height: var(--text-16--line-height);
+    color: var(--color-ink);
+    overflow-wrap: anywhere;
+  }
+  .rich-text > * + * {
+    margin-top: 0.75rem;
+  }
+  .rich-text h2 {
+    font-size: var(--text-20);
+    line-height: var(--text-20--line-height);
+    font-weight: 600;
+    margin-top: 2rem;
+  }
+  .rich-text h3 {
+    font-size: var(--text-16);
+    line-height: var(--text-16--line-height);
+    font-weight: 600;
+    margin-top: 1.5rem;
+  }
+  .rich-text h2 + *,
+  .rich-text h3 + * {
+    margin-top: 0.5rem;
+  }
+  .rich-text ul,
+  .rich-text ol {
+    padding-left: 1.25rem;
+  }
+  .rich-text ul {
+    list-style: disc;
+  }
+  .rich-text ol {
+    list-style: decimal;
+  }
+  .rich-text li + li {
+    margin-top: 0.25rem;
+  }
+  .rich-text li > p {
+    margin: 0;
+  }
+  .rich-text a {
+    color: var(--color-brand-link);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .rich-text strong {
+    font-weight: 600;
+  }
+  .rich-text blockquote {
+    border-left: 2px solid var(--color-line);
+    padding-left: 1rem;
+    color: var(--color-ink-muted);
+  }
+  .rich-text-compact {
+    font-size: var(--text-14);
+    line-height: var(--text-14--line-height);
+  }
+  .rich-text-compact > * + * {
+    margin-top: 0.5rem;
+  }
+  .rich-text-compact h2 {
+    font-size: var(--text-16);
+    margin-top: 1rem;
+  }
+}
+
+/* TipTap editor surface. */
+.tiptap {
+  outline: none;
+  min-height: 12rem;
+}
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--color-ink-subtle);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}

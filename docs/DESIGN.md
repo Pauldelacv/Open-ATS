@@ -129,7 +129,9 @@ state changes stay instant and visible.
 
 Every interactive element shows `outline: 2px solid cobalt; outline-offset: 2px` on
 `:focus-visible`. Inside dense lists the outline is inset (`outline-offset: -2px`). Focus is
-never removed without a replacement.
+never removed without a replacement. Form controls are the one variation: their border turns
+cobalt and a 1 px cobalt outline with no offset doubles it, so the focused field reads as a
+2 px cobalt frame (danger when the field is invalid).
 
 ---
 
@@ -181,7 +183,7 @@ Each component is shown in every state on `/design`.
 | **Skeleton** | Stone-strong blocks with the exact shape of the content. No shimmer. |
 | **Empty state** | One sentence of what is missing, one sentence of why it matters, one primary action. No illustration. |
 | **Kbd** | Paper, `line` border, 12 px, used for shortcut hints. |
-| **Rating** | Five 20 px circles; filled ink for the rating; keys 1–5. Averages show as « 3,8 sur 5 » in tabular figures. |
+| **Rating** | Five 24 px numbered circles (the digits teach the 1–5 shortcuts); filled ink up to the rating. Averages show as « 3,8 sur 5 » in tabular figures. |
 | **Dropzone** | Dashed `line-strong` border, paper, explains accepted types and size; drag-over turns the border cobalt. Selected file shows name, size, « Remplacer » and « Retirer ». |
 | **Rich text** | TipTap with bold, italic, headings (2 levels), lists, links. Rendered with a reading style: 16 px, 24 px line height, 680 px max. |
 | **List row** | 40 px min height, 1 px line between rows, hover `stone` background, selected `cobalt-tint`. |
