@@ -85,7 +85,8 @@ export class SlugTakenError extends Error {
 }
 
 export async function updateOrganization(ctx: Ctx, input: OrganizationUpdate) {
-  assertCan(ctx.role, input.retentionMonths !== undefined ? "settings:privacy" : "settings:organization");
+  const privacyOnly = Object.keys(input).every((k) => k === "retentionMonths" || k === "privacyContactEmail");
+  assertCan(ctx.role, privacyOnly ? "settings:privacy" : "settings:organization");
   return db.transaction(async (tx) => {
     if (input.slug !== undefined) {
       const slug = slugify(input.slug, 40);

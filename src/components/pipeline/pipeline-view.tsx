@@ -69,7 +69,17 @@ export function PipelineView({
   companyName: string;
   recruiterName: string;
   publicUrl: string;
-  permissions: { move: boolean; reject: boolean; email: boolean; tag: boolean; create: boolean; note: boolean; evaluate: boolean };
+  permissions: {
+    move: boolean;
+    reject: boolean;
+    email: boolean;
+    tag: boolean;
+    create: boolean;
+    note: boolean;
+    evaluate: boolean;
+    export: boolean;
+    delete: boolean;
+  };
   initialOpenId: string | null;
   meId: string;
 }) {
@@ -555,6 +565,17 @@ export function PipelineView({
           recruiterName={recruiterName}
           permissions={permissions}
           meId={meId}
+          onDeleted={(candidateId) => {
+            const removed = [...cards.values()].filter((c) => c.candidateId === candidateId).map((c) => c.id);
+            setColumns((prev) => Object.fromEntries(Object.entries(prev).map(([s, list]) => [s, list.filter((id) => !removed.includes(id))])));
+            setCards((prev) => {
+              const next = new Map(prev);
+              for (const id of removed) next.delete(id);
+              return next;
+            });
+            open(null);
+            router.refresh();
+          }}
         />
       ) : null}
 

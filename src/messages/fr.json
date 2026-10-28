@@ -590,6 +590,32 @@
         "subject": "Saisissez un objet.",
         "body": "Saisissez le message."
       }
+    },
+    "privacy": {
+      "title": "Données personnelles",
+      "description": "Conservation et droits des candidats, conformément au RGPD.",
+      "retention": "Durée de conservation",
+      "retentionLabel": "Conserver les données des candidats pendant",
+      "months": "mois",
+      "retentionHint": "Compté à partir du dernier échange avec le candidat (candidature, changement d'étape, note, email). Ensuite, ses données sont anonymisées automatiquement. 24 mois est la durée recommandée par la CNIL.",
+      "contact": "Contact pour les demandes",
+      "contactLabel": "Adresse email pour les demandes des candidats",
+      "contactHint": "Affichée sur la page de confidentialité du site carrière.",
+      "save": "Enregistrer",
+      "saved": "Paramètres enregistrés",
+      "status": "État",
+      "due": "{count, plural, =0 {Aucun candidat à anonymiser} one {# candidat dépasse la durée de conservation} other {# candidats dépassent la durée de conservation}}",
+      "upcoming": "{count, plural, =0 {Aucune anonymisation prévue dans les 30 prochains jours} one {# candidat sera anonymisé dans les 30 prochains jours} other {# candidats seront anonymisés dans les 30 prochains jours}}",
+      "anonymized": "{count, plural, =0 {Aucun candidat anonymisé} one {# candidat déjà anonymisé} other {# candidats déjà anonymisés}}",
+      "automatic": "L'anonymisation est vérifiée automatiquement toutes les 6 heures.",
+      "runNow": "Anonymiser maintenant",
+      "ran": "{count, plural, =0 {Aucun candidat à anonymiser} one {# candidat anonymisé} other {# candidats anonymisés}}",
+      "rights": "Droits des candidats",
+      "rightsBody": "Depuis la fiche d'un candidat, vous pouvez exporter toutes ses données (fichier ZIP avec ses CV) ou le supprimer définitivement.",
+      "errors": {
+        "months": "Saisissez une durée entre 1 et 120 mois.",
+        "email": "Saisissez une adresse email valide."
+      }
     }
   },
   "pipeline": {
@@ -829,5 +855,63 @@
       "select": "Sélectionner la carte (pipeline)"
     },
     "rated": "Note enregistrée : {value} sur 5"
+  },
+  "gdpr": {
+    "anonymousFirstName": "Candidat",
+    "anonymousLastName": "anonymisé",
+    "export": "Exporter les données",
+    "exported": "Export téléchargé",
+    "delete": "Supprimer le candidat",
+    "deleteTitle": "Supprimer définitivement {name} ?",
+    "deleteBody": "Toutes ses données seront effacées : candidatures, CV, notes, évaluations, emails et historique. Cette action est irréversible.",
+    "deleteConfirmLabel": "Tapez SUPPRIMER pour confirmer",
+    "deleteWord": "SUPPRIMER",
+    "deleted": "Candidat supprimé"
+  },
+  "pool": {
+    "title": "Vivier",
+    "description": "Tous les candidats de l'entreprise, toutes offres confondues.",
+    "search": "Rechercher par nom, email, note ou contenu du CV",
+    "searchLabel": "Rechercher dans le vivier",
+    "tag": "Tag",
+    "allTags": "Tous les tags",
+    "job": "Offre",
+    "allJobs": "Toutes les offres",
+    "status": "Statut",
+    "allStatuses": "Tous les statuts",
+    "statuses": {
+      "active": "En cours",
+      "hired": "Embauchés",
+      "rejected": "Refusés"
+    },
+    "results": "{count, plural, =0 {Aucun candidat} one {# candidat} other {# candidats}}",
+    "inCv": "Dans le CV",
+    "inNote": "Dans une note",
+    "applications": "{count, plural, one {# candidature} other {# candidatures}}",
+    "lastActivity": "Dernière activité {date}",
+    "empty": "Le vivier est vide",
+    "emptyBody": "Il se remplit avec les candidatures reçues sur votre site carrière et les candidats ajoutés à la main.",
+    "noResults": "Aucun candidat ne correspond à « {query} »",
+    "noResultsFilters": "Aucun candidat ne correspond à ces filtres",
+    "noResultsBody": "Vérifiez l'orthographe, essayez un autre mot ou retirez un filtre.",
+    "clear": "Effacer la recherche",
+    "previous": "Page précédente",
+    "next": "Page suivante",
+    "page": "Page {page} sur {total}"
+  },
+  "candidate": {
+    "back": "Vivier",
+    "applications": "Candidatures",
+    "choose": "Candidature affichée"
+  },
+  "inbox": {
+    "title": "Mentions",
+    "description": "Les notes où un collègue vous a mentionné.",
+    "empty": "Aucune mention",
+    "emptyBody": "Quand un collègue écrit @{name} dans une note, elle apparaît ici et vous recevez un email.",
+    "unread": "Non lue",
+    "about": "à propos de {candidate}",
+    "on": "pour {job}",
+    "open": "Ouvrir la fiche"
   }
 }

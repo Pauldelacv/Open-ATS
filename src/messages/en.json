@@ -590,6 +590,32 @@
         "subject": "Enter a subject.",
         "body": "Enter the message."
       }
+    },
+    "privacy": {
+      "title": "Personal data",
+      "description": "Retention and candidate rights, in line with the GDPR.",
+      "retention": "Retention period",
+      "retentionLabel": "Keep candidate data for",
+      "months": "months",
+      "retentionHint": "Counted from the last exchange with the candidate (application, stage change, note, email). After that, their data is anonymised automatically. 24 months is the period recommended by the French data protection authority.",
+      "contact": "Contact for requests",
+      "contactLabel": "Email address for candidate requests",
+      "contactHint": "Shown on the privacy page of the career site.",
+      "save": "Save",
+      "saved": "Settings saved",
+      "status": "Status",
+      "due": "{count, plural, =0 {No candidate to anonymise} one {# candidate is past the retention period} other {# candidates are past the retention period}}",
+      "upcoming": "{count, plural, =0 {No anonymisation planned in the next 30 days} one {# candidate will be anonymised in the next 30 days} other {# candidates will be anonymised in the next 30 days}}",
+      "anonymized": "{count, plural, =0 {No anonymised candidates} one {# candidate already anonymised} other {# candidates already anonymised}}",
+      "automatic": "Anonymisation is checked automatically every 6 hours.",
+      "runNow": "Anonymise now",
+      "ran": "{count, plural, =0 {No candidate to anonymise} one {# candidate anonymised} other {# candidates anonymised}}",
+      "rights": "Candidate rights",
+      "rightsBody": "From a candidate's profile, you can export all their data (ZIP file with their CVs) or delete them permanently.",
+      "errors": {
+        "months": "Enter a period between 1 and 120 months.",
+        "email": "Enter a valid email address."
+      }
     }
   },
   "pipeline": {
@@ -829,5 +855,63 @@
       "select": "Select the card (pipeline)"
     },
     "rated": "Rating saved: {value} out of 5"
+  },
+  "gdpr": {
+    "anonymousFirstName": "Anonymised",
+    "anonymousLastName": "candidate",
+    "export": "Export the data",
+    "exported": "Export downloaded",
+    "delete": "Delete the candidate",
+    "deleteTitle": "Permanently delete {name}?",
+    "deleteBody": "All their data will be erased: applications, CVs, notes, evaluations, emails and history. This cannot be undone.",
+    "deleteConfirmLabel": "Type DELETE to confirm",
+    "deleteWord": "DELETE",
+    "deleted": "Candidate deleted"
+  },
+  "pool": {
+    "title": "Talent pool",
+    "description": "Every candidate of the company, across all jobs.",
+    "search": "Search by name, email, note or CV content",
+    "searchLabel": "Search the talent pool",
+    "tag": "Tag",
+    "allTags": "All tags",
+    "job": "Job",
+    "allJobs": "All jobs",
+    "status": "Status",
+    "allStatuses": "All statuses",
+    "statuses": {
+      "active": "In progress",
+      "hired": "Hired",
+      "rejected": "Rejected"
+    },
+    "results": "{count, plural, =0 {No candidates} one {# candidate} other {# candidates}}",
+    "inCv": "In the CV",
+    "inNote": "In a note",
+    "applications": "{count, plural, one {# application} other {# applications}}",
+    "lastActivity": "Last activity {date}",
+    "empty": "The talent pool is empty",
+    "emptyBody": "It fills up with applications received on your career site and candidates added by hand.",
+    "noResults": "No candidate matches “{query}”",
+    "noResultsFilters": "No candidate matches these filters",
+    "noResultsBody": "Check the spelling, try another word or remove a filter.",
+    "clear": "Clear the search",
+    "previous": "Previous page",
+    "next": "Next page",
+    "page": "Page {page} of {total}"
+  },
+  "candidate": {
+    "back": "Talent pool",
+    "applications": "Applications",
+    "choose": "Application shown"
+  },
+  "inbox": {
+    "title": "Mentions",
+    "description": "Notes in which a colleague mentioned you.",
+    "empty": "No mentions",
+    "emptyBody": "When a colleague writes @{name} in a note, it appears here and you receive an email.",
+    "unread": "Unread",
+    "about": "about {candidate}",
+    "on": "for {job}",
+    "open": "Open the profile"
   }
 }

@@ -12,6 +12,7 @@ import { user, type Role } from "@/lib/db/schema";
 import { LOCALE_COOKIE } from "@/i18n/config";
 import { sanitizeRichText } from "@/lib/sanitize";
 import { deleteTemplate, saveTemplate } from "@/lib/services/emails";
+import { runRetentionForOrganization } from "@/lib/services/gdpr";
 import { SlugTakenError, updateOrganization } from "@/lib/services/organizations";
 import { AlreadyMemberError, changeRole, inviteMember, LastAdminError, removeMember, revokeInvitation } from "@/lib/services/team";
 import { emailSchema, nameSchema, passwordSchema } from "@/lib/validation/auth";
@@ -140,6 +141,32 @@ export async function deleteTemplateAction(id: string): Promise<ActionResult> {
     await deleteTemplate(ctx, id);
     revalidatePath("/settings/emails");
     return ok();
+  } catch (error) {
+    return failFrom(error);
+  }
+}
+
+export async function savePrivacyAction(input: { retentionMonths: number; privacyContactEmail: string }): Promise<ActionResult> {
+  const ctx = await requireContext();
+  const months = z.number().int().min(1).max(120).safeParse(input.retentionMonths);
+  if (!months.success) return fail("form", { retentionMonths: "settings.privacy.errors.months" });
+  const contact = input.privacyContactEmail.trim();
+  if (contact && !emailSchema.safeParse(contact).success) return fail("form", { privacyContactEmail: "settings.privacy.errors.email" });
+  try {
+    await updateOrganization(ctx, { retentionMonths: months.data, privacyContactEmail: contact ? contact.toLowerCase() : null });
+    revalidatePath("/settings/privacy");
+    return ok();
+  } catch (error) {
+    return failFrom(error);
+  }
+}
+
+export async function runRetentionAction(): Promise<ActionResult<{ count: number }>> {
+  const ctx = await requireContext();
+  try {
+    const count = await runRetentionForOrganization(ctx);
+    revalidatePath("/settings/privacy");
+    return ok({ count });
   } catch (error) {
     return failFrom(error);
   }

@@ -67,6 +67,8 @@ export default async function JobPipelinePage({ params, searchParams }: PageProp
           create: can(ctx.role, "candidate:create"),
           note: can(ctx.role, "candidate:note"),
           evaluate: can(ctx.role, "candidate:evaluate"),
+          export: can(ctx.role, "candidate:export"),
+          delete: can(ctx.role, "candidate:delete"),
         }}
       />
     </div>

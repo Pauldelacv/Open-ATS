@@ -1,10 +1,14 @@
 "use client";
 
-import { ChevronDown, ChevronUp, ExternalLink, Keyboard, Mail, MoreHorizontal, Plus, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Download, ExternalLink, Keyboard, Mail, MoreHorizontal, Plus, Trash2, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { addTagAction, moveApplicationsAction, removeTagAction, saveEvaluationAction } from "@/app/(app)/(backoffice)/jobs/[jobId]/actions";
+import { deleteCandidateAction } from "@/app/(app)/(backoffice)/candidates/actions";
+import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import { Field } from "@/components/ui/field";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -29,7 +33,16 @@ import { ShortcutsDialog } from "./shortcuts-dialog";
 type Tab = "application" | "notes" | "evaluations" | "activity";
 let rememberedTab: Tab = "application";
 
-type Permissions = { move: boolean; reject: boolean; email: boolean; tag: boolean; note?: boolean; evaluate?: boolean };
+type Permissions = {
+  move: boolean;
+  reject: boolean;
+  email: boolean;
+  tag: boolean;
+  note?: boolean;
+  evaluate?: boolean;
+  export?: boolean;
+  delete?: boolean;
+};
 
 function isTyping(target: EventTarget | null) {
   const el = target as HTMLElement | null;
@@ -51,7 +64,9 @@ export function CandidatePanel({
   permissions,
   meId,
   mode = "panel",
+  onDeleted,
 }: {
+  onDeleted?: (candidateId: string) => void;
   applicationId: string;
   orderedIds: string[];
   stages: Array<{ id: string; name: string; kind: StageKind }>;
@@ -70,7 +85,12 @@ export function CandidatePanel({
   mode?: "panel" | "page";
 }) {
   const t = useTranslations("panel");
+  const tg = useTranslations("gdpr");
   const tReject = useTranslations("reject");
+  const router = useRouter();
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [confirmWord, setConfirmWord] = useState("");
+  const [deleting, startDelete] = useTransition();
   const tx = loose(useTranslations());
   const locale = useLocale();
   const [detail, setDetail] = useState<ApplicationDetail | null>(null);
@@ -282,12 +302,28 @@ export function CandidatePanel({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link href={`/candidates/${detail.candidate.id}`}>
-                      <ExternalLink aria-hidden="true" />
-                      {t("openProfile")}
-                    </Link>
-                  </DropdownMenuItem>
+                  {mode === "panel" ? (
+                    <DropdownMenuItem asChild>
+                      <Link href={`/candidates/${detail.candidate.id}?a=${applicationId}`}>
+                        <ExternalLink aria-hidden="true" />
+                        {t("openProfile")}
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : null}
+                  {permissions.export ? (
+                    <DropdownMenuItem asChild>
+                      <a href={`/api/candidates/${detail.candidate.id}/export`} download>
+                        <Download aria-hidden="true" />
+                        {tg("export")}
+                      </a>
+                    </DropdownMenuItem>
+                  ) : null}
+                  {permissions.delete ? (
+                    <DropdownMenuItem tone="danger" onSelect={() => setDeleteOpen(true)}>
+                      <Trash2 aria-hidden="true" />
+                      {tg("delete")}
+                    </DropdownMenuItem>
+                  ) : null}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -426,6 +462,48 @@ export function CandidatePanel({
         </div>
       )}
       <ShortcutsDialog open={help} onOpenChange={setHelp} />
+      {detail && permissions.delete ? (
+        <Dialog
+          open={deleteOpen}
+          onOpenChange={(open) => {
+            setDeleteOpen(open);
+            setConfirmWord("");
+          }}
+        >
+          <DialogContent width="sm" title={tg("deleteTitle", { name })} closeLabel={tx("common.close")}>
+            <form
+              className="contents"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (confirmWord.trim().toUpperCase() !== tg("deleteWord")) return;
+                startDelete(async () => {
+                  const result = await deleteCandidateAction(detail.candidate.id);
+                  if (!result.ok) return void toast({ message: tx(result.error), tone: "danger" });
+                  toast(tg("deleted"));
+                  setDeleteOpen(false);
+                  if (onDeleted) onDeleted(detail.candidate.id);
+                  else router.push("/candidates");
+                });
+              }}
+            >
+              <DialogBody className="flex flex-col gap-4">
+                <p className="text-14">{tg("deleteBody")}</p>
+                <Field label={tg("deleteConfirmLabel")}>
+                  <Input value={confirmWord} onChange={(e) => setConfirmWord(e.target.value)} autoComplete="off" />
+                </Field>
+              </DialogBody>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="ghost">{tx("common.cancel")}</Button>
+                </DialogClose>
+                <Button type="submit" variant="danger" loading={deleting} disabled={confirmWord.trim().toUpperCase() !== tg("deleteWord")}>
+                  {tg("delete")}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      ) : null}
     </aside>
   );
 }
