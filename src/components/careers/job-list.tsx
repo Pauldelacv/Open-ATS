@@ -102,8 +102,9 @@ export function CareersJobList({ orgSlug, jobs }: { orgSlug: string; jobs: Publi
                 </span>
               ) : null}
             </button>
+            {/* The page heading already gives the total; repeat the count only once filtered. */}
             <p className="text-14 text-ink-muted tabular-nums" aria-live="polite">
-              {t("filters.results", { count: visible.length })}
+              {activeCount > 0 ? t("filters.results", { count: visible.length }) : null}
             </p>
           </div>
           <div
