@@ -16,19 +16,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/toast";
 import { deleteJobAction, duplicateJobAction, setJobStatusAction } from "@/app/(app)/(backoffice)/jobs/actions";
+import { StageEditor } from "@/components/pipeline/stage-editor";
 import { loose } from "@/i18n/loose";
-import type { JobStatus } from "@/lib/db/schema";
+import type { JobStatus, StageKind } from "@/lib/db/schema";
 
 export function JobActions({
   job,
   publicUrl,
   canManage,
-  onEditStages,
+  stages,
 }: {
   job: { id: string; title: string; status: JobStatus };
   publicUrl: string;
   canManage: boolean;
-  onEditStages?: () => void;
+  stages?: Array<{ id: string; name: string; kind: StageKind }>;
 }) {
   const t = useTranslations("jobs");
   const tc = useTranslations("common");
@@ -36,6 +37,7 @@ export function JobActions({
   const router = useRouter();
   const [pending, start] = useTransition();
   const [confirm, setConfirm] = useState<"delete" | "archive" | null>(null);
+  const [stagesOpen, setStagesOpen] = useState(false);
 
   const changeStatus = (status: JobStatus, message: string) =>
     start(async () => {
@@ -96,8 +98,8 @@ export function JobActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-60">
-          {onEditStages ? (
-            <DropdownMenuItem onSelect={onEditStages}>
+          {stages ? (
+            <DropdownMenuItem onSelect={() => setStagesOpen(true)}>
               <Layers aria-hidden="true" />
               {t("actions.stages")}
             </DropdownMenuItem>
@@ -142,6 +144,8 @@ export function JobActions({
           ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {stages && stagesOpen ? <StageEditor jobId={job.id} stages={stages} open={stagesOpen} onOpenChange={setStagesOpen} /> : null}
 
       <Dialog open={confirm !== null} onOpenChange={(open) => !open && setConfirm(null)}>
         {confirm ? (

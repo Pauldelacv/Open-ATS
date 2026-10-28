@@ -1,4 +1,4 @@
-import { and, eq, exists, sql, type SQL } from "drizzle-orm";
+import { and, eq, exists, sql, type AnyColumn, type SQL } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { applications, jobMembers, jobs } from "@/lib/db/schema";
 import { NotFoundError } from "@/lib/permissions";
@@ -23,7 +23,7 @@ export function jobAccess(ctx: Ctx): SQL {
 }
 
 /** Condition on `candidates.id`: members only reach candidates of their jobs. */
-export function candidateAccess(ctx: Ctx, candidateIdColumn: SQL | typeof applications.candidateId): SQL | undefined {
+export function candidateAccess(ctx: Ctx, candidateIdColumn: SQL | AnyColumn): SQL | undefined {
   if (ctx.role !== "member") return undefined;
   return exists(
     db

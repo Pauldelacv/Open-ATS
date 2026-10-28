@@ -13,8 +13,9 @@ the screen is wrong.
    a note, a form) sits on white paper. The application chrome around it is stone. Nothing
    else creates hierarchy: no gradients, no tinted cards, no decorative backgrounds.
 2. **One highlighter.** Yellow is reserved for what needs attention *now*: a new candidate,
-   a mention of you, a term found by search. If more than three things on a screen are
-   yellow, something is wrong.
+   a mention of you, a term found by search, and never for decoration. A screen highlights
+   one kind of thing at a time; when many items share it (new cards in a column), each
+   gets only a thin highlighter edge and the word « Nouveau » appears once, in the count.
 3. **Lines, not shadows.** Separation is a 1 px line. Only things that float above the page
    (menus, popovers, dialogs, a card being dragged, toasts) cast a shadow.
 4. **Dense and calm.** The back office is a working tool: 14 px text, 36–40 px rows,
@@ -187,7 +188,7 @@ Each component is shown in every state on `/design`.
 | **Dropzone** | Dashed `line-strong` border, paper, explains accepted types and size; drag-over turns the border cobalt. Selected file shows name, size, « Remplacer » and « Retirer ». |
 | **Rich text** | TipTap with bold, italic, headings (2 levels), lists, links. Rendered with a reading style: 16 px, 24 px line height, 680 px max. |
 | **List row** | 40 px min height, 1 px line between rows, hover `stone` background, selected `cobalt-tint`. |
-| **Kanban card** | Paper, 1 px line, 4 px radius. Name (14, 500), applied date, rating, tags. A new card has a highlighter bar on its left edge and a « Nouveau » mark. While dragged: `shadow-lift`, rotate 0. |
+| **Kanban card** | Paper, 1 px line, 4 px radius. Name (14, 500), applied date, rating (once you have given yours), tags. A new card has a 3 px highlighter edge on the left; the column header counts « 3 nouveaux » once. The selection checkbox shows on hover, on focus and while a selection exists. While dragged: `shadow-lift`, no rotation. |
 | **Command palette** | Dialog at top third, input 16 px, grouped results, ↑ ↓ Enter, Esc. |
 
 ---
@@ -228,7 +229,7 @@ Checked against every screen before it is committed.
 Run on the 1440 px and 390 px screenshots of every screen before it is committed:
 
 1. Is the most important thing on the screen the most visible one?
-2. Is yellow used only for new, mentioned or found items — three times at most?
+2. Is yellow used only for new, mentioned or found items, one kind per screen?
 3. Any shadow on something that does not float? Any card grid of identical boxes?
 4. Any text size, colour or radius outside the tokens?
 5. Does every empty state propose the next action, every error say what to fix?
