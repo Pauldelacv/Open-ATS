@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 /** Compose passes unset variables as empty strings: treat them as absent. */
-const optional = <T extends z.ZodType>(schema: T) => z.preprocess((v) => (v === "" ? undefined : v), schema.optional());
+const optional = <T extends z.ZodType>(schema: T) =>
+  z.preprocess((v) => (v === "" ? undefined : v), schema.optional());
 
 const boolish = z
   .string()
@@ -10,8 +11,14 @@ const boolish = z
 
 const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  DATABASE_URL: z.preprocess((v) => v || undefined, z.string().min(1).default("postgres://openats:openats@localhost:5432/openats")),
-  APP_URL: z.preprocess((v) => (typeof v === "string" ? v.replace(/\/+$/, "") : v) || undefined, z.string().url().default("http://localhost:3000")),
+  DATABASE_URL: z.preprocess(
+    (v) => v || undefined,
+    z.string().min(1).default("postgres://openats:openats@localhost:5432/openats"),
+  ),
+  APP_URL: z.preprocess(
+    (v) => (typeof v === "string" ? v.replace(/\/+$/, "") : v) || undefined,
+    z.string().url().default("http://localhost:3000"),
+  ),
   AUTH_SECRET: optional(z.string().min(1)),
   ALLOW_SIGNUP: boolish,
   SEED_DEMO: boolish,
@@ -30,7 +37,10 @@ const schema = z.object({
   SMTP_USER: optional(z.string()),
   SMTP_PASSWORD: optional(z.string()),
   SMTP_SECURE: boolish,
-  MAIL_FROM: z.preprocess((v) => v || undefined, z.string().default("Open ATS <no-reply@localhost>")),
+  MAIL_FROM: z.preprocess(
+    (v) => v || undefined,
+    z.string().default("Open ATS <no-reply@localhost>"),
+  ),
   RETENTION_JOB: z
     .string()
     .optional()

@@ -28,14 +28,25 @@ export function InviteSignupForm({ token, email }: { token: string; email: strin
   };
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
-      {state && !state.ok && state.error !== "form" ? <Banner tone="danger">{tx(state.error)}</Banner> : null}
+      {state && !state.ok && state.error !== "form" ? (
+        <Banner tone="danger">{tx(state.error)}</Banner>
+      ) : null}
       <Field label={t("auth.invite.email")}>
         <Input value={email} readOnly disabled />
       </Field>
       <Field label={t("auth.invite.name")} error={err("name")}>
-        <Input name="name" autoComplete="name" autoFocus onBlur={(e) => validate("name", e.target.value)} />
+        <Input
+          name="name"
+          autoComplete="name"
+          autoFocus
+          onBlur={(e) => validate("name", e.target.value)}
+        />
       </Field>
-      <Field label={t("auth.invite.password")} hint={t("auth.setup.passwordHint")} error={err("password")}>
+      <Field
+        label={t("auth.invite.password")}
+        hint={t("auth.setup.passwordHint")}
+        error={err("password")}
+      >
         <Input
           name="password"
           type="password"

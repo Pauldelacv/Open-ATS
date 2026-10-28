@@ -12,7 +12,13 @@ import { setupWorkspace } from "./actions";
 
 type FieldName = "name" | "email" | "password" | "company";
 
-export function SetupForm({ accountExists, defaultLocale }: { accountExists: boolean; defaultLocale: string }) {
+export function SetupForm({
+  accountExists,
+  defaultLocale,
+}: {
+  accountExists: boolean;
+  defaultLocale: string;
+}) {
   const t = useTranslations();
   const tx = loose(t);
   const [state, action, pending] = useActionState(setupWorkspace, null);
@@ -25,16 +31,26 @@ export function SetupForm({ accountExists, defaultLocale }: { accountExists: boo
 
   const validate = (name: FieldName, value: string) => {
     const result = setupSchema.shape[name].safeParse(value);
-    setClientErrors((prev) => ({ ...prev, [name]: result.success ? undefined : result.error.issues[0]?.message }));
+    setClientErrors((prev) => ({
+      ...prev,
+      [name]: result.success ? undefined : result.error.issues[0]?.message,
+    }));
   };
 
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
-      {state && !state.ok && state.error !== "form" ? <Banner tone="danger">{tx(state.error)}</Banner> : null}
+      {state && !state.ok && state.error !== "form" ? (
+        <Banner tone="danger">{tx(state.error)}</Banner>
+      ) : null}
       {!accountExists ? (
         <>
           <Field label={t("auth.setup.name")} error={errorFor("name")}>
-            <Input name="name" autoComplete="name" autoFocus onBlur={(e) => validate("name", e.target.value)} />
+            <Input
+              name="name"
+              autoComplete="name"
+              autoFocus
+              onBlur={(e) => validate("name", e.target.value)}
+            />
           </Field>
           <Field label={t("auth.setup.email")} error={errorFor("email")}>
             <Input
@@ -45,7 +61,11 @@ export function SetupForm({ accountExists, defaultLocale }: { accountExists: boo
               onBlur={(e) => e.target.value && validate("email", e.target.value)}
             />
           </Field>
-          <Field label={t("auth.setup.password")} hint={t("auth.setup.passwordHint")} error={errorFor("password")}>
+          <Field
+            label={t("auth.setup.password")}
+            hint={t("auth.setup.passwordHint")}
+            error={errorFor("password")}
+          >
             <Input
               name="password"
               type="password"
@@ -55,8 +75,17 @@ export function SetupForm({ accountExists, defaultLocale }: { accountExists: boo
           </Field>
         </>
       ) : null}
-      <Field label={t("auth.setup.company")} hint={t("auth.setup.companyHint")} error={errorFor("company")}>
-        <Input name="company" autoComplete="organization" autoFocus={accountExists} onBlur={(e) => validate("company", e.target.value)} />
+      <Field
+        label={t("auth.setup.company")}
+        hint={t("auth.setup.companyHint")}
+        error={errorFor("company")}
+      >
+        <Input
+          name="company"
+          autoComplete="organization"
+          autoFocus={accountExists}
+          onBlur={(e) => validate("company", e.target.value)}
+        />
       </Field>
       <Field label={t("auth.setup.language")}>
         <Select name="locale" defaultValue={defaultLocale === "en" ? "en" : "fr"}>

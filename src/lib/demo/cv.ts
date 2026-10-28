@@ -44,10 +44,25 @@ export async function renderCvPdf(cv: CvContent): Promise<Buffer> {
     if (line) lines.push(line);
     return lines;
   };
-  const text = (value: string, opts: { font?: typeof regular; size?: number; color?: typeof INK; x?: number; gap?: number } = {}) => {
+  const text = (
+    value: string,
+    opts: {
+      font?: typeof regular;
+      size?: number;
+      color?: typeof INK;
+      x?: number;
+      gap?: number;
+    } = {},
+  ) => {
     const size = opts.size ?? 10;
     for (const line of wrap(value, opts.font ?? regular, size)) {
-      page.drawText(line, { x: opts.x ?? left, y, size, font: opts.font ?? regular, color: opts.color ?? INK });
+      page.drawText(line, {
+        x: opts.x ?? left,
+        y,
+        size,
+        font: opts.font ?? regular,
+        color: opts.color ?? INK,
+      });
       y -= size + (opts.gap ?? 4);
     }
   };
@@ -55,7 +70,12 @@ export async function renderCvPdf(cv: CvContent): Promise<Buffer> {
     y -= 10;
     page.drawText(title, { x: left, y, size: 11, font: bold, color: INK });
     y -= 6;
-    page.drawLine({ start: { x: left, y }, end: { x: left + width, y }, thickness: 0.75, color: RULE });
+    page.drawLine({
+      start: { x: left, y },
+      end: { x: left + width, y },
+      thickness: 0.75,
+      color: RULE,
+    });
     y -= 16;
   };
 
@@ -68,7 +88,13 @@ export async function renderCvPdf(cv: CvContent): Promise<Buffer> {
   for (const job of cv.experience) {
     page.drawText(job.role, { x: left, y, size: 10.5, font: bold, color: INK });
     const period = job.period;
-    page.drawText(period, { x: left + width - regular.widthOfTextAtSize(period, 9.5), y, size: 9.5, font: regular, color: MUTED });
+    page.drawText(period, {
+      x: left + width - regular.widthOfTextAtSize(period, 9.5),
+      y,
+      size: 9.5,
+      font: regular,
+      color: MUTED,
+    });
     y -= 14;
     text(job.company, { size: 10, color: MUTED, gap: 6 });
     for (const point of job.points) text(`- ${point}`, { size: 9.5, gap: 3 });
@@ -78,7 +104,13 @@ export async function renderCvPdf(cv: CvContent): Promise<Buffer> {
   section(cv.labels.education);
   for (const edu of cv.education) {
     page.drawText(edu.title, { x: left, y, size: 10.5, font: bold, color: INK });
-    page.drawText(edu.period, { x: left + width - regular.widthOfTextAtSize(edu.period, 9.5), y, size: 9.5, font: regular, color: MUTED });
+    page.drawText(edu.period, {
+      x: left + width - regular.widthOfTextAtSize(edu.period, 9.5),
+      y,
+      size: 9.5,
+      font: regular,
+      color: MUTED,
+    });
     y -= 14;
     text(edu.school, { size: 10, color: MUTED, gap: 10 });
   }

@@ -47,7 +47,13 @@ function prng(seed: number) {
 type StageKey = "new" | "screening" | "interview" | "offer" | "hired" | "rejected";
 
 /** Who applies where, and how far they got. Indexes refer to demoPeople. */
-const plan: Array<{ person: number; job: string; stage: StageKey; daysAgo: number; viewed?: boolean }> = [
+const plan: Array<{
+  person: number;
+  job: string;
+  stage: StageKey;
+  daysAgo: number;
+  viewed?: boolean;
+}> = [
   // Développeur full-stack — 12
   { person: 0, job: "dev", stage: "interview", daysAgo: 16, viewed: true },
   { person: 1, job: "dev", stage: "offer", daysAgo: 17, viewed: true },
@@ -99,16 +105,46 @@ const plan: Array<{ person: number; job: string; stage: StageKey; daysAgo: numbe
   { person: 37, job: "design", stage: "new", daysAgo: 6, viewed: true },
 ];
 
-const rejectionReasonsByStage = ["profile_mismatch", "experience", "position_filled", "salary"] as const;
+const rejectionReasonsByStage = [
+  "profile_mismatch",
+  "experience",
+  "position_filled",
+  "salary",
+] as const;
 
-const noteTexts: Array<{ author: "recruiter" | "member"; text: string; mention?: "admin" | "recruiter" | "member" }> = [
-  { author: "recruiter", text: "Premier appel très positif. Disponible sous un mois, prétentions dans la fourchette.", mention: "admin" },
-  { author: "member", text: "Bon niveau technique sur l'exercice. À creuser : expérience de la mise en production." },
+const noteTexts: Array<{
+  author: "recruiter" | "member";
+  text: string;
+  mention?: "admin" | "recruiter" | "member";
+}> = [
+  {
+    author: "recruiter",
+    text: "Premier appel très positif. Disponible sous un mois, prétentions dans la fourchette.",
+    mention: "admin",
+  },
+  {
+    author: "member",
+    text: "Bon niveau technique sur l'exercice. À creuser : expérience de la mise en production.",
+  },
   { author: "recruiter", text: "Relancé par email, pas de réponse pour l'instant." },
-  { author: "member", text: "Portfolio très soigné, beau travail sur les assemblages. Je propose un essai à l'atelier.", mention: "recruiter" },
-  { author: "recruiter", text: "A déjà travaillé avec deux de nos clients hôteliers. Peut-on lui proposer un entretien cette semaine ?", mention: "admin" },
-  { author: "member", text: "Profil plus junior que ce que nous cherchons, mais très bonne attitude. À garder pour un prochain poste." },
-  { author: "recruiter", text: "Références appelées : retours excellents sur la rigueur et la ponctualité." },
+  {
+    author: "member",
+    text: "Portfolio très soigné, beau travail sur les assemblages. Je propose un essai à l'atelier.",
+    mention: "recruiter",
+  },
+  {
+    author: "recruiter",
+    text: "A déjà travaillé avec deux de nos clients hôteliers. Peut-on lui proposer un entretien cette semaine ?",
+    mention: "admin",
+  },
+  {
+    author: "member",
+    text: "Profil plus junior que ce que nous cherchons, mais très bonne attitude. À garder pour un prochain poste.",
+  },
+  {
+    author: "recruiter",
+    text: "Références appelées : retours excellents sur la rigueur et la ponctualité.",
+  },
 ];
 
 async function upsertDemoUsers() {
@@ -121,8 +157,18 @@ async function upsertDemoUsers() {
       continue;
     }
     const id = `demo_${u.key}_${shortId(10)}`;
-    await db.insert(user).values({ id, name: u.name, email: u.email, emailVerified: true, locale: "fr" });
-    await db.insert(account).values({ id: `acc_${shortId(16)}`, accountId: id, providerId: "credential", userId: id, password: hash });
+    await db
+      .insert(user)
+      .values({ id, name: u.name, email: u.email, emailVerified: true, locale: "fr" });
+    await db
+      .insert(account)
+      .values({
+        id: `acc_${shortId(16)}`,
+        accountId: id,
+        providerId: "credential",
+        userId: id,
+        password: hash,
+      });
     ids[u.key] = id;
   }
   return ids;
@@ -133,11 +179,14 @@ function logoSvg(color: string) {
 }
 
 export async function seedDemo(): Promise<{ created: boolean }> {
-  const [existing] = await db.select({ id: organizations.id }).from(organizations).where(eq(organizations.slug, DEMO_ORG_SLUG));
+  const [existing] = await db
+    .select({ id: organizations.id })
+    .from(organizations)
+    .where(eq(organizations.slug, DEMO_ORG_SLUG));
   if (existing) return { created: false };
 
   const random = prng(20261028);
-  const pick = <T,>(list: readonly T[]) => list[Math.floor(random() * list.length)]!;
+  const pick = <T>(list: readonly T[]) => list[Math.floor(random() * list.length)]!;
   const now = Date.now();
   const users = await upsertDemoUsers();
 
@@ -161,19 +210,44 @@ export async function seedDemo(): Promise<{ created: boolean }> {
   await db.update(organizations).set({ logoKey }).where(eq(organizations.id, orgId));
 
   for (const u of demoUsers) {
-    await db.insert(memberships).values({ organizationId: orgId, userId: users[u.key]!, role: u.role }).onConflictDoNothing();
+    await db
+      .insert(memberships)
+      .values({ organizationId: orgId, userId: users[u.key]!, role: u.role })
+      .onConflictDoNothing();
   }
-  const templates = await db.insert(emailTemplates).values(defaultEmailTemplates(orgId, "fr")).returning();
+  const templates = await db
+    .insert(emailTemplates)
+    .values(defaultEmailTemplates(orgId, "fr"))
+    .returning();
   const confirmation = templates.find((t) => t.kind === "confirmation")!;
   const rejection = templates.find((t) => t.kind === "rejection")!;
   const interview = templates.find((t) => t.kind === "interview")!;
 
-  const tagRows = await db.insert(tags).values(demoTags.map((name) => ({ organizationId: orgId, name }))).returning();
+  const tagRows = await db
+    .insert(tags)
+    .values(demoTags.map((name) => ({ organizationId: orgId, name })))
+    .returning();
 
   // Jobs, stages and questions.
-  const jobInfo = new Map<string, { id: string; title: string; stages: Record<StageKey, string>; questions: Array<{ id: string; label: string; type: ApplicationAnswer["type"]; options: string[] }> }>();
+  const jobInfo = new Map<
+    string,
+    {
+      id: string;
+      title: string;
+      stages: Record<StageKey, string>;
+      questions: Array<{
+        id: string;
+        label: string;
+        type: ApplicationAnswer["type"];
+        options: string[];
+      }>;
+    }
+  >();
   for (const job of demoJobs) {
-    const published = job.key === "logistics" ? new Date(now - 720 * DAY) : new Date(now - job.publishedDaysAgo * DAY);
+    const published =
+      job.key === "logistics"
+        ? new Date(now - 720 * DAY)
+        : new Date(now - job.publishedDaysAgo * DAY);
     const status = job.key === "logistics" ? "archived" : job.status;
     const [row] = await db
       .insert(jobs)
@@ -199,19 +273,55 @@ export async function seedDemo(): Promise<{ created: boolean }> {
       .returning();
     const stageRows = await db
       .insert(pipelineStages)
-      .values(defaultStages("fr").map((s, position) => ({ ...s, position, organizationId: orgId, jobId: row!.id })))
+      .values(
+        defaultStages("fr").map((s, position) => ({
+          ...s,
+          position,
+          organizationId: orgId,
+          jobId: row!.id,
+        })),
+      )
       .returning();
     const keys: StageKey[] = ["new", "screening", "interview", "offer", "hired", "rejected"];
-    const stages = Object.fromEntries(stageRows.map((s, i) => [keys[i]!, s.id])) as Record<StageKey, string>;
+    const stages = Object.fromEntries(stageRows.map((s, i) => [keys[i]!, s.id])) as Record<
+      StageKey,
+      string
+    >;
     const questionRows = job.questions.length
       ? await db
           .insert(jobQuestions)
-          .values(job.questions.map((q, position) => ({ organizationId: orgId, jobId: row!.id, label: q.label, type: q.type, options: q.options ?? [], required: q.required, position })))
+          .values(
+            job.questions.map((q, position) => ({
+              organizationId: orgId,
+              jobId: row!.id,
+              label: q.label,
+              type: q.type,
+              options: q.options ?? [],
+              required: q.required,
+              position,
+            })),
+          )
           .returning()
       : [];
-    for (const key of job.members) await db.insert(jobMembers).values({ organizationId: orgId, jobId: row!.id, userId: users[key]! });
-    await db.insert(jobMembers).values({ organizationId: orgId, jobId: row!.id, userId: users.recruiter! }).onConflictDoNothing();
-    jobInfo.set(job.key, { id: row!.id, title: job.title, stages, questions: questionRows.map((q) => ({ id: q.id, label: q.label, type: q.type, options: q.options })) });
+    for (const key of job.members)
+      await db
+        .insert(jobMembers)
+        .values({ organizationId: orgId, jobId: row!.id, userId: users[key]! });
+    await db
+      .insert(jobMembers)
+      .values({ organizationId: orgId, jobId: row!.id, userId: users.recruiter! })
+      .onConflictDoNothing();
+    jobInfo.set(job.key, {
+      id: row!.id,
+      title: job.title,
+      stages,
+      questions: questionRows.map((q) => ({
+        id: q.id,
+        label: q.label,
+        type: q.type,
+        options: q.options,
+      })),
+    });
   }
 
   const candidateIds = new Map<number, string>();
@@ -223,7 +333,9 @@ export async function seedDemo(): Promise<{ created: boolean }> {
     const [firstName, lastName, city] = demoPeople[entry.person]!;
     const email = `${slugify(firstName)}.${slugify(lastName)}@example.com`;
     const appliedAt = new Date(now - entry.daysAgo * DAY - Math.floor(random() * 8) * 3600 * 1000);
-    const stageMovedAt = new Date(Math.min(now, appliedAt.getTime() + (1 + Math.floor(random() * 4)) * DAY));
+    const stageMovedAt = new Date(
+      Math.min(now, appliedAt.getTime() + (1 + Math.floor(random() * 4)) * DAY),
+    );
     const lastActivity = entry.stage === "new" ? appliedAt : stageMovedAt;
 
     let candidateId = candidateIds.get(entry.person);
@@ -236,7 +348,12 @@ export async function seedDemo(): Promise<{ created: boolean }> {
           lastName,
           email,
           phone: `06 ${Math.floor(10 + random() * 89)} ${Math.floor(10 + random() * 89)} ${Math.floor(10 + random() * 89)} ${Math.floor(10 + random() * 89)}`,
-          linkUrl: entry.job === "design" ? `https://portfolio.example/${slugify(firstName)}-${slugify(lastName)}` : random() > 0.5 ? `https://www.linkedin.com/in/${slugify(firstName)}-${slugify(lastName)}` : null,
+          linkUrl:
+            entry.job === "design"
+              ? `https://portfolio.example/${slugify(firstName)}-${slugify(lastName)}`
+              : random() > 0.5
+                ? `https://www.linkedin.com/in/${slugify(firstName)}-${slugify(lastName)}`
+                : null,
           lastActivityAt: lastActivity,
           createdAt: appliedAt,
         })
@@ -244,7 +361,10 @@ export async function seedDemo(): Promise<{ created: boolean }> {
       candidateId = c!.id;
       candidateIds.set(entry.person, candidateId);
     } else if (lastActivity > appliedAt) {
-      await db.update(candidates).set({ lastActivityAt: lastActivity }).where(eq(candidates.id, candidateId));
+      await db
+        .update(candidates)
+        .set({ lastActivityAt: lastActivity })
+        .where(eq(candidates.id, candidateId));
     }
 
     const answers: ApplicationAnswer[] = job.questions.map((q) => ({
@@ -261,7 +381,10 @@ export async function seedDemo(): Promise<{ created: boolean }> {
             : q.label.includes("portfolio")
               ? `https://portfolio.example/${slugify(firstName)}`
               : q.label.includes("rythme")
-                ? pick(["Trois semaines en entreprise, une semaine à l'école", "Deux jours à l'école, trois jours en entreprise"])
+                ? pick([
+                    "Trois semaines en entreprise, une semaine à l'école",
+                    "Deux jours à l'école, trois jours en entreprise",
+                  ])
                 : pick(["Mobilier de bureau", "Hôtellerie", "Décoration", "Équipement de cuisine"]),
     }));
     const rejected = entry.stage === "rejected";
@@ -315,21 +438,67 @@ export async function seedDemo(): Promise<{ created: boolean }> {
         "Je termine ma formation et je cherche une entreprise où apprendre auprès de personnes expérimentées.",
       ]),
       experience: [
-        { role: pick(profile.headlines), company: pick(profile.companies), period: `${year - 3} – ${year}`, points: [pick(profile.points), pick(profile.points)] },
-        { role: pick(profile.headlines), company: pick(profile.companies), period: `${year - 6} – ${year - 3}`, points: [pick(profile.points)] },
+        {
+          role: pick(profile.headlines),
+          company: pick(profile.companies),
+          period: `${year - 3} – ${year}`,
+          points: [pick(profile.points), pick(profile.points)],
+        },
+        {
+          role: pick(profile.headlines),
+          company: pick(profile.companies),
+          period: `${year - 6} – ${year - 3}`,
+          points: [pick(profile.points)],
+        },
       ],
-      education: [{ title: pick(profile.schools), school: city, period: `${year - 9} – ${year - 7}` }],
-      skills: [...new Set([pick(profile.skills), pick(profile.skills), pick(profile.skills), pick(profile.skills)])],
-      languages: random() > 0.5 ? ["Français", "Anglais courant"] : ["Français", "Anglais professionnel", "Espagnol"],
-      labels: { experience: "Expérience", education: "Formation", skills: "Compétences", languages: "Langues" },
+      education: [
+        { title: pick(profile.schools), school: city, period: `${year - 9} – ${year - 7}` },
+      ],
+      skills: [
+        ...new Set([
+          pick(profile.skills),
+          pick(profile.skills),
+          pick(profile.skills),
+          pick(profile.skills),
+        ]),
+      ],
+      languages:
+        random() > 0.5
+          ? ["Français", "Anglais courant"]
+          : ["Français", "Anglais professionnel", "Espagnol"],
+      labels: {
+        experience: "Expérience",
+        education: "Formation",
+        skills: "Compétences",
+        languages: "Langues",
+      },
     });
-    await storeCv(orgId, candidateId, applicationId, { name: `CV-${firstName}-${lastName}.pdf`, type: "application/pdf", size: pdf.length, data: pdf });
+    await storeCv(orgId, candidateId, applicationId, {
+      name: `CV-${firstName}-${lastName}.pdf`,
+      type: "application/pdf",
+      size: pdf.length,
+      data: pdf,
+    });
 
     // History
     const history: Array<typeof activities.$inferInsert> = [
-      { organizationId: orgId, candidateId, applicationId, jobId: job.id, type: "applied", data: {}, createdAt: appliedAt },
+      {
+        organizationId: orgId,
+        candidateId,
+        applicationId,
+        jobId: job.id,
+        type: "applied",
+        data: {},
+        createdAt: appliedAt,
+      },
     ];
-    const values = { firstName, lastName, job: job.title, company: demoCompany.name, recruiter: "Hugo Marchand" };
+    const values = {
+      firstName,
+      lastName,
+      job: job.title,
+      company: demoCompany.name,
+      recruiter: "Hugo Marchand",
+    };
     await db.insert(emailMessages).values({
       organizationId: orgId,
       candidateId,
@@ -341,9 +510,27 @@ export async function seedDemo(): Promise<{ created: boolean }> {
       status: "logged",
       createdAt: new Date(appliedAt.getTime() + 60_000),
     });
-    history.push({ organizationId: orgId, candidateId, applicationId, jobId: job.id, type: "email_sent", data: { subject: renderTemplate(confirmation.subject, values), status: "logged", automatic: true }, createdAt: new Date(appliedAt.getTime() + 60_000) });
+    history.push({
+      organizationId: orgId,
+      candidateId,
+      applicationId,
+      jobId: job.id,
+      type: "email_sent",
+      data: {
+        subject: renderTemplate(confirmation.subject, values),
+        status: "logged",
+        automatic: true,
+      },
+      createdAt: new Date(appliedAt.getTime() + 60_000),
+    });
     if (entry.stage !== "new") {
-      const to = { screening: "Présélection", interview: "Entretien", offer: "Offre", hired: "Embauché", rejected: "Refusé" }[entry.stage];
+      const to = {
+        screening: "Présélection",
+        interview: "Entretien",
+        offer: "Offre",
+        hired: "Embauché",
+        rejected: "Refusé",
+      }[entry.stage];
       history.push({
         organizationId: orgId,
         candidateId,
@@ -368,13 +555,27 @@ export async function seedDemo(): Promise<{ created: boolean }> {
         sentById: users.recruiter,
         createdAt: stageMovedAt,
       });
-      history.push({ organizationId: orgId, candidateId, applicationId, jobId: job.id, actorId: users.recruiter, type: "email_sent", data: { subject: renderTemplate(interview.subject, values), status: "logged" }, createdAt: stageMovedAt });
+      history.push({
+        organizationId: orgId,
+        candidateId,
+        applicationId,
+        jobId: job.id,
+        actorId: users.recruiter,
+        type: "email_sent",
+        data: { subject: renderTemplate(interview.subject, values), status: "logged" },
+        createdAt: stageMovedAt,
+      });
       // Evaluations: the recruiter and the hiring manager have given theirs; the demo admin not always.
       const raters: string[] = ["recruiter"];
-      if (jobInfo.get(entry.job) && demoJobs.find((j) => j.key === entry.job)?.members.includes("member")) raters.push("member");
+      if (
+        jobInfo.get(entry.job) &&
+        demoJobs.find((j) => j.key === entry.job)?.members.includes("member")
+      )
+        raters.push("member");
       if (entry.person % 2 === 0) raters.push("admin");
       for (const rater of raters) {
-        const rating = entry.stage === "interview" ? 3 + Math.floor(random() * 2) : 4 + Math.floor(random() * 2);
+        const rating =
+          entry.stage === "interview" ? 3 + Math.floor(random() * 2) : 4 + Math.floor(random() * 2);
         await db.insert(evaluations).values({
           organizationId: orgId,
           applicationId,
@@ -389,7 +590,16 @@ export async function seedDemo(): Promise<{ created: boolean }> {
           createdAt: new Date(stageMovedAt.getTime() + 3600_000),
           updatedAt: new Date(stageMovedAt.getTime() + 3600_000),
         });
-        history.push({ organizationId: orgId, candidateId, applicationId, jobId: job.id, actorId: users[rater], type: "evaluated", data: {}, createdAt: new Date(stageMovedAt.getTime() + 3600_000) });
+        history.push({
+          organizationId: orgId,
+          candidateId,
+          applicationId,
+          jobId: job.id,
+          actorId: users[rater],
+          type: "evaluated",
+          data: {},
+          createdAt: new Date(stageMovedAt.getTime() + 3600_000),
+        });
       }
     }
     if (rejected) {
@@ -414,18 +624,49 @@ export async function seedDemo(): Promise<{ created: boolean }> {
       const noteAt = new Date(stageMovedAt.getTime() + 2 * 3600_000);
       const [note] = await db
         .insert(notes)
-        .values({ organizationId: orgId, candidateId, applicationId, authorId: users[n.author], body, mentionedUserIds: n.mention ? [users[n.mention]!] : [], createdAt: noteAt, updatedAt: noteAt })
+        .values({
+          organizationId: orgId,
+          candidateId,
+          applicationId,
+          authorId: users[n.author],
+          body,
+          mentionedUserIds: n.mention ? [users[n.mention]!] : [],
+          createdAt: noteAt,
+          updatedAt: noteAt,
+        })
         .returning();
-      history.push({ organizationId: orgId, candidateId, applicationId, jobId: job.id, actorId: users[n.author], type: "note_added", data: {}, createdAt: noteAt });
+      history.push({
+        organizationId: orgId,
+        candidateId,
+        applicationId,
+        jobId: job.id,
+        actorId: users[n.author],
+        type: "note_added",
+        data: {},
+        createdAt: noteAt,
+      });
       if (n.mention) {
-        await db.insert(notifications).values({ organizationId: orgId, userId: users[n.mention]!, actorId: users[n.author], noteId: note!.id, candidateId, applicationId, createdAt: noteAt });
+        await db
+          .insert(notifications)
+          .values({
+            organizationId: orgId,
+            userId: users[n.mention]!,
+            actorId: users[n.author],
+            noteId: note!.id,
+            candidateId,
+            applicationId,
+            createdAt: noteAt,
+          });
       }
     }
 
     // Tags
     if (random() > 0.55) {
       const tag = pick(tagRows);
-      await db.insert(candidateTags).values({ organizationId: orgId, candidateId, tagId: tag.id }).onConflictDoNothing();
+      await db
+        .insert(candidateTags)
+        .values({ organizationId: orgId, candidateId, tagId: tag.id })
+        .onConflictDoNothing();
     }
 
     await db.insert(activities).values(history);
@@ -433,7 +674,11 @@ export async function seedDemo(): Promise<{ created: boolean }> {
 
   // The archived job's candidate is close to the end of the 24-month retention.
   const old = candidateIds.get(39);
-  if (old) await db.update(candidates).set({ lastActivityAt: new Date(now - 715 * DAY) }).where(eq(candidates.id, old));
+  if (old)
+    await db
+      .update(candidates)
+      .set({ lastActivityAt: new Date(now - 715 * DAY) })
+      .where(eq(candidates.id, old));
 
   for (const id of candidateIds.values()) await refreshSearchText(db, id);
   return { created: true };

@@ -27,7 +27,9 @@ export function LoginForm({ next, initialEmail, magicLinkError, smtpConfigured, 
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(magicLinkError ? "auth.login.magicLinkError" : null);
+  const [formError, setFormError] = useState<string | null>(
+    magicLinkError ? "auth.login.magicLinkError" : null,
+  );
   const [pending, setPending] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
 
@@ -47,7 +49,9 @@ export function LoginForm({ next, initialEmail, magicLinkError, smtpConfigured, 
       const { error } = await authClient.signIn.email({ email: valid, password });
       if (error) {
         setPending(false);
-        setFormError(error.status === 429 ? "auth.errors.rateLimited" : "auth.login.invalidCredentials");
+        setFormError(
+          error.status === 429 ? "auth.errors.rateLimited" : "auth.login.invalidCredentials",
+        );
         return;
       }
       router.replace(next);
@@ -71,8 +75,12 @@ export function LoginForm({ next, initialEmail, magicLinkError, smtpConfigured, 
   if (sentTo) {
     return (
       <div className="flex flex-col gap-4">
-        <Banner title={t("auth.login.magicLinkSentTitle")}>{t("auth.login.magicLinkSent", { email: sentTo })}</Banner>
-        {!smtpConfigured ? <p className="text-13 text-ink-muted">{t("auth.login.magicLinkNoSmtp")}</p> : null}
+        <Banner title={t("auth.login.magicLinkSentTitle")}>
+          {t("auth.login.magicLinkSent", { email: sentTo })}
+        </Banner>
+        {!smtpConfigured ? (
+          <p className="text-13 text-ink-muted">{t("auth.login.magicLinkNoSmtp")}</p>
+        ) : null}
         <Button variant="link" className="self-start" onClick={() => setSentTo(null)}>
           {t("common.back")}
         </Button>
@@ -129,7 +137,9 @@ export function LoginForm({ next, initialEmail, magicLinkError, smtpConfigured, 
         <div className="mt-2 flex items-start justify-between gap-3 rounded-md border border-line bg-stone px-3 py-2.5">
           <div className="text-13">
             <p className="font-medium text-ink">{t("auth.login.demoTitle")}</p>
-            <p className="mt-0.5 text-ink-muted">{t("auth.login.demoBody", { email: demo.email, password: demo.password })}</p>
+            <p className="mt-0.5 text-ink-muted">
+              {t("auth.login.demoBody", { email: demo.email, password: demo.password })}
+            </p>
           </div>
           <Button
             size="sm"

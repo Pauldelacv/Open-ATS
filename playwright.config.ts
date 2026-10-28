@@ -1,7 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const port = Number(process.env.E2E_PORT ?? 3100);
-const databaseUrl = process.env.E2E_DATABASE_URL ?? process.env.DATABASE_URL ?? "postgres://openats:openats@localhost:5432/openats_e2e";
+const databaseUrl =
+  process.env.E2E_DATABASE_URL ??
+  process.env.DATABASE_URL ??
+  "postgres://openats:openats@localhost:5432/openats_e2e";
 
 export default defineConfig({
   testDir: "tests/e2e",
@@ -15,7 +18,12 @@ export default defineConfig({
     locale: "fr-FR",
     trace: "retain-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } } }],
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
+    },
+  ],
   webServer: {
     command: `node scripts/e2e-reset.mjs && npx next start -p ${port}`,
     url: `http://localhost:${port}/api/health`,

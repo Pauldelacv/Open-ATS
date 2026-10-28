@@ -36,7 +36,9 @@ export const getMemberships = cache(async (userId: string) => {
 });
 
 async function resolveContext(): Promise<
-  { status: "anonymous" } | { status: "no-organization"; user: SessionUser } | { status: "ok"; ctx: Ctx; user: SessionUser }
+  | { status: "anonymous" }
+  | { status: "no-organization"; user: SessionUser }
+  | { status: "ok"; ctx: Ctx; user: SessionUser }
 > {
   const session = await getSession();
   if (!session) return { status: "anonymous" };

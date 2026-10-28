@@ -13,11 +13,17 @@ describe("formatting", () => {
   it("formats salary ranges", () => {
     const labels = { period: "par an", from: "À partir de", upTo: "Jusqu'à" };
     const base = { salaryCurrency: "EUR", salaryPeriod: "year" as const };
-    expect(formatSalary({ ...base, salaryMin: 45000, salaryMax: 55000 }, "fr", labels)).toMatch(/^45\s000\s€ – 55\s000\s€ par an$/u);
-    expect(formatSalary({ ...base, salaryMin: 45000, salaryMax: null }, "fr", labels)).toMatch(/^À partir de 45\s000\s€ par an$/u);
+    expect(formatSalary({ ...base, salaryMin: 45000, salaryMax: 55000 }, "fr", labels)).toMatch(
+      /^45\s000\s€ – 55\s000\s€ par an$/u,
+    );
+    expect(formatSalary({ ...base, salaryMin: 45000, salaryMax: null }, "fr", labels)).toMatch(
+      /^À partir de 45\s000\s€ par an$/u,
+    );
     expect(formatSalary({ ...base, salaryMin: null, salaryMax: null }, "fr", labels)).toBeNull();
   });
   it("computes the retention cutoff in months", () => {
-    expect(retentionCutoff(24, new Date("2026-10-28T00:00:00Z")).toISOString()).toBe("2024-10-28T00:00:00.000Z");
+    expect(retentionCutoff(24, new Date("2026-10-28T00:00:00Z")).toISOString()).toBe(
+      "2024-10-28T00:00:00.000Z",
+    );
   });
 });

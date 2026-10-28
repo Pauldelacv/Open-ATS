@@ -1,7 +1,10 @@
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-type Props = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & { label?: ReactNode; hint?: ReactNode };
+type Props = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
+  label?: ReactNode;
+  hint?: ReactNode;
+};
 
 const box = [
   "peer relative size-4 shrink-0 appearance-none rounded-xs border border-ink bg-paper",
@@ -24,7 +27,14 @@ export const Checkbox = forwardRef<HTMLInputElement, Props>(function Checkbox(
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 hidden size-4 text-paper peer-checked:block"
       >
-        <path d="M4 8.5 6.8 11 12 5.5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M4 8.5 6.8 11 12 5.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
       <svg
         viewBox="0 0 16 16"
@@ -37,7 +47,14 @@ export const Checkbox = forwardRef<HTMLInputElement, Props>(function Checkbox(
   );
   if (!label) return <span className={className}>{control}</span>;
   return (
-    <label htmlFor={id} className={cn("flex items-start gap-2.5 text-14", props.disabled && "text-ink-subtle", className)}>
+    <label
+      htmlFor={id}
+      className={cn(
+        "flex items-start gap-2.5 text-14",
+        props.disabled && "text-ink-subtle",
+        className,
+      )}
+    >
       <span className="mt-0.5">{control}</span>
       <span>
         {label}
@@ -52,7 +69,14 @@ export const Radio = forwardRef<HTMLInputElement, Props>(function Radio(
   ref,
 ) {
   return (
-    <label htmlFor={id} className={cn("flex items-center gap-2.5 text-14", props.disabled && "text-ink-subtle", className)}>
+    <label
+      htmlFor={id}
+      className={cn(
+        "flex items-center gap-2.5 text-14",
+        props.disabled && "text-ink-subtle",
+        className,
+      )}
+    >
       <input
         ref={ref}
         id={id}

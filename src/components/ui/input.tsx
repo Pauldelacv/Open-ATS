@@ -1,4 +1,9 @@
-import { forwardRef, type InputHTMLAttributes, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
+import {
+  forwardRef,
+  type InputHTMLAttributes,
+  type SelectHTMLAttributes,
+  type TextareaHTMLAttributes,
+} from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -50,11 +55,7 @@ export const Select = forwardRef<
 >(function Select({ className, size = "md", children, ...props }, ref) {
   return (
     <div className={cn("relative", className)}>
-      <select
-        ref={ref}
-        className={cn(controlBase, sizes[size], "appearance-none pr-8")}
-        {...props}
-      >
+      <select ref={ref} className={cn(controlBase, sizes[size], "appearance-none pr-8")} {...props}>
         {children}
       </select>
       <ChevronDown

@@ -8,7 +8,12 @@ const employmentType: Record<ContractType, string> = {
   internship: "INTERN",
 };
 
-const unitText: Record<SalaryPeriod, string> = { year: "YEAR", month: "MONTH", day: "DAY", hour: "HOUR" };
+const unitText: Record<SalaryPeriod, string> = {
+  year: "YEAR",
+  month: "MONTH",
+  day: "DAY",
+  hour: "HOUR",
+};
 
 /** schema.org JobPosting for Google for Jobs and other aggregators. */
 export function jobPostingLd(input: {
@@ -27,7 +32,9 @@ export function jobPostingLd(input: {
   id: string;
   organization: { name: string; websiteUrl: string | null; logoUrl: string | null };
 }) {
-  const validThrough = new Date((input.publishedAt ?? input.updatedAt).getTime() + 90 * 24 * 3600 * 1000);
+  const validThrough = new Date(
+    (input.publishedAt ?? input.updatedAt).getTime() + 90 * 24 * 3600 * 1000,
+  );
   const ld: Record<string, unknown> = {
     "@context": "https://schema.org/",
     "@type": "JobPosting",
@@ -47,7 +54,10 @@ export function jobPostingLd(input: {
     url: input.url,
   };
   if (input.location) {
-    ld.jobLocation = { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: input.location } };
+    ld.jobLocation = {
+      "@type": "Place",
+      address: { "@type": "PostalAddress", addressLocality: input.location },
+    };
   }
   if (input.remote === "remote") ld.jobLocationType = "TELECOMMUTE";
   if (input.salaryMin !== null || input.salaryMax !== null) {
@@ -56,7 +66,9 @@ export function jobPostingLd(input: {
       currency: input.salaryCurrency,
       value: {
         "@type": "QuantitativeValue",
-        ...(input.salaryMin !== null && input.salaryMax !== null && input.salaryMin !== input.salaryMax
+        ...(input.salaryMin !== null &&
+        input.salaryMax !== null &&
+        input.salaryMin !== input.salaryMax
           ? { minValue: input.salaryMin, maxValue: input.salaryMax }
           : { value: input.salaryMin ?? input.salaryMax }),
         unitText: unitText[input.salaryPeriod],

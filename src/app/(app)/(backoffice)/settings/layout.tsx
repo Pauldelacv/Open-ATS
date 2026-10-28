@@ -8,10 +8,16 @@ export default async function SettingsLayout({ children }: { children: React.Rea
   const ctx = await requireContext();
   const t = await getTranslations("settings");
   const items = [
-    ...(can(ctx.role, "settings:organization") ? [{ href: "/settings/organization", label: t("nav.organization") }] : []),
+    ...(can(ctx.role, "settings:organization")
+      ? [{ href: "/settings/organization", label: t("nav.organization") }]
+      : []),
     ...(can(ctx.role, "settings:team") ? [{ href: "/settings/team", label: t("nav.team") }] : []),
-    ...(can(ctx.role, "templates:manage") ? [{ href: "/settings/emails", label: t("nav.emails") }] : []),
-    ...(can(ctx.role, "settings:privacy") ? [{ href: "/settings/privacy", label: t("nav.privacy") }] : []),
+    ...(can(ctx.role, "templates:manage")
+      ? [{ href: "/settings/emails", label: t("nav.emails") }]
+      : []),
+    ...(can(ctx.role, "settings:privacy")
+      ? [{ href: "/settings/privacy", label: t("nav.privacy") }]
+      : []),
     { href: "/settings/profile", label: t("nav.profile") },
   ];
   return (

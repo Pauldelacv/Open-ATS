@@ -11,7 +11,15 @@ import { toast } from "@/components/ui/toast";
 import { loose } from "@/i18n/loose";
 import { SettingsSection } from "./section";
 
-export function ProfileForm({ name: initialName, email, locale: initialLocale }: { name: string; email: string; locale: "fr" | "en" }) {
+export function ProfileForm({
+  name: initialName,
+  email,
+  locale: initialLocale,
+}: {
+  name: string;
+  email: string;
+  locale: "fr" | "en";
+}) {
   const t = useTranslations("settings.profile");
   const tx = loose(useTranslations());
   const router = useRouter();
@@ -68,7 +76,10 @@ export function ProfileForm({ name: initialName, email, locale: initialLocale }:
         onSubmit={(e) => {
           e.preventDefault();
           startPassword(async () => {
-            const result = await changePasswordAction({ currentPassword: current, newPassword: next });
+            const result = await changePasswordAction({
+              currentPassword: current,
+              newPassword: next,
+            });
             if (!result.ok) return void setErrors(result.fieldErrors ?? {});
             setErrors({});
             setCurrent("");
@@ -79,10 +90,24 @@ export function ProfileForm({ name: initialName, email, locale: initialLocale }:
       >
         <SettingsSection title={t("password")} description={t("passwordDescription")}>
           <Field label={t("currentPassword")} error={err("currentPassword")}>
-            <Input type="password" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} />
+            <Input
+              type="password"
+              autoComplete="current-password"
+              value={current}
+              onChange={(e) => setCurrent(e.target.value)}
+            />
           </Field>
-          <Field label={t("newPassword")} hint={tx("auth.setup.passwordHint")} error={err("newPassword")}>
-            <Input type="password" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} />
+          <Field
+            label={t("newPassword")}
+            hint={tx("auth.setup.passwordHint")}
+            error={err("newPassword")}
+          >
+            <Input
+              type="password"
+              autoComplete="new-password"
+              value={next}
+              onChange={(e) => setNext(e.target.value)}
+            />
           </Field>
           <div className="flex justify-end">
             <Button type="submit" loading={passwordPending}>

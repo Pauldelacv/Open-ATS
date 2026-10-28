@@ -21,7 +21,10 @@ export default function GlobalNotFound() {
           <p lang="en" className="mt-1 text-14 text-ink-muted">
             This page does not exist.
           </p>
-          <Link href="/" className="mt-6 inline-flex h-8 items-center rounded-sm bg-cobalt px-3 text-14 font-medium text-paper hover:bg-cobalt-hover">
+          <Link
+            href="/"
+            className="mt-6 inline-flex h-8 items-center rounded-sm bg-cobalt px-3 text-14 font-medium text-paper hover:bg-cobalt-hover"
+          >
             Revenir à l&apos;accueil
           </Link>
         </main>

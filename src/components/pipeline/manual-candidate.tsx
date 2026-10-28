@@ -4,7 +4,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Dropzone } from "@/components/ui/dropzone";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -12,12 +18,26 @@ import { toast } from "@/components/ui/toast";
 import { loose } from "@/i18n/loose";
 import { CV_ACCEPT, cvError } from "@/lib/validation/application";
 
-export function ManualCandidateDialog({ jobId, onClose, onAdded }: { jobId: string; onClose: () => void; onAdded: () => void }) {
+export function ManualCandidateDialog({
+  jobId,
+  onClose,
+  onAdded,
+}: {
+  jobId: string;
+  onClose: () => void;
+  onAdded: () => void;
+}) {
   const t = useTranslations("pipeline.manual");
   const ta = useTranslations("careers.apply");
   const tx = loose(useTranslations());
   const locale = useLocale();
-  const [values, setValues] = useState({ firstName: "", lastName: "", email: "", phone: "", linkUrl: "" });
+  const [values, setValues] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    linkUrl: "",
+  });
   const [cv, setCv] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -53,7 +73,11 @@ export function ManualCandidateDialog({ jobId, onClose, onAdded }: { jobId: stri
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent title={t("title")} description={t("description")} closeLabel={tx("common.close")}>
+      <DialogContent
+        title={t("title")}
+        description={t("description")}
+        closeLabel={tx("common.close")}
+      >
         <form
           noValidate
           className="contents"
@@ -66,18 +90,30 @@ export function ManualCandidateDialog({ jobId, onClose, onAdded }: { jobId: stri
             {formError ? <Banner tone="danger">{tx(formError)}</Banner> : null}
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label={ta("firstName")} error={err("firstName")}>
-                <Input autoFocus value={values.firstName} onChange={(e) => set("firstName", e.target.value)} />
+                <Input
+                  autoFocus
+                  value={values.firstName}
+                  onChange={(e) => set("firstName", e.target.value)}
+                />
               </Field>
               <Field label={ta("lastName")} error={err("lastName")}>
                 <Input value={values.lastName} onChange={(e) => set("lastName", e.target.value)} />
               </Field>
             </div>
             <Field label={ta("email")} qualifier={tx("common.optional")} error={err("email")}>
-              <Input type="email" value={values.email} onChange={(e) => set("email", e.target.value)} />
+              <Input
+                type="email"
+                value={values.email}
+                onChange={(e) => set("email", e.target.value)}
+              />
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label={ta("phone")} qualifier={tx("common.optional")}>
-                <Input type="tel" value={values.phone} onChange={(e) => set("phone", e.target.value)} />
+                <Input
+                  type="tel"
+                  value={values.phone}
+                  onChange={(e) => set("phone", e.target.value)}
+                />
               </Field>
               <Field label={ta("link")} qualifier={tx("common.optional")}>
                 <Input value={values.linkUrl} onChange={(e) => set("linkUrl", e.target.value)} />
@@ -85,7 +121,8 @@ export function ManualCandidateDialog({ jobId, onClose, onAdded }: { jobId: stri
             </div>
             <div className="flex flex-col gap-1.5">
               <span className="text-13 font-medium">
-                {ta("cv")} <span className="font-normal text-ink-muted">{tx("common.optional")}</span>
+                {ta("cv")}{" "}
+                <span className="font-normal text-ink-muted">{tx("common.optional")}</span>
               </span>
               <Dropzone
                 file={cv}

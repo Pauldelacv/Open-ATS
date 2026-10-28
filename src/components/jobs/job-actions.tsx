@@ -1,12 +1,29 @@
 "use client";
 
-import { Archive, Copy, ExternalLink, FilePen, Layers, Link2, MoreHorizontal, RotateCcw, Trash2, Undo2 } from "lucide-react";
+import {
+  Archive,
+  Copy,
+  ExternalLink,
+  FilePen,
+  Layers,
+  Link2,
+  MoreHorizontal,
+  RotateCcw,
+  Trash2,
+  Undo2,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +32,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/toast";
-import { deleteJobAction, duplicateJobAction, setJobStatusAction } from "@/app/(app)/(backoffice)/jobs/actions";
+import {
+  deleteJobAction,
+  duplicateJobAction,
+  setJobStatusAction,
+} from "@/app/(app)/(backoffice)/jobs/actions";
 import { StageEditor } from "@/components/pipeline/stage-editor";
 import { loose } from "@/i18n/loose";
 import type { JobStatus, StageKind } from "@/lib/db/schema";
@@ -67,7 +88,11 @@ export function JobActions({
   return (
     <>
       {job.status === "draft" ? (
-        <Button variant="primary" loading={pending} onClick={() => changeStatus("published", t("toasts.published"))}>
+        <Button
+          variant="primary"
+          loading={pending}
+          onClick={() => changeStatus("published", t("toasts.published"))}
+        >
           {t("actions.publish")}
         </Button>
       ) : null}
@@ -145,18 +170,31 @@ export function JobActions({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {stages && stagesOpen ? <StageEditor jobId={job.id} stages={stages} open={stagesOpen} onOpenChange={setStagesOpen} /> : null}
+      {stages && stagesOpen ? (
+        <StageEditor
+          jobId={job.id}
+          stages={stages}
+          open={stagesOpen}
+          onOpenChange={setStagesOpen}
+        />
+      ) : null}
 
       <Dialog open={confirm !== null} onOpenChange={(open) => !open && setConfirm(null)}>
         {confirm ? (
           <DialogContent
             width="sm"
             closeLabel={tc("close")}
-            title={confirm === "delete" ? t("actions.deleteConfirmTitle") : t("actions.archiveConfirmTitle")}
+            title={
+              confirm === "delete"
+                ? t("actions.deleteConfirmTitle")
+                : t("actions.archiveConfirmTitle")
+            }
           >
             <DialogBody>
               <p className="text-14">
-                {confirm === "delete" ? t("actions.deleteConfirmBody", { title: job.title }) : t("actions.archiveConfirmBody")}
+                {confirm === "delete"
+                  ? t("actions.deleteConfirmBody", { title: job.title })
+                  : t("actions.archiveConfirmBody")}
               </p>
             </DialogBody>
             <DialogFooter>
@@ -170,7 +208,8 @@ export function JobActions({
                   onClick={() =>
                     start(async () => {
                       const result = await deleteJobAction(job.id);
-                      if (!result.ok) return void toast({ message: tx(result.error), tone: "danger" });
+                      if (!result.ok)
+                        return void toast({ message: tx(result.error), tone: "danger" });
                       toast(t("toasts.deleted"));
                       router.push("/jobs?status=draft");
                     })
@@ -179,7 +218,11 @@ export function JobActions({
                   {t("actions.delete")}
                 </Button>
               ) : (
-                <Button variant="primary" loading={pending} onClick={() => changeStatus("archived", t("toasts.archived"))}>
+                <Button
+                  variant="primary"
+                  loading={pending}
+                  onClick={() => changeStatus("archived", t("toasts.archived"))}
+                >
                   {t("actions.archive")}
                 </Button>
               )}

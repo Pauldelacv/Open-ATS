@@ -14,7 +14,11 @@ export default async function BackOfficeLayout({ children }: { children: React.R
     <CommandPaletteProvider>
       <div className="flex min-h-dvh flex-col md:flex-row">
         <Sidebar
-          organization={{ name: org.name, slug: org.slug, logoUrl: org.logoKey ? mediaUrl(org.logoKey) : null }}
+          organization={{
+            name: org.name,
+            slug: org.slug,
+            logoUrl: org.logoKey ? mediaUrl(org.logoKey) : null,
+          }}
           user={{ name: ctx.user.name, email: ctx.user.email }}
           unreadMentions={unread}
           canSeeSettings={can(ctx.role, "settings:organization")}

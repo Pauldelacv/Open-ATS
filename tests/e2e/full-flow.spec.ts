@@ -1,11 +1,18 @@
 import { fileURLToPath } from "node:url";
 import { expect, test } from "@playwright/test";
 
-const admin = { name: "Claire Dubois", email: "claire@atelier-e2e.test", password: "mot-de-passe-solide", company: "Atelier E2E" };
+const admin = {
+  name: "Claire Dubois",
+  email: "claire@atelier-e2e.test",
+  password: "mot-de-passe-solide",
+  company: "Atelier E2E",
+};
 const candidate = { firstName: "Marion", lastName: "Lefort", email: "marion.lefort@e2e.test" };
 const jobTitle = "Développeur full-stack (F/H)";
 
-test("create a job, publish it, apply, find the candidate, move and reject with an email", async ({ page }) => {
+test("create a job, publish it, apply, find the candidate, move and reject with an email", async ({
+  page,
+}) => {
   // First-run setup creates the admin account and the company.
   await page.goto("/");
   await expect(page).toHaveURL(/\/setup$/);
@@ -39,7 +46,9 @@ test("create a job, publish it, apply, find the candidate, move and reject with 
   await site.getByLabel("Prénom").fill(candidate.firstName);
   await site.getByLabel("Nom", { exact: true }).fill(candidate.lastName);
   await site.getByLabel("Email").fill(candidate.email);
-  await site.locator("#apply-cv").setInputFiles(fileURLToPath(new URL("./fixtures/cv-marion-lefort.pdf", import.meta.url)));
+  await site
+    .locator("#apply-cv")
+    .setInputFiles(fileURLToPath(new URL("./fixtures/cv-marion-lefort.pdf", import.meta.url)));
   await site.getByRole("checkbox", { name: /J'accepte que mes données/ }).check();
   await site.getByRole("button", { name: "Envoyer ma candidature" }).click();
   await expect(site.getByRole("heading", { name: "Candidature envoyée" })).toBeVisible();
@@ -47,8 +56,12 @@ test("create a job, publish it, apply, find the candidate, move and reject with 
 
   // The candidate is in the first column of the pipeline, marked as new.
   await page.goto(pipelineUrl);
-  const newColumn = page.getByRole("region", { name: "Pipeline de l'offre" }).locator("section", { has: page.getByRole("heading", { name: /^Nouveau/ }) });
-  const card = newColumn.getByRole("button", { name: `Ouvrir la fiche de ${candidate.firstName} ${candidate.lastName}` });
+  const newColumn = page
+    .getByRole("region", { name: "Pipeline de l'offre" })
+    .locator("section", { has: page.getByRole("heading", { name: /^Nouveau/ }) });
+  const card = newColumn.getByRole("button", {
+    name: `Ouvrir la fiche de ${candidate.firstName} ${candidate.lastName}`,
+  });
   await expect(card).toBeVisible();
   await expect(newColumn.getByText("1 nouveau")).toBeVisible();
 
@@ -61,7 +74,9 @@ test("create a job, publish it, apply, find the candidate, move and reject with 
   await expect(announcements).toContainText("au-dessus de la colonne Présélection");
   await page.keyboard.press("Space");
   await expect(page.getByText("Candidat déplacé vers Présélection")).toBeVisible();
-  const screening = page.locator("section", { has: page.getByRole("heading", { name: /^Présélection/ }) });
+  const screening = page.locator("section", {
+    has: page.getByRole("heading", { name: /^Présélection/ }),
+  });
   await expect(screening.getByRole("button", { name: /Marion Lefort/ })).toBeVisible();
 
   // Open the panel: the CV and the application are there.
@@ -74,17 +89,27 @@ test("create a job, publish it, apply, find the candidate, move and reject with 
   await panel.getByRole("button", { name: "Refuser" }).click();
   const dialog = page.getByRole("dialog", { name: "Refuser le candidat" });
   await dialog.getByLabel("Motif").selectOption("position_filled");
-  await expect(dialog.getByRole("checkbox", { name: "Envoyer un email au candidat" })).toBeChecked();
+  await expect(
+    dialog.getByRole("checkbox", { name: "Envoyer un email au candidat" }),
+  ).toBeChecked();
   await expect(dialog.getByText("Bonjour Marion,")).toBeVisible();
   await dialog.getByRole("button", { name: "Refuser le candidat" }).click();
   await expect(page.getByText(/Candidat refusé/).first()).toBeVisible();
   await expect(panel.getByRole("alert").filter({ hasText: "Refusé" })).toBeVisible();
-  await expect(panel.getByLabel("Étape")).toHaveValue(await panel.getByRole("option", { name: "Refusé" }).getAttribute("value") ?? "");
+  await expect(panel.getByLabel("Étape")).toHaveValue(
+    (await panel.getByRole("option", { name: "Refusé" }).getAttribute("value")) ?? "",
+  );
 
   // The rejection email is in the journal (SMTP is not configured in tests).
   await page.goto("/settings/emails");
-  const journal = page.getByRole("region", { name: "Journal des envois" }).or(page.locator("section", { has: page.getByRole("heading", { name: "Journal des envois" }) }));
-  await expect(journal.getByText(`Votre candidature pour le poste ${jobTitle}`).first()).toBeVisible();
+  const journal = page
+    .getByRole("region", { name: "Journal des envois" })
+    .or(
+      page.locator("section", { has: page.getByRole("heading", { name: "Journal des envois" }) }),
+    );
+  await expect(
+    journal.getByText(`Votre candidature pour le poste ${jobTitle}`).first(),
+  ).toBeVisible();
   await expect(journal.getByText(candidate.email).first()).toBeVisible();
   await expect(journal.getByText("Journalisé").first()).toBeVisible();
 });

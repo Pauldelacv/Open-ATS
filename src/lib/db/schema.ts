@@ -148,7 +148,10 @@ export const invitations = pgTable(
     acceptedAt: timestamp({ withTimezone: true }),
     ...timestamps,
   },
-  (t) => [index("invitations_org_idx").on(t.organizationId), index("invitations_email_idx").on(t.email)],
+  (t) => [
+    index("invitations_org_idx").on(t.organizationId),
+    index("invitations_email_idx").on(t.email),
+  ],
 );
 
 /* -------------------------------------------------------------------------- */
@@ -366,7 +369,10 @@ export const notes = pgTable(
     applicationId: uuid().references(() => applications.id, { onDelete: "set null" }),
     authorId: text().references(() => user.id, { onDelete: "set null" }),
     body: text().notNull(),
-    mentionedUserIds: text().array().notNull().default(sql`'{}'::text[]`),
+    mentionedUserIds: text()
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
     ...timestamps,
   },
   (t) => [index("notes_candidate_idx").on(t.candidateId)],
@@ -399,7 +405,10 @@ export const candidateTags = pgTable(
       .references(() => tags.id, { onDelete: "cascade" }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [primaryKey({ columns: [t.candidateId, t.tagId] }), index("candidate_tags_tag_idx").on(t.tagId)],
+  (t) => [
+    primaryKey({ columns: [t.candidateId, t.tagId] }),
+    index("candidate_tags_tag_idx").on(t.tagId),
+  ],
 );
 
 export const evaluations = pgTable(
@@ -553,7 +562,10 @@ export const membershipRelations = relations(memberships, ({ one }) => ({
 }));
 
 export const jobRelations = relations(jobs, ({ one, many }) => ({
-  organization: one(organizations, { fields: [jobs.organizationId], references: [organizations.id] }),
+  organization: one(organizations, {
+    fields: [jobs.organizationId],
+    references: [organizations.id],
+  }),
   questions: many(jobQuestions),
   stages: many(pipelineStages),
   members: many(jobMembers),

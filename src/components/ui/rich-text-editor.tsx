@@ -78,10 +78,16 @@ export function RichTextEditor({
       className={cn(
         "rounded-sm border bg-paper transition-colors duration-[120ms]",
         "focus-within:border-cobalt focus-within:outline-1 focus-within:outline-cobalt",
-        invalid ? "border-danger focus-within:outline-danger" : "border-line-strong hover:border-ink-muted",
+        invalid
+          ? "border-danger focus-within:outline-danger"
+          : "border-line-strong hover:border-ink-muted",
       )}
     >
-      {editor ? <Toolbar editor={editor} labels={labels} /> : <div className="h-9 border-b border-line" />}
+      {editor ? (
+        <Toolbar editor={editor} labels={labels} />
+      ) : (
+        <div className="h-9 border-b border-line" />
+      )}
       <EditorContent editor={editor} />
       {name ? <input type="hidden" name={name} value={value} /> : null}
     </div>
@@ -102,11 +108,23 @@ function Toolbar({ editor, labels }: { editor: Editor; labels: RichTextLabels })
     }),
   });
   return (
-    <div role="toolbar" aria-label={labels.toolbar} className="flex h-9 items-center gap-0.5 border-b border-line px-1">
-      <ToolButton label={labels.bold} active={state.bold} onClick={() => editor.chain().focus().toggleBold().run()}>
+    <div
+      role="toolbar"
+      aria-label={labels.toolbar}
+      className="flex h-9 items-center gap-0.5 border-b border-line px-1"
+    >
+      <ToolButton
+        label={labels.bold}
+        active={state.bold}
+        onClick={() => editor.chain().focus().toggleBold().run()}
+      >
         <Bold />
       </ToolButton>
-      <ToolButton label={labels.italic} active={state.italic} onClick={() => editor.chain().focus().toggleItalic().run()}>
+      <ToolButton
+        label={labels.italic}
+        active={state.italic}
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+      >
         <Italic />
       </ToolButton>
       <span className="mx-1 h-4 w-px bg-line" aria-hidden="true" />
@@ -174,7 +192,15 @@ function ToolButton({
   );
 }
 
-function LinkButton({ editor, labels, active }: { editor: Editor; labels: RichTextLabels; active: boolean }) {
+function LinkButton({
+  editor,
+  labels,
+  active,
+}: {
+  editor: Editor;
+  labels: RichTextLabels;
+  active: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
   return (

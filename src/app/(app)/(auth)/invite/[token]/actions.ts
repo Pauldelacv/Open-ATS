@@ -10,10 +10,19 @@ import { acceptInvitation, findInvitation, InvitationError } from "@/lib/service
 import { inviteSignupSchema } from "@/lib/validation/auth";
 
 async function setOrg(orgId: string) {
-  (await cookies()).set(ORG_COOKIE, orgId, { path: "/", httpOnly: true, sameSite: "lax", maxAge: 60 * 60 * 24 * 365 });
+  (await cookies()).set(ORG_COOKIE, orgId, {
+    path: "/",
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 365,
+  });
 }
 
-export async function joinWithInvitation(token: string, _prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function joinWithInvitation(
+  token: string,
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const parsed = inviteSignupSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return fail("form", fieldErrorsFrom(parsed.error.issues));
   const invitation = await findInvitation(token);
@@ -26,7 +35,8 @@ export async function joinWithInvitation(token: string, _prev: ActionResult | nu
     });
     account = { id: result.user.id, email: result.user.email };
   } catch (error) {
-    if (error instanceof APIError && error.body?.code === "USER_ALREADY_EXISTS") return fail("auth.errors.userExists");
+    if (error instanceof APIError && error.body?.code === "USER_ALREADY_EXISTS")
+      return fail("auth.errors.userExists");
     console.error(error);
     return fail("common.unknownError");
   }
@@ -42,7 +52,8 @@ export async function acceptInvitationAction(token: string): Promise<ActionResul
     const orgId = await acceptInvitation(token, { id: session.user.id, email: session.user.email });
     await setOrg(orgId);
   } catch (error) {
-    if (error instanceof InvitationError) return fail(error.reason === "invalid" ? "auth.invite.invalid" : "auth.invite.mismatch");
+    if (error instanceof InvitationError)
+      return fail(error.reason === "invalid" ? "auth.invite.invalid" : "auth.invite.mismatch");
     throw error;
   }
   redirect("/jobs");

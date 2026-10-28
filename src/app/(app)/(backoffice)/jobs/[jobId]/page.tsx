@@ -19,7 +19,10 @@ export async function generateMetadata({ params }: PageProps<"/jobs/[jobId]">): 
   return { title: job?.title };
 }
 
-export default async function JobPipelinePage({ params, searchParams }: PageProps<"/jobs/[jobId]">) {
+export default async function JobPipelinePage({
+  params,
+  searchParams,
+}: PageProps<"/jobs/[jobId]">) {
   const { jobId } = await params;
   if (!isUuid(jobId)) notFound();
   const ctx = await requireContext();
@@ -53,7 +56,13 @@ export default async function JobPipelinePage({ params, searchParams }: PageProp
         job={{ id: board.job.id, title: board.job.title, status: board.job.status }}
         stages={stages}
         initialCards={board.cards}
-        templates={templates.map((tpl) => ({ id: tpl.id, name: tpl.name, kind: tpl.kind, subject: tpl.subject, body: tpl.body }))}
+        templates={templates.map((tpl) => ({
+          id: tpl.id,
+          name: tpl.name,
+          kind: tpl.kind,
+          subject: tpl.subject,
+          body: tpl.body,
+        }))}
         companyName={org.name}
         recruiterName={ctx.user.name}
         publicUrl={publicUrl}

@@ -16,7 +16,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function EmailSettingsPage() {
   const ctx = await requireContext();
   if (!can(ctx.role, "templates:manage")) redirect("/settings/profile");
-  const [templates, journal, org] = await Promise.all([listTemplates(ctx), listEmailJournal(ctx), getOrganization(ctx)]);
+  const [templates, journal, org] = await Promise.all([
+    listTemplates(ctx),
+    listEmailJournal(ctx),
+    getOrganization(ctx),
+  ]);
   return (
     <EmailSettings
       templates={templates}

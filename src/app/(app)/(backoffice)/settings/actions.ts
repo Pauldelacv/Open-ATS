@@ -14,8 +14,19 @@ import { LOCALE_COOKIE } from "@/i18n/config";
 import { sanitizeRichText } from "@/lib/sanitize";
 import { deleteTemplate, saveTemplate } from "@/lib/services/emails";
 import { runRetentionForOrganization } from "@/lib/services/gdpr";
-import { deleteDemoOrganization, SlugTakenError, updateOrganization } from "@/lib/services/organizations";
-import { AlreadyMemberError, changeRole, inviteMember, LastAdminError, removeMember, revokeInvitation } from "@/lib/services/team";
+import {
+  deleteDemoOrganization,
+  SlugTakenError,
+  updateOrganization,
+} from "@/lib/services/organizations";
+import {
+  AlreadyMemberError,
+  changeRole,
+  inviteMember,
+  LastAdminError,
+  removeMember,
+  revokeInvitation,
+} from "@/lib/services/team";
 import { emailSchema, nameSchema, passwordSchema } from "@/lib/validation/auth";
 import { organizationSchema, type OrganizationInput } from "@/lib/validation/organization";
 import { z } from "zod";
@@ -25,9 +36,13 @@ export async function saveOrganizationAction(input: OrganizationInput): Promise<
   const parsed = organizationSchema.safeParse(input);
   if (!parsed.success) return fail("form", fieldErrorsFrom(parsed.error.issues));
   try {
-    await updateOrganization(ctx, { ...parsed.data, descriptionHtml: sanitizeRichText(parsed.data.descriptionHtml) });
+    await updateOrganization(ctx, {
+      ...parsed.data,
+      descriptionHtml: sanitizeRichText(parsed.data.descriptionHtml),
+    });
   } catch (error) {
-    if (error instanceof SlugTakenError) return fail("form", { slug: "settings.organization.slugTaken" });
+    if (error instanceof SlugTakenError)
+      return fail("form", { slug: "settings.organization.slugTaken" });
     return failFrom(error);
   }
   revalidatePath("/", "layout");
@@ -36,16 +51,23 @@ export async function saveOrganizationAction(input: OrganizationInput): Promise<
 
 const roleSchema = z.enum(["admin", "recruiter", "member"]);
 
-export async function inviteMemberAction(input: { email: string; role: Role }): Promise<ActionResult<{ link: string; delivery: string }>> {
+export async function inviteMemberAction(input: {
+  email: string;
+  role: Role;
+}): Promise<ActionResult<{ link: string; delivery: string }>> {
   const ctx = await requireContext();
   const email = emailSchema.safeParse(input.email);
   if (!email.success) return fail("form", { email: "auth.errors.email" });
   try {
-    const result = await inviteMember(ctx, { email: email.data, role: roleSchema.parse(input.role) });
+    const result = await inviteMember(ctx, {
+      email: email.data,
+      role: roleSchema.parse(input.role),
+    });
     revalidatePath("/settings/team");
     return ok(result);
   } catch (error) {
-    if (error instanceof AlreadyMemberError) return fail("form", { email: "settings.team.alreadyMember" });
+    if (error instanceof AlreadyMemberError)
+      return fail("form", { email: "settings.team.alreadyMember" });
     return failFrom(error);
   }
 }
@@ -85,33 +107,47 @@ export async function removeMemberAction(membershipId: string): Promise<ActionRe
   }
 }
 
-export async function saveProfileAction(input: { name: string; locale: "fr" | "en" }): Promise<ActionResult> {
+export async function saveProfileAction(input: {
+  name: string;
+  locale: "fr" | "en";
+}): Promise<ActionResult> {
   const ctx = await requireContext();
   const name = nameSchema.safeParse(input.name);
   if (!name.success) return fail("form", { name: "auth.errors.name" });
   const locale = input.locale === "en" ? "en" : "fr";
   await db.update(user).set({ name: name.data, locale }).where(eq(user.id, ctx.userId));
-  (await cookies()).set(LOCALE_COOKIE, locale, { path: "/", sameSite: "lax", maxAge: 60 * 60 * 24 * 365 });
+  (await cookies()).set(LOCALE_COOKIE, locale, {
+    path: "/",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 365,
+  });
   revalidatePath("/", "layout");
   return ok();
 }
 
-export async function changePasswordAction(input: { currentPassword: string; newPassword: string }): Promise<ActionResult> {
+export async function changePasswordAction(input: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<ActionResult> {
   await requireContext();
   const next = passwordSchema.safeParse(input.newPassword);
   if (!next.success) return fail("form", { newPassword: "auth.errors.password" });
   try {
     await getAuth().api.changePassword({
-      body: { currentPassword: input.currentPassword, newPassword: next.data, revokeOtherSessions: true },
+      body: {
+        currentPassword: input.currentPassword,
+        newPassword: next.data,
+        revokeOtherSessions: true,
+      },
       headers: await headers(),
     });
     return ok();
   } catch (error) {
-    if (error instanceof APIError) return fail("form", { currentPassword: "settings.profile.wrongPassword" });
+    if (error instanceof APIError)
+      return fail("form", { currentPassword: "settings.profile.wrongPassword" });
     return failFrom(error);
   }
 }
-
 
 const templateSchema = z.object({
   name: z.string().trim().min(1, "settings.emails.errors.name").max(80),
@@ -147,14 +183,21 @@ export async function deleteTemplateAction(id: string): Promise<ActionResult> {
   }
 }
 
-export async function savePrivacyAction(input: { retentionMonths: number; privacyContactEmail: string }): Promise<ActionResult> {
+export async function savePrivacyAction(input: {
+  retentionMonths: number;
+  privacyContactEmail: string;
+}): Promise<ActionResult> {
   const ctx = await requireContext();
   const months = z.number().int().min(1).max(120).safeParse(input.retentionMonths);
   if (!months.success) return fail("form", { retentionMonths: "settings.privacy.errors.months" });
   const contact = input.privacyContactEmail.trim();
-  if (contact && !emailSchema.safeParse(contact).success) return fail("form", { privacyContactEmail: "settings.privacy.errors.email" });
+  if (contact && !emailSchema.safeParse(contact).success)
+    return fail("form", { privacyContactEmail: "settings.privacy.errors.email" });
   try {
-    await updateOrganization(ctx, { retentionMonths: months.data, privacyContactEmail: contact ? contact.toLowerCase() : null });
+    await updateOrganization(ctx, {
+      retentionMonths: months.data,
+      privacyContactEmail: contact ? contact.toLowerCase() : null,
+    });
     revalidatePath("/settings/privacy");
     return ok();
   } catch (error) {

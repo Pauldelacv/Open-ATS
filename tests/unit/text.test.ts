@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { fold, highlightRanges, searchable, searchTerms, slugify, snippet, toPrefixTsQuery } from "@/lib/utils/text";
+import {
+  fold,
+  highlightRanges,
+  searchable,
+  searchTerms,
+  slugify,
+  snippet,
+  toPrefixTsQuery,
+} from "@/lib/utils/text";
 
 describe("fold and slugify", () => {
   it("removes accents and lowercases", () => {
@@ -14,7 +22,12 @@ describe("fold and slugify", () => {
 
 describe("search helpers", () => {
   it("splits queries into folded terms, emails included", () => {
-    expect(searchTerms("Marion.Lefort@example.com")).toEqual(["marion", "lefort", "example", "com"]);
+    expect(searchTerms("Marion.Lefort@example.com")).toEqual([
+      "marion",
+      "lefort",
+      "example",
+      "com",
+    ]);
     expect(searchTerms("  Hélène  ")).toEqual(["helene"]);
   });
   it("produces prefix tsqueries without operators or quotes from the user", () => {
@@ -28,7 +41,10 @@ describe("search helpers", () => {
     expect(searchable("Inès", null, "Notes : très bien !")).toBe("ines notes tres bien");
   });
   it("finds snippets accent-insensitively and keeps the original text", () => {
-    const result = snippet("Elle a mené la migration vers Kubernetes chez son employeur précédent.", ["kubernetes"]);
+    const result = snippet(
+      "Elle a mené la migration vers Kubernetes chez son employeur précédent.",
+      ["kubernetes"],
+    );
     expect(result).not.toBeNull();
     const [start, end] = result!.highlights[0]!;
     expect(result!.text.slice(start, end)).toBe("Kubernetes");

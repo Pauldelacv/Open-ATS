@@ -8,7 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Radio } from "@/components/ui/checkbox";
-import { Dialog, DialogBody, DialogContent, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,7 +93,11 @@ const dropLabels = {
 
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className="border-t border-line py-10 first:border-t-0 first:pt-0">
+    <section
+      id={id}
+      aria-labelledby={`${id}-title`}
+      className="border-t border-line py-10 first:border-t-0 first:pt-0"
+    >
       <h2 id={`${id}-title`} className="mb-6 text-20 font-semibold">
         {title}
       </h2>
@@ -95,7 +106,15 @@ function Section({ id, title, children }: { id: string; title: string; children:
   );
 }
 
-function State({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
+function State({
+  label,
+  children,
+  className,
+}: {
+  label: string;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       <span className="text-12 text-ink-muted">{label}</span>
@@ -115,7 +134,10 @@ export function DesignShowcase() {
   const [html, setHtml] = useState(
     "<h2>Vos missions</h2><p>Vous concevez et faites évoluer notre outil de <strong>gestion des commandes</strong>.</p><ul><li>Développer de nouvelles fonctionnalités</li><li>Améliorer la qualité du code</li></ul>",
   );
-  const sampleFile = typeof File !== "undefined" ? new File([new Uint8Array(248_000)], "CV-Marion-Lefort.pdf", { type: "application/pdf" }) : null;
+  const sampleFile =
+    typeof File !== "undefined"
+      ? new File([new Uint8Array(248_000)], "CV-Marion-Lefort.pdf", { type: "application/pdf" })
+      : null;
 
   return (
     <div className="min-h-dvh bg-stone">
@@ -144,7 +166,10 @@ export function DesignShowcase() {
               ["lists", "Listes"],
             ].map(([id, label]) => (
               <li key={id}>
-                <a href={`#${id}`} className="block rounded-sm px-2 py-1 text-ink-muted hover:bg-stone-strong hover:text-ink">
+                <a
+                  href={`#${id}`}
+                  className="block rounded-sm px-2 py-1 text-ink-muted hover:bg-stone-strong hover:text-ink"
+                >
                   {label}
                 </a>
               </li>
@@ -154,15 +179,19 @@ export function DesignShowcase() {
         <main className="min-w-0 rounded-md border border-line bg-paper px-5 py-8 md:px-8">
           <h1 className="text-24 font-semibold">Composants</h1>
           <p className="mt-1 mb-10 max-w-2xl text-14 text-ink-muted">
-            Chaque composant dans ses états : repos, survol, focus, désactivé, erreur, chargement et vide. Les états de
-            survol et de focus sont reproduits pour être visibles sans interaction. Référence : docs/DESIGN.md.
+            Chaque composant dans ses états : repos, survol, focus, désactivé, erreur, chargement et
+            vide. Les états de survol et de focus sont reproduits pour être visibles sans
+            interaction. Référence : docs/DESIGN.md.
           </p>
 
           <Section id="colors" title="Couleurs">
             <ul className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-4">
               {colors.map(([name, hex, use]) => (
                 <li key={name} className="flex items-center gap-3">
-                  <span className="size-10 shrink-0 rounded-sm border border-line" style={{ background: hex }} />
+                  <span
+                    className="size-10 shrink-0 rounded-sm border border-line"
+                    style={{ background: hex }}
+                  />
                   <span className="min-w-0">
                     <span className="block text-13 font-medium">{name}</span>
                     <span className="block text-12 text-ink-muted tabular-nums">{hex}</span>
@@ -178,14 +207,21 @@ export function DesignShowcase() {
               {scale.map(([cls, size, sample]) => (
                 <div key={cls} className="grid grid-cols-[88px_1fr] items-baseline gap-4 py-3">
                   <span className="text-12 text-ink-muted tabular-nums">{size}</span>
-                  <span className={cn(cls, cls === "text-48" || cls === "text-32" ? "font-heading" : "", cls === "text-24" || cls === "text-20" ? "font-semibold" : "")}>
+                  <span
+                    className={cn(
+                      cls,
+                      cls === "text-48" || cls === "text-32" ? "font-heading" : "",
+                      cls === "text-24" || cls === "text-20" ? "font-semibold" : "",
+                    )}
+                  >
                     {sample}
                   </span>
                 </div>
               ))}
             </div>
             <p className="mt-4 text-13 text-ink-muted">
-              Instrument Serif seulement pour les grands titres du site carrière. Chiffres tabulaires :{" "}
+              Instrument Serif seulement pour les grands titres du site carrière. Chiffres
+              tabulaires :{" "}
               <span className="text-ink tabular-nums">12 candidats, 3,8 sur 5, 45 000 €</span>.
             </p>
           </Section>
@@ -276,10 +312,17 @@ export function DesignShowcase() {
               <Field label="Focus">
                 <Input defaultValue="Développeur full-stack" className={forced.fieldFocus} />
               </Field>
-              <Field label="Lieu" qualifier="(facultatif)" hint="Ville ou région, par exemple Lyon.">
+              <Field
+                label="Lieu"
+                qualifier="(facultatif)"
+                hint="Ville ou région, par exemple Lyon."
+              >
                 <Input />
               </Field>
-              <Field label="Adresse email" error="Saisissez une adresse email valide, par exemple nom@entreprise.fr.">
+              <Field
+                label="Adresse email"
+                error="Saisissez une adresse email valide, par exemple nom@entreprise.fr."
+              >
                 <Input defaultValue="marion@" />
               </Field>
               <Field label="Désactivé">
@@ -356,7 +399,10 @@ export function DesignShowcase() {
                   <Mark>@Claire</Mark> peux-tu regarder ce profil ?
                 </span>
                 <span className="text-14">
-                  <Highlighted text="…a mené la migration vers Kubernetes chez son employeur…" ranges={[[26, 36]]} />
+                  <Highlighted
+                    text="…a mené la migration vers Kubernetes chez son employeur…"
+                    ranges={[[26, 36]]}
+                  />
                 </span>
               </State>
               <State label="Avatars et raccourcis">
@@ -475,7 +521,9 @@ export function DesignShowcase() {
                 </div>
               </State>
               <State label="Infobulle (aperçu statique)">
-                <span className="rounded-sm bg-ink px-2 py-1 text-12 text-paper shadow-float">Raccourci : E</span>
+                <span className="rounded-sm bg-ink px-2 py-1 text-12 text-paper shadow-float">
+                  Raccourci : E
+                </span>
               </State>
             </div>
           </Section>
@@ -493,7 +541,14 @@ export function DesignShowcase() {
                 >
                   Afficher une notification
                 </Button>
-                <Button onClick={() => toast({ message: "L'email n'a pas pu être envoyé. Vérifiez la configuration SMTP.", tone: "danger" })}>
+                <Button
+                  onClick={() =>
+                    toast({
+                      message: "L'email n'a pas pu être envoyé. Vérifiez la configuration SMTP.",
+                      tone: "danger",
+                    })
+                  }
+                >
                   Notification d&apos;erreur
                 </Button>
               </State>
@@ -504,7 +559,9 @@ export function DesignShowcase() {
                 </div>
               </State>
               <div className="grid gap-3 lg:grid-cols-3">
-                <Banner title="SMTP non configuré">Les emails sont journalisés au lieu d&apos;être envoyés.</Banner>
+                <Banner title="SMTP non configuré">
+                  Les emails sont journalisés au lieu d&apos;être envoyés.
+                </Banner>
                 <Banner tone="warning" title="12 candidats seront anonymisés le 1er décembre">
                   Durée de conservation : 24 mois.
                 </Banner>
@@ -515,7 +572,10 @@ export function DesignShowcase() {
               <State label="Chargement (squelettes)" className="max-w-md">
                 <div className="w-full rounded-md border border-line bg-paper">
                   {[0, 1, 2].map((i) => (
-                    <div key={i} className="flex items-center gap-3 border-b border-line px-3 py-2.5 last:border-b-0">
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 border-b border-line px-3 py-2.5 last:border-b-0"
+                    >
                       <Skeleton className="size-6 rounded-full" />
                       <div className="flex flex-1 flex-col gap-1.5">
                         <Skeleton className="h-3.5 w-40" />
@@ -548,10 +608,21 @@ export function DesignShowcase() {
                 />
               </State>
               <State label="Vide">
-                <RatingInput value={null} onChange={() => {}} label="Note" valueLabels={["1", "2", "3", "4", "5"]} />
+                <RatingInput
+                  value={null}
+                  onChange={() => {}}
+                  label="Note"
+                  valueLabels={["1", "2", "3", "4", "5"]}
+                />
               </State>
               <State label="Désactivé">
-                <RatingInput value={3} onChange={() => {}} label="Note" valueLabels={["1", "2", "3", "4", "5"]} disabled />
+                <RatingInput
+                  value={3}
+                  onChange={() => {}}
+                  label="Note"
+                  valueLabels={["1", "2", "3", "4", "5"]}
+                  disabled
+                />
               </State>
               <State label="Lecture">
                 <RatingDots value={3.8} label="3,8 sur 5" />
@@ -563,10 +634,22 @@ export function DesignShowcase() {
           <Section id="upload" title="Dépôt de fichier">
             <div className="grid gap-6 md:grid-cols-2">
               <State label="Vide" className="[&>div]:block">
-                <Dropzone file={file} onFile={setFile} accept=".pdf,.docx" labels={dropLabels} locale="fr" />
+                <Dropzone
+                  file={file}
+                  onFile={setFile}
+                  accept=".pdf,.docx"
+                  labels={dropLabels}
+                  locale="fr"
+                />
               </State>
               <State label="Fichier choisi" className="[&>div]:block">
-                <Dropzone file={sampleFile} onFile={() => {}} accept=".pdf,.docx" labels={dropLabels} locale="fr" />
+                <Dropzone
+                  file={sampleFile}
+                  onFile={() => {}}
+                  accept=".pdf,.docx"
+                  labels={dropLabels}
+                  locale="fr"
+                />
               </State>
               <State label="Erreur" className="[&>div]:block">
                 <Dropzone
@@ -577,16 +660,30 @@ export function DesignShowcase() {
                   locale="fr"
                   error="Le CV doit être un fichier PDF ou DOCX de 10 Mo maximum."
                 />
-                <p className="text-13 text-danger">Le CV doit être un fichier PDF ou DOCX de 10 Mo maximum.</p>
+                <p className="text-13 text-danger">
+                  Le CV doit être un fichier PDF ou DOCX de 10 Mo maximum.
+                </p>
               </State>
               <State label="Désactivé" className="[&>div]:block">
-                <Dropzone file={null} onFile={() => {}} accept=".pdf,.docx" labels={dropLabels} locale="fr" disabled />
+                <Dropzone
+                  file={null}
+                  onFile={() => {}}
+                  accept=".pdf,.docx"
+                  labels={dropLabels}
+                  locale="fr"
+                  disabled
+                />
               </State>
             </div>
           </Section>
 
           <Section id="editor" title="Texte riche">
-            <RichTextEditor value={html} onChange={setHtml} labels={richLabels} placeholder="Décrivez le poste" />
+            <RichTextEditor
+              value={html}
+              onChange={setHtml}
+              labels={richLabels}
+              placeholder="Décrivez le poste"
+            />
           </Section>
 
           <Section id="lists" title="Listes">
@@ -612,8 +709,15 @@ export function DesignShowcase() {
             </div>
             <div className="mt-6 flex items-center gap-2">
               <div className="relative w-72">
-                <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
-                <Input placeholder="Rechercher un candidat" className="pl-8" aria-label="Rechercher un candidat" />
+                <Search
+                  className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-ink-muted"
+                  aria-hidden="true"
+                />
+                <Input
+                  placeholder="Rechercher un candidat"
+                  className="pl-8"
+                  aria-label="Rechercher un candidat"
+                />
               </div>
             </div>
           </Section>

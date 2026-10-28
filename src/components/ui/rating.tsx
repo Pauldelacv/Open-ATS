@@ -26,7 +26,13 @@ export function RatingInput({
       {[1, 2, 3, 4, 5].map((n) => {
         const filled = value !== null && n <= value;
         return (
-          <label key={n} className={cn("relative inline-flex", disabled ? "cursor-not-allowed" : "cursor-pointer")}>
+          <label
+            key={n}
+            className={cn(
+              "relative inline-flex",
+              disabled ? "cursor-not-allowed" : "cursor-pointer",
+            )}
+          >
             <input
               type="radio"
               name={name ?? id}
@@ -42,7 +48,9 @@ export function RatingInput({
               className={cn(
                 "inline-flex size-6 items-center justify-center rounded-full border text-12 font-medium tabular-nums transition-colors duration-[120ms]",
                 "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cobalt",
-                filled ? "border-ink bg-ink text-paper" : "border-line-strong bg-paper text-ink-muted hover:border-ink",
+                filled
+                  ? "border-ink bg-ink text-paper"
+                  : "border-line-strong bg-paper text-ink-muted hover:border-ink",
                 disabled && "opacity-60",
               )}
             >
@@ -56,10 +64,22 @@ export function RatingInput({
 }
 
 /** Read-only rating: filled dots and an accessible text such as « 3,8 sur 5 ». */
-export function RatingDots({ value, label, className }: { value: number; label: string; className?: string }) {
+export function RatingDots({
+  value,
+  label,
+  className,
+}: {
+  value: number;
+  label: string;
+  className?: string;
+}) {
   const rounded = Math.round(value);
   return (
-    <span className={cn("inline-flex items-center gap-0.5", className)} role="img" aria-label={label}>
+    <span
+      className={cn("inline-flex items-center gap-0.5", className)}
+      role="img"
+      aria-label={label}
+    >
       {[1, 2, 3, 4, 5].map((n) => (
         <span
           key={n}

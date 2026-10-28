@@ -79,7 +79,14 @@ class S3Storage implements Storage {
 
   async put(key: string, data: Buffer, contentType: string) {
     const { send, mod } = await this.client;
-    await send(new mod.PutObjectCommand({ Bucket: this.bucket, Key: safeKey(key), Body: data, ContentType: contentType }));
+    await send(
+      new mod.PutObjectCommand({
+        Bucket: this.bucket,
+        Key: safeKey(key),
+        Body: data,
+        ContentType: contentType,
+      }),
+    );
   }
 
   async get(key: string) {
@@ -91,7 +98,9 @@ class S3Storage implements Storage {
   async stream(key: string) {
     const { send, mod } = await this.client;
     try {
-      const result = (await send(new mod.GetObjectCommand({ Bucket: this.bucket, Key: safeKey(key) }))) as {
+      const result = (await send(
+        new mod.GetObjectCommand({ Bucket: this.bucket, Key: safeKey(key) }),
+      )) as {
         Body?: { transformToWebStream(): ReadableStream<Uint8Array> };
       };
       return result.Body?.transformToWebStream() ?? null;

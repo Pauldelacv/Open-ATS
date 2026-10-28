@@ -5,22 +5,22 @@ what was chosen and why, so it can be revisited.
 
 ## Stack and versions (checked on 2026-10-28)
 
-| Library | Version | Note |
-|---|---|---|
-| Next.js | 16.4 | App Router, Turbopack builds, `proxy.ts` instead of middleware, async request APIs. |
-| React | 19.3 | |
-| TypeScript | 6.0 | TypeScript 7 (native compiler) is out, but `typescript-eslint` supports `<6.1` only. |
-| Better Auth | 1.7 | Email + password, `magicLink` plugin, Drizzle adapter, `nextCookies`. |
-| Drizzle ORM / Kit | 0.45 / 0.31 | 1.0 is still a release candidate; the stable line is used. |
-| postgres (postgres.js) | 3.4 | Driver used by Drizzle and by the migrator. |
-| Tailwind CSS | 4.3 | CSS-first `@theme`; default palette disabled. |
-| next-intl | 4.14 | Used without i18n routing. |
-| dnd-kit | core 6.3 / sortable 10 | `@dnd-kit/react` is still 0.x; the stable packages have a keyboard sensor. |
-| TipTap | 3.32 | `immediatelyRender: false` for SSR. |
-| Zod | 4.6 | Shared schemas between client and server. |
-| Vitest | 5.0 | Unit and database integration tests. |
-| Playwright | 1.63 | Pinned to the version of the browsers installed in the build environment. |
-| Radix UI | 1.x (`radix-ui`) | Behaviour primitives only, styled from scratch. |
+| Library                | Version                | Note                                                                                 |
+| ---------------------- | ---------------------- | ------------------------------------------------------------------------------------ |
+| Next.js                | 16.4                   | App Router, Turbopack builds, `proxy.ts` instead of middleware, async request APIs.  |
+| React                  | 19.3                   |                                                                                      |
+| TypeScript             | 6.0                    | TypeScript 7 (native compiler) is out, but `typescript-eslint` supports `<6.1` only. |
+| Better Auth            | 1.7                    | Email + password, `magicLink` plugin, Drizzle adapter, `nextCookies`.                |
+| Drizzle ORM / Kit      | 0.45 / 0.31            | 1.0 is still a release candidate; the stable line is used.                           |
+| postgres (postgres.js) | 3.4                    | Driver used by Drizzle and by the migrator.                                          |
+| Tailwind CSS           | 4.3                    | CSS-first `@theme`; default palette disabled.                                        |
+| next-intl              | 4.14                   | Used without i18n routing.                                                           |
+| dnd-kit                | core 6.3 / sortable 10 | `@dnd-kit/react` is still 0.x; the stable packages have a keyboard sensor.           |
+| TipTap                 | 3.32                   | `immediatelyRender: false` for SSR.                                                  |
+| Zod                    | 4.6                    | Shared schemas between client and server.                                            |
+| Vitest                 | 5.0                    | Unit and database integration tests.                                                 |
+| Playwright             | 1.63                   | Pinned to the version of the browsers installed in the build environment.            |
+| Radix UI               | 1.x (`radix-ui`)       | Behaviour primitives only, styled from scratch.                                      |
 
 ## Architecture
 

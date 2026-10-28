@@ -33,22 +33,38 @@ export default async function InboxPage() {
       <PageHeader title={t("title")} description={t("description")} />
       <div className="mt-5 overflow-hidden rounded-md border border-line bg-paper">
         {mentions.length === 0 ? (
-          <EmptyState title={t("empty")} description={t("emptyBody", { name: ctx.user.name.split(" ")[0] ?? "" })} />
+          <EmptyState
+            title={t("empty")}
+            description={t("emptyBody", { name: ctx.user.name.split(" ")[0] ?? "" })}
+          />
         ) : (
           <ul className="divide-y divide-line">
             {mentions.map((m) => {
-              const href = m.applicationId && m.jobId ? `/jobs/${m.jobId}?a=${m.applicationId}` : `/candidates/${m.candidateId}`;
+              const href =
+                m.applicationId && m.jobId
+                  ? `/jobs/${m.jobId}?a=${m.applicationId}`
+                  : `/candidates/${m.candidateId}`;
               return (
                 <li key={m.id} className="relative flex gap-3 px-4 py-3 hover:bg-stone">
-                  {m.readAt === null ? <span aria-hidden="true" className="absolute inset-y-2 left-0 w-[3px] rounded-r-xs bg-highlighter" /> : null}
+                  {m.readAt === null ? (
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-y-2 left-0 w-[3px] rounded-r-xs bg-highlighter"
+                    />
+                  ) : null}
                   <Avatar name={m.authorName ?? "?"} size={32} />
                   <div className="min-w-0 flex-1">
                     <p className="text-14">
                       <span className="font-medium">{m.authorName}</span>{" "}
-                      <Link href={href} className="text-ink after:absolute after:inset-0 after:content-[''] hover:underline">
+                      <Link
+                        href={href}
+                        className="text-ink after:absolute after:inset-0 after:content-[''] hover:underline"
+                      >
                         {t("about", { candidate: `${m.firstName} ${m.lastName}` })}
                       </Link>
-                      {m.jobTitle ? <span className="text-ink-muted"> {t("on", { job: m.jobTitle })}</span> : null}
+                      {m.jobTitle ? (
+                        <span className="text-ink-muted"> {t("on", { job: m.jobTitle })}</span>
+                      ) : null}
                       {m.readAt === null ? <span className="sr-only"> ({t("unread")})</span> : null}
                     </p>
                     {m.body ? (
@@ -67,7 +83,9 @@ export default async function InboxPage() {
                       </p>
                     ) : null}
                   </div>
-                  <time className="shrink-0 text-12 text-ink-muted tabular-nums">{formatRelative(m.createdAt, locale, now)}</time>
+                  <time className="shrink-0 text-12 text-ink-muted tabular-nums">
+                    {formatRelative(m.createdAt, locale, now)}
+                  </time>
                 </li>
               );
             })}

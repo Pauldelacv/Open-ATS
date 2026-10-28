@@ -17,7 +17,10 @@ export async function createUser(name: string) {
 /** An organisation with an admin, ready to use. */
 export async function createTenant(name: string): Promise<Ctx & { name: string }> {
   const userId = await createUser(`${name} Admin`);
-  const org = await createOrganization(userId, { name: `${name} ${randomUUID().slice(0, 6)}`, locale: "fr" });
+  const org = await createOrganization(userId, {
+    name: `${name} ${randomUUID().slice(0, 6)}`,
+    locale: "fr",
+  });
   return { orgId: org.id, userId, role: "admin", name: org.name };
 }
 
@@ -28,7 +31,11 @@ export async function addMember(ctx: Ctx, role: Role, name = "Teammate"): Promis
 }
 
 export async function publishedJob(ctx: Ctx, title = "Développeur full-stack") {
-  return createJob(ctx, { title, descriptionHtml: "<p>Description</p>", location: "Lyon", department: "Produit" }, { publish: true });
+  return createJob(
+    ctx,
+    { title, descriptionHtml: "<p>Description</p>", location: "Lyon", department: "Produit" },
+    { publish: true },
+  );
 }
 
 let cvCache: Buffer | null = null;
@@ -45,7 +52,12 @@ export async function sampleCv(text = "Kubernetes PostgreSQL TypeScript") {
       education: [],
       skills: [],
       languages: [],
-      labels: { experience: "Expérience", education: "Formation", skills: "Compétences", languages: "Langues" },
+      labels: {
+        experience: "Expérience",
+        education: "Formation",
+        skills: "Compétences",
+        languages: "Langues",
+      },
     });
     if (text !== "Kubernetes PostgreSQL TypeScript") return pdf;
     cvCache = pdf;
@@ -64,7 +76,14 @@ export async function apply(
     organizationId: ctx.orgId,
     jobId,
     questions: [],
-    data: { phone: "", link: "", message: "", answers: {}, consent: true, ...person } as ApplicationData,
+    data: {
+      phone: "",
+      link: "",
+      message: "",
+      answers: {},
+      consent: true,
+      ...person,
+    } as ApplicationData,
     cv: { name: "cv.pdf", type: "application/pdf", size: data.length, data },
     consentText: "consent",
   });

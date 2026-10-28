@@ -25,7 +25,10 @@ export default async function SetupPage() {
       <AuthPanel title={session ? t("noOrganization.title") : t("setup.title")}>
         <Banner>{session ? t("noOrganization.body") : t("setup.closed")}</Banner>
         {!session ? (
-          <Link href="/login" className="mt-4 inline-flex text-14 font-medium text-cobalt hover:underline">
+          <Link
+            href="/login"
+            className="mt-4 inline-flex text-14 font-medium text-cobalt hover:underline"
+          >
             {t("setup.login")}
           </Link>
         ) : null}

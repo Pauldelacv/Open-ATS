@@ -10,7 +10,10 @@ export function ok<T>(data?: T) {
   return { ok: true, data } as ActionResult<T>;
 }
 
-export function fail(error: string, fieldErrors?: Record<string, string>): { ok: false; error: string; fieldErrors?: Record<string, string> } {
+export function fail(
+  error: string,
+  fieldErrors?: Record<string, string>,
+): { ok: false; error: string; fieldErrors?: Record<string, string> } {
   return { ok: false, error, fieldErrors };
 }
 
@@ -25,7 +28,12 @@ export function failFrom(error: unknown) {
 
 function isNextControlFlow(error: unknown): boolean {
   const digest = (error as { digest?: unknown } | null)?.digest;
-  return typeof digest === "string" && (digest.startsWith("NEXT_REDIRECT") || digest.startsWith("NEXT_HTTP_ERROR_FALLBACK") || digest === "NEXT_NOT_FOUND");
+  return (
+    typeof digest === "string" &&
+    (digest.startsWith("NEXT_REDIRECT") ||
+      digest.startsWith("NEXT_HTTP_ERROR_FALLBACK") ||
+      digest === "NEXT_NOT_FOUND")
+  );
 }
 
 /** First error message per field, from a Zod issue list. */

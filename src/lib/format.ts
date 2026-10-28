@@ -7,7 +7,11 @@ function tz() {
 }
 
 /** « il y a 3 jours » under a week, « 12 mars 2026 » beyond (year omitted for the current year). */
-export function formatRelative(value: Date | string, locale: string, now: Date = new Date()): string {
+export function formatRelative(
+  value: Date | string,
+  locale: string,
+  now: Date = new Date(),
+): string {
   const date = typeof value === "string" ? new Date(value) : value;
   const diff = date.getTime() - now.getTime();
   const abs = Math.abs(diff);
@@ -32,16 +36,29 @@ export function formatDate(value: Date | string, locale: string, now: Date = new
 
 export function formatDateTime(value: Date | string, locale: string): string {
   const date = typeof value === "string" ? new Date(value) : value;
-  return new Intl.DateTimeFormat(locale, { dateStyle: "long", timeStyle: "short", timeZone: tz() }).format(date);
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "long",
+    timeStyle: "short",
+    timeZone: tz(),
+  }).format(date);
 }
 
 export function formatAmount(amount: number, currency: string, locale: string): string {
-  return new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 0 }).format(amount);
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(amount);
 }
 
 /** « 45 000 € – 55 000 € par an », « À partir de 45 000 € par an », … */
 export function formatSalary(
-  job: { salaryMin: number | null; salaryMax: number | null; salaryCurrency: string; salaryPeriod: SalaryPeriod },
+  job: {
+    salaryMin: number | null;
+    salaryMax: number | null;
+    salaryCurrency: string;
+    salaryPeriod: SalaryPeriod;
+  },
   locale: string,
   labels: { period: string; from: string; upTo: string },
 ): string | null {

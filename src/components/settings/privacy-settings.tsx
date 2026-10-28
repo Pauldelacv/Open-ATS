@@ -45,7 +45,10 @@ export function PrivacySettings({
         onSubmit={(e) => {
           e.preventDefault();
           start(async () => {
-            const result = await savePrivacyAction({ retentionMonths: Number(months), privacyContactEmail: contact });
+            const result = await savePrivacyAction({
+              retentionMonths: Number(months),
+              privacyContactEmail: contact,
+            });
             if (!result.ok) return void setErrors(result.fieldErrors ?? {});
             setErrors({});
             toast(t("saved"));
@@ -54,15 +57,32 @@ export function PrivacySettings({
         }}
       >
         <SettingsSection title={t("retention")}>
-          <Field label={t("retentionLabel")} hint={t("retentionHint")} error={errors.retentionMonths ? tx(errors.retentionMonths) : undefined}>
+          <Field
+            label={t("retentionLabel")}
+            hint={t("retentionHint")}
+            error={errors.retentionMonths ? tx(errors.retentionMonths) : undefined}
+          >
             <div className="flex items-center gap-2">
-              <Input type="number" min={1} max={120} inputMode="numeric" value={months} onChange={(e) => setMonths(e.target.value)} className="w-24 tabular-nums" />
+              <Input
+                type="number"
+                min={1}
+                max={120}
+                inputMode="numeric"
+                value={months}
+                onChange={(e) => setMonths(e.target.value)}
+                className="w-24 tabular-nums"
+              />
               <span className="text-14 text-ink-muted">{t("months")}</span>
             </div>
           </Field>
         </SettingsSection>
         <SettingsSection title={t("contact")}>
-          <Field label={t("contactLabel")} qualifier={tx("common.optional")} hint={t("contactHint")} error={errors.privacyContactEmail ? tx(errors.privacyContactEmail) : undefined}>
+          <Field
+            label={t("contactLabel")}
+            qualifier={tx("common.optional")}
+            hint={t("contactHint")}
+            error={errors.privacyContactEmail ? tx(errors.privacyContactEmail) : undefined}
+          >
             <Input type="email" value={contact} onChange={(e) => setContact(e.target.value)} />
           </Field>
         </SettingsSection>
@@ -74,7 +94,9 @@ export function PrivacySettings({
       </form>
       <SettingsSection title={t("status")} description={t("automatic")}>
         <ul className="flex flex-col gap-1.5 text-14">
-          <li className={due > 0 ? "font-medium text-warning" : undefined}>{t("due", { count: due })}</li>
+          <li className={due > 0 ? "font-medium text-warning" : undefined}>
+            {t("due", { count: due })}
+          </li>
           <li>{t("upcoming", { count: upcoming })}</li>
           <li className="text-ink-muted">{t("anonymized", { count: anonymized })}</li>
         </ul>

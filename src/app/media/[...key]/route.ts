@@ -22,7 +22,9 @@ export async function GET(_request: Request, { params }: RouteContext<"/media/[.
       // Keys contain a random part and change on every upload.
       "Cache-Control": "public, max-age=31536000, immutable",
       "X-Content-Type-Options": "nosniff",
-      ...(ext === "svg" ? { "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'" } : {}),
+      ...(ext === "svg"
+        ? { "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'" }
+        : {}),
     },
   });
 }

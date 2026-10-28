@@ -6,12 +6,22 @@ export function parseHex(hex: string): RGB | null {
   const match = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex.trim());
   if (!match) return null;
   let value = match[1]!;
-  if (value.length === 3) value = value.split("").map((c) => c + c).join("");
+  if (value.length === 3)
+    value = value
+      .split("")
+      .map((c) => c + c)
+      .join("");
   return [0, 2, 4].map((i) => parseInt(value.slice(i, i + 2), 16)) as RGB;
 }
 
 function toHex([r, g, b]: RGB): string {
-  return `#${[r, g, b].map((c) => Math.round(Math.min(255, Math.max(0, c))).toString(16).padStart(2, "0")).join("")}`;
+  return `#${[r, g, b]
+    .map((c) =>
+      Math.round(Math.min(255, Math.max(0, c)))
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
 }
 
 function luminance([r, g, b]: RGB): number {
@@ -38,7 +48,12 @@ const INK = "#18233A";
 const WHITE = "#FFFFFF";
 const DEFAULT = "#2447D6";
 
-export type BrandPalette = { brand: string; brandHover: string; brandFg: string; brandLink: string };
+export type BrandPalette = {
+  brand: string;
+  brandHover: string;
+  brandFg: string;
+  brandLink: string;
+};
 
 export function brandPalette(input: string | null | undefined): BrandPalette {
   const rgb = parseHex(input ?? "") ?? parseHex(DEFAULT)!;
@@ -47,7 +62,8 @@ export function brandPalette(input: string | null | undefined): BrandPalette {
   // Hover goes towards the text colour so that it stays readable.
   const brandHover = toHex(mix(rgb, brandFg === WHITE ? [0, 0, 0] : [255, 255, 255], 0.14));
   let link = rgb;
-  for (let i = 0; i < 20 && contrast(toHex(link), WHITE) < 4.5; i++) link = mix(link, [0, 0, 0], 0.12);
+  for (let i = 0; i < 20 && contrast(toHex(link), WHITE) < 4.5; i++)
+    link = mix(link, [0, 0, 0], 0.12);
   return { brand, brandHover, brandFg, brandLink: toHex(link) };
 }
 

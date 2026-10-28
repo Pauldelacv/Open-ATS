@@ -32,8 +32,14 @@ export function retentionCutoff(retentionMonths: number, now: Date = new Date())
 }
 
 async function removeStoredFiles(candidateId: string) {
-  const rows = await db.select({ key: files.storageKey }).from(files).where(eq(files.candidateId, candidateId));
-  for (const row of rows) await storage().delete(row.key).catch(() => {});
+  const rows = await db
+    .select({ key: files.storageKey })
+    .from(files)
+    .where(eq(files.candidateId, candidateId));
+  for (const row of rows)
+    await storage()
+      .delete(row.key)
+      .catch(() => {});
 }
 
 /**
@@ -41,11 +47,19 @@ async function removeStoredFiles(candidateId: string) {
  * (applications stay in their stage so that pipelines and history stay consistent).
  */
 export async function anonymizeCandidate(orgId: string, candidateId: string) {
-  const [org] = await db.select({ locale: organizations.locale }).from(organizations).where(eq(organizations.id, orgId));
+  const [org] = await db
+    .select({ locale: organizations.locale })
+    .from(organizations)
+    .where(eq(organizations.id, orgId));
   const t = serverTranslator(org?.locale ?? "fr", "gdpr");
   await removeStoredFiles(candidateId);
   await db.transaction(async (tx) => {
-    const appIds = (await tx.select({ id: applications.id }).from(applications).where(eq(applications.candidateId, candidateId))).map((a) => a.id);
+    const appIds = (
+      await tx
+        .select({ id: applications.id })
+        .from(applications)
+        .where(eq(applications.candidateId, candidateId))
+    ).map((a) => a.id);
     await tx.delete(files).where(eq(files.candidateId, candidateId));
     await tx.delete(notes).where(eq(notes.candidateId, candidateId));
     await tx.delete(notifications).where(eq(notifications.candidateId, candidateId));
@@ -77,13 +91,21 @@ export async function anonymizeCandidate(orgId: string, candidateId: string) {
 
 /** Anonymises every candidate whose last activity is older than their organisation's retention. */
 export async function runRetention(now: Date = new Date()) {
-  const orgs = await db.select({ id: organizations.id, months: organizations.retentionMonths }).from(organizations);
+  const orgs = await db
+    .select({ id: organizations.id, months: organizations.retentionMonths })
+    .from(organizations);
   let total = 0;
   for (const org of orgs) {
     const due = await db
       .select({ id: candidates.id })
       .from(candidates)
-      .where(and(eq(candidates.organizationId, org.id), isNull(candidates.anonymizedAt), lt(candidates.lastActivityAt, retentionCutoff(org.months, now))));
+      .where(
+        and(
+          eq(candidates.organizationId, org.id),
+          isNull(candidates.anonymizedAt),
+          lt(candidates.lastActivityAt, retentionCutoff(org.months, now)),
+        ),
+      );
     for (const c of due) {
       await anonymizeCandidate(org.id, c.id);
       total++;
@@ -94,11 +116,20 @@ export async function runRetention(now: Date = new Date()) {
 
 export async function runRetentionForOrganization(ctx: Ctx, now: Date = new Date()) {
   assertCan(ctx.role, "settings:privacy");
-  const [org] = await db.select({ months: organizations.retentionMonths }).from(organizations).where(eq(organizations.id, ctx.orgId));
+  const [org] = await db
+    .select({ months: organizations.retentionMonths })
+    .from(organizations)
+    .where(eq(organizations.id, ctx.orgId));
   const due = await db
     .select({ id: candidates.id })
     .from(candidates)
-    .where(and(eq(candidates.organizationId, ctx.orgId), isNull(candidates.anonymizedAt), lt(candidates.lastActivityAt, retentionCutoff(org!.months, now))));
+    .where(
+      and(
+        eq(candidates.organizationId, ctx.orgId),
+        isNull(candidates.anonymizedAt),
+        lt(candidates.lastActivityAt, retentionCutoff(org!.months, now)),
+      ),
+    );
   for (const c of due) await anonymizeCandidate(ctx.orgId, c.id);
   return due.length;
 }
@@ -115,17 +146,37 @@ export async function retentionOverview(ctx: Ctx, now: Date = new Date()) {
     db
       .select({ total: count() })
       .from(candidates)
-      .where(and(eq(candidates.organizationId, ctx.orgId), isNull(candidates.anonymizedAt), lt(candidates.lastActivityAt, retentionCutoff(months, now)))),
+      .where(
+        and(
+          eq(candidates.organizationId, ctx.orgId),
+          isNull(candidates.anonymizedAt),
+          lt(candidates.lastActivityAt, retentionCutoff(months, now)),
+        ),
+      ),
     db
       .select({ total: count() })
       .from(candidates)
-      .where(and(eq(candidates.organizationId, ctx.orgId), isNull(candidates.anonymizedAt), lt(candidates.lastActivityAt, retentionCutoff(months, soon)))),
+      .where(
+        and(
+          eq(candidates.organizationId, ctx.orgId),
+          isNull(candidates.anonymizedAt),
+          lt(candidates.lastActivityAt, retentionCutoff(months, soon)),
+        ),
+      ),
     db
       .select({ total: count() })
       .from(candidates)
-      .where(and(eq(candidates.organizationId, ctx.orgId), sql`${candidates.anonymizedAt} is not null`)),
+      .where(
+        and(eq(candidates.organizationId, ctx.orgId), sql`${candidates.anonymizedAt} is not null`),
+      ),
   ]);
-  return { months, contact: org!.contact, due: due?.total ?? 0, upcoming: upcoming?.total ?? 0, anonymized: anonymized?.total ?? 0 };
+  return {
+    months,
+    contact: org!.contact,
+    due: due?.total ?? 0,
+    upcoming: upcoming?.total ?? 0,
+    anonymized: anonymized?.total ?? 0,
+  };
 }
 
 /** Everything known about a candidate, as a ZIP with a JSON file and the CVs. */
@@ -160,9 +211,19 @@ export async function exportCandidate(ctx: Ctx, candidateId: string) {
       .where(eq(notes.candidateId, candidateId))
       .orderBy(asc(notes.createdAt)),
     db.select().from(files).where(eq(files.candidateId, candidateId)),
-    db.select({ name: tags.name }).from(candidateTags).innerJoin(tags, eq(tags.id, candidateTags.tagId)).where(eq(candidateTags.candidateId, candidateId)),
     db
-      .select({ to: emailMessages.toEmail, subject: emailMessages.subject, body: emailMessages.body, status: emailMessages.status, createdAt: emailMessages.createdAt })
+      .select({ name: tags.name })
+      .from(candidateTags)
+      .innerJoin(tags, eq(tags.id, candidateTags.tagId))
+      .where(eq(candidateTags.candidateId, candidateId)),
+    db
+      .select({
+        to: emailMessages.toEmail,
+        subject: emailMessages.subject,
+        body: emailMessages.body,
+        status: emailMessages.status,
+        createdAt: emailMessages.createdAt,
+      })
       .from(emailMessages)
       .where(eq(emailMessages.candidateId, candidateId))
       .orderBy(asc(emailMessages.createdAt)),
@@ -175,7 +236,13 @@ export async function exportCandidate(ctx: Ctx, candidateId: string) {
   const appIds = apps.map((a) => a.id);
   const evaluationRows = appIds.length
     ? await db
-        .select({ applicationId: evaluations.applicationId, author: user.name, rating: evaluations.rating, comment: evaluations.comment, updatedAt: evaluations.updatedAt })
+        .select({
+          applicationId: evaluations.applicationId,
+          author: user.name,
+          rating: evaluations.rating,
+          comment: evaluations.comment,
+          updatedAt: evaluations.updatedAt,
+        })
         .from(evaluations)
         .innerJoin(user, eq(user.id, evaluations.authorId))
         .where(inArray(evaluations.applicationId, appIds))
@@ -192,19 +259,36 @@ export async function exportCandidate(ctx: Ctx, candidateId: string) {
       lastActivityAt: candidate.lastActivityAt,
     },
     tags: tagRows.map((t) => t.name),
-    applications: apps.map((a) => ({ ...a, evaluations: evaluationRows.filter((e) => e.applicationId === a.id) })),
+    applications: apps.map((a) => ({
+      ...a,
+      evaluations: evaluationRows.filter((e) => e.applicationId === a.id),
+    })),
     notes: noteRows,
     emails: emailRows,
     activity: activityRows,
-    files: fileRows.map((f) => ({ name: f.fileName, type: f.mimeType, size: f.size, addedAt: f.createdAt })),
+    files: fileRows.map((f) => ({
+      name: f.fileName,
+      type: f.mimeType,
+      size: f.size,
+      addedAt: f.createdAt,
+    })),
   };
-  const entries: Record<string, Uint8Array> = { "candidate.json": strToU8(JSON.stringify(data, null, 2)) };
+  const entries: Record<string, Uint8Array> = {
+    "candidate.json": strToU8(JSON.stringify(data, null, 2)),
+  };
   for (const f of fileRows) {
     const bytes = await storage().get(f.storageKey);
-    if (bytes) entries[`files/${f.id.slice(0, 8)}-${f.fileName.replace(/[\\/]/g, "_")}`] = new Uint8Array(bytes);
+    if (bytes)
+      entries[`files/${f.id.slice(0, 8)}-${f.fileName.replace(/[\\/]/g, "_")}`] = new Uint8Array(
+        bytes,
+      );
   }
   await logActivity(db, ctx, { candidateId, type: "exported" });
-  const safeName = `${candidate.firstName}-${candidate.lastName}`.normalize("NFD").replace(/[^\w-]+/g, "").toLowerCase() || "candidate";
+  const safeName =
+    `${candidate.firstName}-${candidate.lastName}`
+      .normalize("NFD")
+      .replace(/[^\w-]+/g, "")
+      .toLowerCase() || "candidate";
   return { fileName: `${safeName}-export.zip`, zip: zipSync(entries, { level: 6 }) };
 }
 
@@ -213,5 +297,7 @@ export async function deleteCandidate(ctx: Ctx, candidateId: string) {
   assertCan(ctx.role, "candidate:delete");
   await assertCandidateAccess(ctx, candidateId);
   await removeStoredFiles(candidateId);
-  await db.delete(candidates).where(and(eq(candidates.id, candidateId), eq(candidates.organizationId, ctx.orgId)));
+  await db
+    .delete(candidates)
+    .where(and(eq(candidates.id, candidateId), eq(candidates.organizationId, ctx.orgId)));
 }

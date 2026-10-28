@@ -11,5 +11,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ProfilePage() {
   const ctx = await requireContext();
   const locale = (ctx.user as { locale?: string | null }).locale ?? (await getLocale());
-  return <ProfileForm name={ctx.user.name} email={ctx.user.email} locale={locale === "en" ? "en" : "fr"} />;
+  return (
+    <ProfileForm
+      name={ctx.user.name}
+      email={ctx.user.email}
+      locale={locale === "en" ? "en" : "fr"}
+    />
+  );
 }

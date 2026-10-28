@@ -6,7 +6,13 @@ import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { saveStagesAction } from "@/app/(app)/(backoffice)/jobs/actions";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/toast";
@@ -34,7 +40,8 @@ export function StageEditor({
   const [pending, start] = useTransition();
 
   const actives = drafts.filter((d) => d.kind === "active");
-  const update = (key: string, name: string) => setDrafts((prev) => prev.map((d) => (d.key === key ? { ...d, name } : d)));
+  const update = (key: string, name: string) =>
+    setDrafts((prev) => prev.map((d) => (d.key === key ? { ...d, name } : d)));
   const move = (key: string, delta: number) =>
     setDrafts((prev) => {
       const list = [...prev];
@@ -48,13 +55,20 @@ export function StageEditor({
     setDrafts((prev) => {
       const hiredIndex = prev.findIndex((d) => d.kind === "hired");
       const list = [...prev];
-      list.splice(hiredIndex < 0 ? list.length : hiredIndex, 0, { key: `new-${++seed}`, name: t("newStage"), kind: "active" });
+      list.splice(hiredIndex < 0 ? list.length : hiredIndex, 0, {
+        key: `new-${++seed}`,
+        name: t("newStage"),
+        kind: "active",
+      });
       return list;
     });
 
   const save = () =>
     start(async () => {
-      const result = await saveStagesAction(jobId, drafts.map((d) => ({ id: d.id, name: d.name })));
+      const result = await saveStagesAction(
+        jobId,
+        drafts.map((d) => ({ id: d.id, name: d.name })),
+      );
       if (!result.ok) return void toast({ message: tx(result.error), tone: "danger" });
       toast(t("saved"));
       onOpenChange(false);
@@ -63,7 +77,11 @@ export function StageEditor({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent title={t("title")} description={t("description")} closeLabel={tx("common.close")}>
+      <DialogContent
+        title={t("title")}
+        description={t("description")}
+        closeLabel={tx("common.close")}
+      >
         <DialogBody className="flex flex-col gap-3">
           <ol className="flex flex-col gap-2">
             {drafts.map((d) => {
@@ -71,21 +89,40 @@ export function StageEditor({
               const activeIndex = actives.findIndex((a) => a.key === d.key);
               return (
                 <li key={d.key} className="flex items-center gap-1.5">
-                  <Input aria-label={t("name")} value={d.name} maxLength={60} onChange={(e) => update(d.key, e.target.value)} />
+                  <Input
+                    aria-label={t("name")}
+                    value={d.name}
+                    maxLength={60}
+                    onChange={(e) => update(d.key, e.target.value)}
+                  />
                   {fixed ? (
-                    <span className="inline-flex w-[100px] shrink-0 items-center justify-center gap-1 text-12 text-ink-muted" title={t("fixed")}>
+                    <span
+                      className="inline-flex w-[100px] shrink-0 items-center justify-center gap-1 text-12 text-ink-muted"
+                      title={t("fixed")}
+                    >
                       <Lock className="size-3.5" aria-hidden="true" />
                       {t("fixed")}
                     </span>
                   ) : (
                     <span className="flex w-[100px] shrink-0 justify-end">
-                      <IconButton label={t("moveUp")} disabled={activeIndex === 0} onClick={() => move(d.key, -1)}>
+                      <IconButton
+                        label={t("moveUp")}
+                        disabled={activeIndex === 0}
+                        onClick={() => move(d.key, -1)}
+                      >
                         <ArrowUp />
                       </IconButton>
-                      <IconButton label={t("moveDown")} disabled={activeIndex === actives.length - 1} onClick={() => move(d.key, 1)}>
+                      <IconButton
+                        label={t("moveDown")}
+                        disabled={activeIndex === actives.length - 1}
+                        onClick={() => move(d.key, 1)}
+                      >
                         <ArrowDown />
                       </IconButton>
-                      <IconButton label={t("remove")} onClick={() => setDrafts((prev) => prev.filter((x) => x.key !== d.key))}>
+                      <IconButton
+                        label={t("remove")}
+                        onClick={() => setDrafts((prev) => prev.filter((x) => x.key !== d.key))}
+                      >
                         <Trash2 />
                       </IconButton>
                     </span>

@@ -17,15 +17,27 @@ export { rejectionReasons, type RejectionReason } from "./rejection-reasons";
 export async function rejectApplications(
   ctx: Ctx,
   applicationIds: string[],
-  input: { reason: RejectionReason; email?: { subject: string; body: string; templateId?: string | null } | null },
+  input: {
+    reason: RejectionReason;
+    email?: { subject: string; body: string; templateId?: string | null } | null;
+  },
 ) {
   assertCan(ctx.role, "candidate:reject");
-  if (applicationIds.length === 0) return { rejected: 0, emails: [] as Awaited<ReturnType<typeof sendCandidateEmails>> };
+  if (applicationIds.length === 0)
+    return { rejected: 0, emails: [] as Awaited<ReturnType<typeof sendCandidateEmails>> };
   const apps = await db
-    .select({ id: applications.id, jobId: applications.jobId, candidateId: applications.candidateId, stageId: applications.stageId, stageName: pipelineStages.name })
+    .select({
+      id: applications.id,
+      jobId: applications.jobId,
+      candidateId: applications.candidateId,
+      stageId: applications.stageId,
+      stageName: pipelineStages.name,
+    })
     .from(applications)
     .innerJoin(pipelineStages, eq(pipelineStages.id, applications.stageId))
-    .where(and(inArray(applications.id, applicationIds), eq(applications.organizationId, ctx.orgId)));
+    .where(
+      and(inArray(applications.id, applicationIds), eq(applications.organizationId, ctx.orgId)),
+    );
   if (apps.length === 0) throw new NotFoundError("Application");
 
   const now = new Date();
@@ -57,7 +69,10 @@ export async function rejectApplications(
           hiredAt: null,
         })
         .where(eq(applications.id, app.id));
-      await tx.update(candidates).set({ lastActivityAt: now }).where(eq(candidates.id, app.candidateId));
+      await tx
+        .update(candidates)
+        .set({ lastActivityAt: now })
+        .where(eq(candidates.id, app.candidateId));
       await logActivity(tx, ctx, {
         candidateId: app.candidateId,
         applicationId: app.id,

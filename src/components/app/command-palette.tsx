@@ -12,7 +12,14 @@ import { useCommandPalette } from "./command-palette-context";
 
 type SearchResult = {
   jobs: Array<{ id: string; title: string; status: "draft" | "published" | "archived" }>;
-  candidates: Array<{ id: string; name: string; email: string | null; applicationId: string | null; jobId: string | null; jobTitle: string | null }>;
+  candidates: Array<{
+    id: string;
+    name: string;
+    email: string | null;
+    applicationId: string | null;
+    jobId: string | null;
+    jobTitle: string | null;
+  }>;
 };
 
 const itemClass =
@@ -89,32 +96,55 @@ export function CommandPalette({ canCreateJob }: { canCreateJob: boolean }) {
               className="h-12 w-full border-b border-line bg-paper px-4 text-16 text-ink outline-none placeholder:text-ink-subtle"
             />
             <Command.List className="max-h-[min(420px,60vh)] overflow-y-auto p-1.5">
-              {!showNavigation && !loading && results && results.jobs.length === 0 && results.candidates.length === 0 ? (
-                <p className="px-3 py-6 text-center text-14 text-ink-muted">{t("empty", { query: query.trim() })}</p>
+              {!showNavigation &&
+              !loading &&
+              results &&
+              results.jobs.length === 0 &&
+              results.candidates.length === 0 ? (
+                <p className="px-3 py-6 text-center text-14 text-ink-muted">
+                  {t("empty", { query: query.trim() })}
+                </p>
               ) : null}
               {!showNavigation && loading && !results ? (
                 <p className="px-3 py-6 text-center text-14 text-ink-muted">{t("searching")}</p>
               ) : null}
               {!showNavigation && results && results.candidates.length > 0 ? (
-                <Command.Group heading={t("candidates")} className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-12 [&_[cmdk-group-heading]]:text-ink-muted">
+                <Command.Group
+                  heading={t("candidates")}
+                  className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-12 [&_[cmdk-group-heading]]:text-ink-muted"
+                >
                   {results.candidates.map((c) =>
                     item(
                       `candidate-${c.id}`,
-                      () => go(c.applicationId && c.jobId ? `/jobs/${c.jobId}?a=${c.applicationId}` : `/candidates/${c.id}`),
+                      () =>
+                        go(
+                          c.applicationId && c.jobId
+                            ? `/jobs/${c.jobId}?a=${c.applicationId}`
+                            : `/candidates/${c.id}`,
+                        ),
                       <>
                         <UserRound />
                         <span className="min-w-0 flex-1 truncate">
                           {c.name}
-                          {c.email ? <span className="ml-2 text-13 text-ink-muted">{c.email}</span> : null}
+                          {c.email ? (
+                            <span className="ml-2 text-13 text-ink-muted">{c.email}</span>
+                          ) : null}
                         </span>
-                        {c.jobTitle ? <span className="max-w-40 truncate text-13 text-ink-muted">{c.jobTitle}</span> : null}
+                        {c.jobTitle ? (
+                          <span className="max-w-40 truncate text-13 text-ink-muted">
+                            {c.jobTitle}
+                          </span>
+                        ) : null}
                       </>,
                     ),
                   )}
                 </Command.Group>
               ) : null}
               {!showNavigation && results && results.jobs.length > 0 ? (
-                <Command.Group heading={t("jobs")} className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-12 [&_[cmdk-group-heading]]:text-ink-muted">
+                <Command.Group
+                  heading={t("jobs")}
+                  className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-12 [&_[cmdk-group-heading]]:text-ink-muted"
+                >
                   {results.jobs.map((j) =>
                     item(
                       `job-${j.id}`,
@@ -131,15 +161,56 @@ export function CommandPalette({ canCreateJob }: { canCreateJob: boolean }) {
               {showNavigation ? (
                 <>
                   {canCreateJob ? (
-                    <Command.Group heading={t("actions")} className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-12 [&_[cmdk-group-heading]]:text-ink-muted">
-                      {item("create-job", () => go("/jobs/new"), <><Plus />{t("createJob")}</>)}
+                    <Command.Group
+                      heading={t("actions")}
+                      className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-12 [&_[cmdk-group-heading]]:text-ink-muted"
+                    >
+                      {item(
+                        "create-job",
+                        () => go("/jobs/new"),
+                        <>
+                          <Plus />
+                          {t("createJob")}
+                        </>,
+                      )}
                     </Command.Group>
                   ) : null}
-                  <Command.Group heading={t("navigation")} className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-12 [&_[cmdk-group-heading]]:text-ink-muted">
-                    {item("go-jobs", () => go("/jobs"), <><Briefcase />{t("goJobs")}</>)}
-                    {item("go-candidates", () => go("/candidates"), <><Users />{t("goCandidates")}</>)}
-                    {item("go-inbox", () => go("/inbox"), <><AtSign />{t("goInbox")}</>)}
-                    {item("go-settings", () => go("/settings"), <><Settings />{t("goSettings")}</>)}
+                  <Command.Group
+                    heading={t("navigation")}
+                    className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:text-12 [&_[cmdk-group-heading]]:text-ink-muted"
+                  >
+                    {item(
+                      "go-jobs",
+                      () => go("/jobs"),
+                      <>
+                        <Briefcase />
+                        {t("goJobs")}
+                      </>,
+                    )}
+                    {item(
+                      "go-candidates",
+                      () => go("/candidates"),
+                      <>
+                        <Users />
+                        {t("goCandidates")}
+                      </>,
+                    )}
+                    {item(
+                      "go-inbox",
+                      () => go("/inbox"),
+                      <>
+                        <AtSign />
+                        {t("goInbox")}
+                      </>,
+                    )}
+                    {item(
+                      "go-settings",
+                      () => go("/settings"),
+                      <>
+                        <Settings />
+                        {t("goSettings")}
+                      </>,
+                    )}
                   </Command.Group>
                 </>
               ) : null}

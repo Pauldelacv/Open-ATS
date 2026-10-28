@@ -4,7 +4,13 @@ import { useTranslations } from "next-intl";
 import { Dialog, DialogBody, DialogContent } from "@/components/ui/dialog";
 import { Kbd } from "@/components/ui/kbd";
 
-export function ShortcutsDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+export function ShortcutsDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const t = useTranslations("panel.shortcuts");
   const tc = useTranslations("common");
   const rows: Array<[string[], string]> = [
@@ -27,7 +33,15 @@ export function ShortcutsDialog({ open, onOpenChange }: { open: boolean; onOpenC
               <div key={label} className="flex items-center justify-between gap-4 py-2">
                 <dt className="text-14">{label}</dt>
                 <dd className="flex gap-1">
-                  {keys.map((k) => (k === "…" ? <span key={k} className="text-ink-muted">…</span> : <Kbd key={k}>{k}</Kbd>))}
+                  {keys.map((k) =>
+                    k === "…" ? (
+                      <span key={k} className="text-ink-muted">
+                        …
+                      </span>
+                    ) : (
+                      <Kbd key={k}>{k}</Kbd>
+                    ),
+                  )}
                 </dd>
               </div>
             ))}

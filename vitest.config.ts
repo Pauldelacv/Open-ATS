@@ -1,7 +1,8 @@
 import path from "node:path";
 import { defineConfig } from "vitest/config";
 
-const databaseUrl = process.env.TEST_DATABASE_URL ?? "postgres://openats:openats@localhost:5432/openats_test";
+const databaseUrl =
+  process.env.TEST_DATABASE_URL ?? "postgres://openats:openats@localhost:5432/openats_test";
 
 export default defineConfig({
   resolve: {

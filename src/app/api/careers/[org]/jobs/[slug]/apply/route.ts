@@ -12,7 +12,10 @@ function json(body: unknown, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 }
 
-export async function POST(request: Request, { params }: RouteContext<"/api/careers/[org]/jobs/[slug]/apply">) {
+export async function POST(
+  request: Request,
+  { params }: RouteContext<"/api/careers/[org]/jobs/[slug]/apply">,
+) {
   const { org: orgSlug, slug } = await params;
   const org = await getPublicOrganization(orgSlug);
   const job = org ? await getPublishedJob(org.id, slug) : null;
@@ -23,7 +26,8 @@ export async function POST(request: Request, { params }: RouteContext<"/api/care
   }
 
   const length = Number(request.headers.get("content-length") ?? 0);
-  if (length > MAX_CV_BYTES + 512 * 1024) return json({ ok: false, error: "careers.errors.cvInvalid" }, 413);
+  if (length > MAX_CV_BYTES + 512 * 1024)
+    return json({ ok: false, error: "careers.errors.cvInvalid" }, 413);
 
   let form: FormData;
   try {
@@ -64,12 +68,24 @@ export async function POST(request: Request, { params }: RouteContext<"/api/care
       jobId: job.id,
       questions: job.questions,
       data: parsed.data,
-      cv: { name: cv!.name, type: cv!.type, size: cv!.size, data: Buffer.from(await cv!.arrayBuffer()) },
+      cv: {
+        name: cv!.name,
+        type: cv!.type,
+        size: cv!.size,
+        data: Buffer.from(await cv!.arrayBuffer()),
+      },
       consentText,
     });
   } catch (error) {
     if (error instanceof CvRejectedError) {
-      return json({ ok: false, error: "careers.errors.fixFields", fieldErrors: { cv: "careers.errors.cvInvalid" } }, 422);
+      return json(
+        {
+          ok: false,
+          error: "careers.errors.fixFields",
+          fieldErrors: { cv: "careers.errors.cvInvalid" },
+        },
+        422,
+      );
     }
     console.error("[apply] failed", error);
     return json({ ok: false, error: "careers.errors.server" }, 500);

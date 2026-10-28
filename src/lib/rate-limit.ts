@@ -11,7 +11,8 @@ export function rateLimit(key: string, limit: number, windowMs: number): boolean
   recent.push(now);
   buckets.set(key, recent);
   if (buckets.size > 10_000) {
-    for (const [k, times] of buckets) if (times.every((t) => now - t >= windowMs)) buckets.delete(k);
+    for (const [k, times] of buckets)
+      if (times.every((t) => now - t >= windowMs)) buckets.delete(k);
   }
   return true;
 }

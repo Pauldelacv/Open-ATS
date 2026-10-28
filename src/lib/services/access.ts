@@ -29,13 +29,19 @@ export function candidateAccess(ctx: Ctx, candidateIdColumn: SQL | AnyColumn): S
     db
       .select({ one: sql`1` })
       .from(applications)
-      .innerJoin(jobMembers, and(eq(jobMembers.jobId, applications.jobId), eq(jobMembers.userId, ctx.userId)))
+      .innerJoin(
+        jobMembers,
+        and(eq(jobMembers.jobId, applications.jobId), eq(jobMembers.userId, ctx.userId)),
+      )
       .where(eq(applications.candidateId, candidateIdColumn)),
   );
 }
 
 export async function getAccessibleJob(ctx: Ctx, jobId: string) {
-  const [job] = await db.select().from(jobs).where(and(eq(jobs.id, jobId), jobAccess(ctx)));
+  const [job] = await db
+    .select()
+    .from(jobs)
+    .where(and(eq(jobs.id, jobId), jobAccess(ctx)));
   if (!job) throw new NotFoundError("Job");
   return job;
 }

@@ -15,15 +15,27 @@ type FieldProps = {
 };
 
 /** Label, control, hint and error wired together with ids and ARIA attributes. */
-export function Field({ label, qualifier, hint, error, className, size = "md", children }: FieldProps) {
+export function Field({
+  label,
+  qualifier,
+  hint,
+  error,
+  className,
+  size = "md",
+  children,
+}: FieldProps) {
   const autoId = useId();
   const id = (isValidElement(children) && children.props.id) || autoId;
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
-  const describedBy = [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
+  const describedBy =
+    [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
-      <label htmlFor={id} className={cn("font-medium text-ink", size === "lg" ? "text-14" : "text-13")}>
+      <label
+        htmlFor={id}
+        className={cn("font-medium text-ink", size === "lg" ? "text-14" : "text-13")}
+      >
         {label}
         {qualifier ? <span className="font-normal text-ink-muted"> {qualifier}</span> : null}
       </label>
@@ -63,8 +75,13 @@ export function Fieldset({
 }) {
   const id = useId();
   return (
-    <fieldset className={cn("flex flex-col gap-2", className)} aria-describedby={error ? `${id}-error` : undefined}>
-      <legend className={cn("mb-1.5 text-13 font-medium text-ink", legendClassName)}>{legend}</legend>
+    <fieldset
+      className={cn("flex flex-col gap-2", className)}
+      aria-describedby={error ? `${id}-error` : undefined}
+    >
+      <legend className={cn("mb-1.5 text-13 font-medium text-ink", legendClassName)}>
+        {legend}
+      </legend>
       {hint ? <p className="-mt-1 text-13 text-ink-muted">{hint}</p> : null}
       {children}
       {error ? (

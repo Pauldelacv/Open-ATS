@@ -21,7 +21,11 @@ export default async function NewJobPage() {
   const [members, suggestions] = await Promise.all([listMembers(ctx), jobSuggestions(ctx)]);
   return (
     <PageContainer>
-      <PageHeader before={<BackLink href="/jobs">{t("title")}</BackLink>} title={t("editor.newTitle")} className="mb-5" />
+      <PageHeader
+        before={<BackLink href="/jobs">{t("title")}</BackLink>}
+        title={t("editor.newTitle")}
+        className="mb-5"
+      />
       <JobEditor
         jobId={null}
         status={null}

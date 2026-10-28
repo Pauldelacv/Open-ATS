@@ -21,7 +21,9 @@ export function formatBytes(bytes: number, locale: string): string {
     value /= 1024;
     unit++;
   }
-  const formatted = new Intl.NumberFormat(locale, { maximumFractionDigits: unit === 0 ? 0 : 1 }).format(value);
+  const formatted = new Intl.NumberFormat(locale, {
+    maximumFractionDigits: unit === 0 ? 0 : 1,
+  }).format(value);
   return `${formatted} ${(locale.startsWith("fr") ? units : unitsEn)[unit]}`;
 }
 
@@ -125,7 +127,12 @@ export function Dropzone({
         >
           <span className={cn("text-ink", size === "lg" ? "text-16" : "text-14")}>
             {labels.prompt}{" "}
-            <span className={cn("font-medium underline underline-offset-2", disabled ? "text-ink-muted" : "text-brand-link")}>
+            <span
+              className={cn(
+                "font-medium underline underline-offset-2",
+                disabled ? "text-ink-muted" : "text-brand-link",
+              )}
+            >
               {labels.browse}
             </span>
           </span>

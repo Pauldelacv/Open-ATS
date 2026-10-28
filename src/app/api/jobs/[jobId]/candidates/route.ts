@@ -17,17 +17,30 @@ const schema = z.object({
     .max(254)
     .refine((v) => v === "" || z.string().email().safeParse(v).success, "careers.errors.email")
     .transform((v) => v || null),
-  phone: z.string().trim().max(40).transform((v) => v || null),
-  linkUrl: z.string().trim().max(500).transform((v) => v || null),
+  phone: z
+    .string()
+    .trim()
+    .max(40)
+    .transform((v) => v || null),
+  linkUrl: z
+    .string()
+    .trim()
+    .max(500)
+    .transform((v) => v || null),
 });
 
-export async function POST(request: Request, { params }: RouteContext<"/api/jobs/[jobId]/candidates">) {
+export async function POST(
+  request: Request,
+  { params }: RouteContext<"/api/jobs/[jobId]/candidates">,
+) {
   const ctx = await getApiContext();
   if (!ctx) return Response.json({ ok: false, error: "common.forbidden" }, { status: 401 });
   const { jobId } = await params;
-  if (!isUuid(jobId)) return Response.json({ ok: false, error: "common.notFound" }, { status: 404 });
+  if (!isUuid(jobId))
+    return Response.json({ ok: false, error: "common.notFound" }, { status: 404 });
   const form = await request.formData().catch(() => null);
-  if (!form) return Response.json({ ok: false, error: "careers.errors.invalidForm" }, { status: 400 });
+  if (!form)
+    return Response.json({ ok: false, error: "careers.errors.invalidForm" }, { status: 400 });
   const parsed = schema.safeParse({
     firstName: form.get("firstName") ?? "",
     lastName: form.get("lastName") ?? "",
@@ -48,14 +61,23 @@ export async function POST(request: Request, { params }: RouteContext<"/api/jobs
       ctx,
       jobId,
       parsed.data,
-      cv ? { name: cv.name, type: cv.type, size: cv.size, data: Buffer.from(await cv.arrayBuffer()) } : null,
+      cv
+        ? { name: cv.name, type: cv.type, size: cv.size, data: Buffer.from(await cv.arrayBuffer()) }
+        : null,
     );
     return Response.json({ ok: true, ...result });
   } catch (error) {
-    if (error instanceof AlreadyAppliedError) return Response.json({ ok: false, error: "pipeline.manual.exists" }, { status: 409 });
-    if (error instanceof CvRejectedError) return Response.json({ ok: false, error: "form", fieldErrors: { cv: "careers.errors.cvInvalid" } }, { status: 422 });
-    if (error instanceof ForbiddenError) return Response.json({ ok: false, error: "common.forbidden" }, { status: 403 });
-    if (error instanceof NotFoundError) return Response.json({ ok: false, error: "common.notFound" }, { status: 404 });
+    if (error instanceof AlreadyAppliedError)
+      return Response.json({ ok: false, error: "pipeline.manual.exists" }, { status: 409 });
+    if (error instanceof CvRejectedError)
+      return Response.json(
+        { ok: false, error: "form", fieldErrors: { cv: "careers.errors.cvInvalid" } },
+        { status: 422 },
+      );
+    if (error instanceof ForbiddenError)
+      return Response.json({ ok: false, error: "common.forbidden" }, { status: 403 });
+    if (error instanceof NotFoundError)
+      return Response.json({ ok: false, error: "common.notFound" }, { status: 404 });
     throw error;
   }
 }

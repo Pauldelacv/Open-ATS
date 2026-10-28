@@ -45,7 +45,9 @@ export function CareersJobList({ orgSlug, jobs }: { orgSlug: string; jobs: Publi
     }),
     [jobs],
   );
-  const available = (Object.keys(options) as Array<keyof Filters>).filter((k) => options[k].length > 1);
+  const available = (Object.keys(options) as Array<keyof Filters>).filter(
+    (k) => options[k].length > 1,
+  );
   const activeCount = Object.values(filters).filter(Boolean).length;
   const visible = jobs.filter(
     (j) =>
@@ -56,7 +58,11 @@ export function CareersJobList({ orgSlug, jobs }: { orgSlug: string; jobs: Publi
   );
 
   const label = (key: keyof Filters, value: string) =>
-    key === "contract" ? tj(`contract.${value as ContractType}`) : key === "remote" ? tj(`remote.${value as RemotePolicy}`) : value;
+    key === "contract"
+      ? tj(`contract.${value as ContractType}`)
+      : key === "remote"
+        ? tj(`remote.${value as RemotePolicy}`)
+        : value;
   // On wide screens the empty choice shows the filter name, like a compact filter bar.
   const allLabel = {
     department: t("filters.allDepartments"),
@@ -90,7 +96,11 @@ export function CareersJobList({ orgSlug, jobs }: { orgSlug: string; jobs: Publi
             >
               <SlidersHorizontal className="size-4" aria-hidden="true" />
               {t("filters.button")}
-              {activeCount > 0 ? <span className="text-ink-muted">({t("filters.active", { count: activeCount })})</span> : null}
+              {activeCount > 0 ? (
+                <span className="text-ink-muted">
+                  ({t("filters.active", { count: activeCount })})
+                </span>
+              ) : null}
             </button>
             <p className="text-14 text-ink-muted tabular-nums" aria-live="polite">
               {t("filters.results", { count: visible.length })}
@@ -100,7 +110,10 @@ export function CareersJobList({ orgSlug, jobs }: { orgSlug: string; jobs: Publi
             id="career-filters"
             role="group"
             aria-label={t("filters.label")}
-            className={cn("mt-3 grid gap-3 sm:grid-cols-2 md:mt-0 md:flex md:items-center", open ? "grid" : "hidden md:flex")}
+            className={cn(
+              "mt-3 grid gap-3 sm:grid-cols-2 md:mt-0 md:flex md:items-center",
+              open ? "grid" : "hidden md:flex",
+            )}
           >
             {available.map((key) => (
               <label key={key} className="flex flex-col gap-1 md:block md:min-w-0 md:flex-1">
@@ -120,7 +133,11 @@ export function CareersJobList({ orgSlug, jobs }: { orgSlug: string; jobs: Publi
               </label>
             ))}
             {activeCount > 0 ? (
-              <button type="button" onClick={() => setFilters(EMPTY)} className="h-10 rounded-sm px-2 text-14 font-medium text-brand-link hover:underline md:ml-1">
+              <button
+                type="button"
+                onClick={() => setFilters(EMPTY)}
+                className="h-10 rounded-sm px-2 text-14 font-medium text-brand-link hover:underline md:ml-1"
+              >
                 {t("filters.clear")}
               </button>
             ) : null}
@@ -131,7 +148,11 @@ export function CareersJobList({ orgSlug, jobs }: { orgSlug: string; jobs: Publi
       {visible.length === 0 ? (
         <div className="rounded-md border border-line px-4 py-8 text-center">
           <p className="text-16 text-ink">{t("filters.noResults")}</p>
-          <button type="button" onClick={() => setFilters(EMPTY)} className="mt-3 text-14 font-medium text-brand-link hover:underline">
+          <button
+            type="button"
+            onClick={() => setFilters(EMPTY)}
+            className="mt-3 text-14 font-medium text-brand-link hover:underline"
+          >
             {t("filters.clear")}
           </button>
         </div>

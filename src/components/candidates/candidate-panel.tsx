@@ -1,17 +1,44 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Download, ExternalLink, Keyboard, Mail, MoreHorizontal, Plus, Trash2, X } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Download,
+  ExternalLink,
+  Keyboard,
+  Mail,
+  MoreHorizontal,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { addTagAction, moveApplicationsAction, removeTagAction, saveEvaluationAction } from "@/app/(app)/(backoffice)/jobs/[jobId]/actions";
+import {
+  addTagAction,
+  moveApplicationsAction,
+  removeTagAction,
+  saveEvaluationAction,
+} from "@/app/(app)/(backoffice)/jobs/[jobId]/actions";
 import { deleteCandidateAction } from "@/app/(app)/(backoffice)/candidates/actions";
-import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input, Select } from "@/components/ui/input";
 import { Kbd } from "@/components/ui/kbd";
@@ -27,7 +54,12 @@ import { formatDate } from "@/lib/format";
 import type { ApplicationDetail } from "@/lib/services/candidates";
 import { CvViewer } from "./cv-viewer";
 import type { TemplateOption } from "./email-fields";
-import { ActivitySection, ApplicationSection, EvaluationsSection, NotesSection } from "./panel-sections";
+import {
+  ActivitySection,
+  ApplicationSection,
+  EvaluationsSection,
+  NotesSection,
+} from "./panel-sections";
 import { ShortcutsDialog } from "./shortcuts-dialog";
 
 type Tab = "application" | "notes" | "evaluations" | "activity";
@@ -118,7 +150,11 @@ export function CandidatePanel({
   useEffect(() => {
     let cancelled = false;
     fetch(`/api/applications/${applicationId}`, { cache: "no-store" })
-      .then((res) => (res.ok ? (res.json() as Promise<ApplicationDetail>) : Promise.reject(new Error(String(res.status)))))
+      .then((res) =>
+        res.ok
+          ? (res.json() as Promise<ApplicationDetail>)
+          : Promise.reject(new Error(String(res.status))),
+      )
       .then((data) => {
         if (cancelled) return;
         setDetail(data);
@@ -200,7 +236,20 @@ export function CandidatePanel({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [applicationId, detail, isRejected, mode, nextId, onClose, onEmail, onNavigate, onReject, permissions, prevId, rate]);
+  }, [
+    applicationId,
+    detail,
+    isRejected,
+    mode,
+    nextId,
+    onClose,
+    onEmail,
+    onNavigate,
+    onReject,
+    permissions,
+    prevId,
+    rate,
+  ]);
 
   const addTag = () =>
     start(async () => {
@@ -230,17 +279,33 @@ export function CandidatePanel({
         <div className="flex items-center gap-1">
           {mode === "panel" ? (
             <>
-              <IconButton label={t("close")} hint={<Kbd className="h-4 border-paper/30 bg-transparent text-paper">Esc</Kbd>} onClick={onClose}>
+              <IconButton
+                label={t("close")}
+                hint={<Kbd className="h-4 border-paper/30 bg-transparent text-paper">Esc</Kbd>}
+                onClick={onClose}
+              >
                 <X />
               </IconButton>
-              <IconButton label={t("previous")} hint="K" disabled={!prevId} onClick={() => prevId && onNavigate(prevId)}>
+              <IconButton
+                label={t("previous")}
+                hint="K"
+                disabled={!prevId}
+                onClick={() => prevId && onNavigate(prevId)}
+              >
                 <ChevronUp />
               </IconButton>
-              <IconButton label={t("next")} hint="J" disabled={!nextId} onClick={() => nextId && onNavigate(nextId)}>
+              <IconButton
+                label={t("next")}
+                hint="J"
+                disabled={!nextId}
+                onClick={() => nextId && onNavigate(nextId)}
+              >
                 <ChevronDown />
               </IconButton>
               {index >= 0 ? (
-                <span className="ml-1 text-12 text-ink-muted tabular-nums">{t("position", { index: index + 1, total: orderedIds.length })}</span>
+                <span className="ml-1 text-12 text-ink-muted tabular-nums">
+                  {t("position", { index: index + 1, total: orderedIds.length })}
+                </span>
               ) : null}
             </>
           ) : null}
@@ -256,7 +321,10 @@ export function CandidatePanel({
               <h2 className="truncate text-20 font-semibold">{name}</h2>
               <p className="mt-0.5 flex flex-wrap gap-x-3 text-13 text-ink-muted">
                 {detail.candidate.email ? (
-                  <a href={`mailto:${detail.candidate.email}`} className="hover:text-ink hover:underline">
+                  <a
+                    href={`mailto:${detail.candidate.email}`}
+                    className="hover:text-ink hover:underline"
+                  >
                     {detail.candidate.email}
                   </a>
                 ) : (
@@ -285,7 +353,11 @@ export function CandidatePanel({
                 ))}
               </Select>
               {permissions.email ? (
-                <Button onClick={() => onEmail(applicationId)} disabled={!detail.candidate.email} title="E">
+                <Button
+                  onClick={() => onEmail(applicationId)}
+                  disabled={!detail.candidate.email}
+                  title="E"
+                >
                   <Mail aria-hidden="true" />
                   {t("email")}
                 </Button>
@@ -358,7 +430,10 @@ export function CandidatePanel({
             {permissions.tag ? (
               <Popover open={tagOpen} onOpenChange={setTagOpen}>
                 <PopoverTrigger asChild>
-                  <button type="button" className="inline-flex h-5 items-center gap-1 rounded-sm px-1.5 text-12 text-ink-muted hover:bg-stone hover:text-ink">
+                  <button
+                    type="button"
+                    className="inline-flex h-5 items-center gap-1 rounded-sm px-1.5 text-12 text-ink-muted hover:bg-stone hover:text-ink"
+                  >
                     <Plus className="size-3" aria-hidden="true" />
                     {t("addTag")}
                   </button>
@@ -371,7 +446,14 @@ export function CandidatePanel({
                       addTag();
                     }}
                   >
-                    <Input autoFocus value={tagName} onChange={(e) => setTagName(e.target.value)} placeholder={t("tagPlaceholder")} aria-label={t("addTag")} maxLength={40} />
+                    <Input
+                      autoFocus
+                      value={tagName}
+                      onChange={(e) => setTagName(e.target.value)}
+                      placeholder={t("tagPlaceholder")}
+                      aria-label={t("addTag")}
+                      maxLength={40}
+                    />
                     <Button type="submit" variant="primary">
                       {tx("pipeline.apply")}
                     </Button>
@@ -383,13 +465,23 @@ export function CandidatePanel({
         ) : null}
 
         {detail && isRejected && detail.application.rejectedAt ? (
-          <Banner tone="danger" className="mt-3" title={t("rejectedBanner", { date: formatDate(detail.application.rejectedAt, locale) })}>
-            {detail.application.rejectionReason ? `${t("rejectedReason", { reason: tReject(`reasons.${detail.application.rejectionReason}` as "reasons.other") })}. ` : ""}
+          <Banner
+            tone="danger"
+            className="mt-3"
+            title={t("rejectedBanner", { date: formatDate(detail.application.rejectedAt, locale) })}
+          >
+            {detail.application.rejectionReason
+              ? `${t("rejectedReason", { reason: tReject(`reasons.${detail.application.rejectionReason}` as "reasons.other") })}. `
+              : ""}
             {permissions.move ? t("rejectedHint") : null}
           </Banner>
         ) : null}
 
-        <div className="mt-3 flex gap-1 rounded-sm bg-stone p-0.5 xl:hidden" role="tablist" aria-label={t("label")}>
+        <div
+          className="mt-3 flex gap-1 rounded-sm bg-stone p-0.5 xl:hidden"
+          role="tablist"
+          aria-label={t("label")}
+        >
           {(["details", "cv"] as const).map((v) => (
             <button
               key={v}
@@ -397,7 +489,12 @@ export function CandidatePanel({
               role="tab"
               aria-selected={view === v}
               onClick={() => setView(v)}
-              className={cn("h-7 flex-1 rounded-xs text-13 font-medium", view === v ? "bg-paper text-ink shadow-[0_0_0_1px_var(--color-line)]" : "text-ink-muted")}
+              className={cn(
+                "h-7 flex-1 rounded-xs text-13 font-medium",
+                view === v
+                  ? "bg-paper text-ink shadow-[0_0_0_1px_var(--color-line)]"
+                  : "text-ink-muted",
+              )}
             >
               {v === "cv" ? t("showCv") : t("showDetails")}
             </button>
@@ -407,23 +504,44 @@ export function CandidatePanel({
 
       {error ? (
         <div className="p-6">
-          <Banner tone="danger" title={t("loadError")} action={<Button size="sm" onClick={() => void load()}>{t("retry")}</Button>} />
+          <Banner
+            tone="danger"
+            title={t("loadError")}
+            action={
+              <Button size="sm" onClick={() => void load()}>
+                {t("retry")}
+              </Button>
+            }
+          />
         </div>
       ) : (
         <div className="grid min-h-0 flex-1 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           <CvViewer
             key={detail?.candidate.id ?? "loading"}
             files={detail ? detail.cvs.map((f) => ({ ...f, createdAt: String(f.createdAt) })) : []}
-            className={cn("min-h-0 border-line xl:border-r", view === "cv" ? "flex" : "hidden xl:flex", !detail && "invisible")}
+            className={cn(
+              "min-h-0 border-line xl:border-r",
+              view === "cv" ? "flex" : "hidden xl:flex",
+              !detail && "invisible",
+            )}
           />
-          <div className={cn("min-h-0 overflow-y-auto px-4 py-4 md:px-5", view === "details" ? "block" : "hidden xl:block")}>
+          <div
+            className={cn(
+              "min-h-0 overflow-y-auto px-4 py-4 md:px-5",
+              view === "details" ? "block" : "hidden xl:block",
+            )}
+          >
             {detail ? (
               <Tabs value={tab} onValueChange={changeTab}>
                 <TabsList>
                   <TabsTrigger value="application">{t("tabs.application")}</TabsTrigger>
                   <TabsTrigger value="notes">
                     {t("tabs.notes")}
-                    {detail.notes.length > 0 ? <span className="font-normal text-ink-muted tabular-nums">{detail.notes.length}</span> : null}
+                    {detail.notes.length > 0 ? (
+                      <span className="font-normal text-ink-muted tabular-nums">
+                        {detail.notes.length}
+                      </span>
+                    ) : null}
                   </TabsTrigger>
                   <TabsTrigger value="evaluations">{t("tabs.evaluations")}</TabsTrigger>
                   <TabsTrigger value="activity">{t("tabs.activity")}</TabsTrigger>
@@ -432,7 +550,12 @@ export function CandidatePanel({
                   <ApplicationSection detail={detail} />
                 </TabsContent>
                 <TabsContent value="notes" className="pt-4">
-                  <NotesSection detail={detail} meId={meId} canNote={permissions.note ?? true} onChanged={() => void load()} />
+                  <NotesSection
+                    detail={detail}
+                    meId={meId}
+                    canNote={permissions.note ?? true}
+                    onChanged={() => void load()}
+                  />
                 </TabsContent>
                 <TabsContent value="evaluations" className="pt-4">
                   <EvaluationsSection
@@ -470,7 +593,11 @@ export function CandidatePanel({
             setConfirmWord("");
           }}
         >
-          <DialogContent width="sm" title={tg("deleteTitle", { name })} closeLabel={tx("common.close")}>
+          <DialogContent
+            width="sm"
+            title={tg("deleteTitle", { name })}
+            closeLabel={tx("common.close")}
+          >
             <form
               className="contents"
               onSubmit={(e) => {
@@ -489,14 +616,23 @@ export function CandidatePanel({
               <DialogBody className="flex flex-col gap-4">
                 <p className="text-14">{tg("deleteBody")}</p>
                 <Field label={tg("deleteConfirmLabel")}>
-                  <Input value={confirmWord} onChange={(e) => setConfirmWord(e.target.value)} autoComplete="off" />
+                  <Input
+                    value={confirmWord}
+                    onChange={(e) => setConfirmWord(e.target.value)}
+                    autoComplete="off"
+                  />
                 </Field>
               </DialogBody>
               <DialogFooter>
                 <DialogClose asChild>
                   <Button variant="ghost">{tx("common.cancel")}</Button>
                 </DialogClose>
-                <Button type="submit" variant="danger" loading={deleting} disabled={confirmWord.trim().toUpperCase() !== tg("deleteWord")}>
+                <Button
+                  type="submit"
+                  variant="danger"
+                  loading={deleting}
+                  disabled={confirmWord.trim().toUpperCase() !== tg("deleteWord")}
+                >
                   {tg("delete")}
                 </Button>
               </DialogFooter>

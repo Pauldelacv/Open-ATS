@@ -21,7 +21,12 @@ export function DropdownMenuContent({
 }: ComponentProps<typeof Menu.Content>) {
   return (
     <Menu.Portal>
-      <Menu.Content sideOffset={sideOffset} align={align} className={cn(surface, className)} {...props} />
+      <Menu.Content
+        sideOffset={sideOffset}
+        align={align}
+        className={cn(surface, className)}
+        {...props}
+      />
     </Menu.Portal>
   );
 }
@@ -60,18 +65,31 @@ export function DropdownMenuCheckboxItem({
 }
 
 export function DropdownMenuLabel({ className, ...props }: ComponentProps<typeof Menu.Label>) {
-  return <Menu.Label className={cn("px-2 pt-1.5 pb-1 text-12 text-ink-muted", className)} {...props} />;
+  return (
+    <Menu.Label className={cn("px-2 pt-1.5 pb-1 text-12 text-ink-muted", className)} {...props} />
+  );
 }
 
-export function DropdownMenuSeparator({ className, ...props }: ComponentProps<typeof Menu.Separator>) {
+export function DropdownMenuSeparator({
+  className,
+  ...props
+}: ComponentProps<typeof Menu.Separator>) {
   return <Menu.Separator className={cn("-mx-1 my-1 h-px bg-line", className)} {...props} />;
 }
 
-export function DropdownMenuSubTrigger({ className, ...props }: ComponentProps<typeof Menu.SubTrigger>) {
-  return <Menu.SubTrigger className={cn(item, "data-[state=open]:bg-stone", className)} {...props} />;
+export function DropdownMenuSubTrigger({
+  className,
+  ...props
+}: ComponentProps<typeof Menu.SubTrigger>) {
+  return (
+    <Menu.SubTrigger className={cn(item, "data-[state=open]:bg-stone", className)} {...props} />
+  );
 }
 
-export function DropdownMenuSubContent({ className, ...props }: ComponentProps<typeof Menu.SubContent>) {
+export function DropdownMenuSubContent({
+  className,
+  ...props
+}: ComponentProps<typeof Menu.SubContent>) {
   return (
     <Menu.Portal>
       <Menu.SubContent className={cn(surface, className)} {...props} />

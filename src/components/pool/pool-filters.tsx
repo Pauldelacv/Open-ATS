@@ -45,7 +45,10 @@ export function PoolFilters({
   return (
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
       <div className="relative w-full lg:max-w-md">
-        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
+        <Search
+          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-muted"
+          aria-hidden="true"
+        />
         <Input
           type="search"
           size="lg"
@@ -59,14 +62,24 @@ export function PoolFilters({
           {pending ? (
             <Spinner className="text-ink-muted" />
           ) : query ? (
-            <button type="button" aria-label={t("clear")} onClick={() => setQuery("")} className="inline-flex size-6 items-center justify-center rounded-sm text-ink-muted hover:text-ink">
+            <button
+              type="button"
+              aria-label={t("clear")}
+              onClick={() => setQuery("")}
+              className="inline-flex size-6 items-center justify-center rounded-sm text-ink-muted hover:text-ink"
+            >
               <X className="size-4" />
             </button>
           ) : null}
         </span>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:flex">
-        <Select aria-label={t("tag")} value={params.get("tag") ?? ""} onChange={(e) => update({ tag: e.target.value })} className="lg:w-44">
+        <Select
+          aria-label={t("tag")}
+          value={params.get("tag") ?? ""}
+          onChange={(e) => update({ tag: e.target.value })}
+          className="lg:w-44"
+        >
           <option value="">{t("allTags")}</option>
           {tags.map((tag) => (
             <option key={tag.id} value={tag.id}>
@@ -74,7 +87,12 @@ export function PoolFilters({
             </option>
           ))}
         </Select>
-        <Select aria-label={t("job")} value={params.get("job") ?? ""} onChange={(e) => update({ job: e.target.value })} className="lg:w-56">
+        <Select
+          aria-label={t("job")}
+          value={params.get("job") ?? ""}
+          onChange={(e) => update({ job: e.target.value })}
+          className="lg:w-56"
+        >
           <option value="">{t("allJobs")}</option>
           {jobs.map((job) => (
             <option key={job.id} value={job.id}>
@@ -82,7 +100,12 @@ export function PoolFilters({
             </option>
           ))}
         </Select>
-        <Select aria-label={t("status")} value={params.get("status") ?? ""} onChange={(e) => update({ status: e.target.value })} className="lg:w-40">
+        <Select
+          aria-label={t("status")}
+          value={params.get("status") ?? ""}
+          onChange={(e) => update({ status: e.target.value })}
+          className="lg:w-40"
+        >
           <option value="">{t("allStatuses")}</option>
           {(["active", "hired", "rejected"] as const).map((s) => (
             <option key={s} value={s}>

@@ -21,7 +21,8 @@ export const buttonVariants = cva(
         secondary:
           "border border-line-strong bg-paper text-ink hover:bg-stone active:bg-stone-strong disabled:border-line disabled:text-ink-subtle",
         ghost: "text-ink hover:bg-stone-strong/70 active:bg-stone-strong disabled:text-ink-subtle",
-        danger: "bg-danger text-paper hover:bg-danger-hover active:bg-danger-press disabled:bg-stone-strong disabled:text-ink-subtle",
+        danger:
+          "bg-danger text-paper hover:bg-danger-hover active:bg-danger-press disabled:bg-stone-strong disabled:text-ink-subtle",
         link: "h-auto px-0 text-cobalt underline-offset-2 hover:underline disabled:text-ink-subtle",
       },
       size: {

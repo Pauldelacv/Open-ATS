@@ -28,7 +28,11 @@ export default async function EditJobPage({ params }: PageProps<"/jobs/[jobId]/e
   const [members, suggestions] = await Promise.all([listMembers(ctx), jobSuggestions(ctx)]);
   return (
     <PageContainer>
-      <PageHeader before={<BackLink href={`/jobs/${job.id}`}>{job.title}</BackLink>} title={t("editor.editTitle")} className="mb-5" />
+      <PageHeader
+        before={<BackLink href={`/jobs/${job.id}`}>{job.title}</BackLink>}
+        title={t("editor.editTitle")}
+        className="mb-5"
+      />
       <JobEditor
         jobId={job.id}
         status={job.status}
@@ -45,7 +49,13 @@ export default async function EditJobPage({ params }: PageProps<"/jobs/[jobId]/e
           salaryMax: job.salaryMax?.toString() ?? "",
           salaryCurrency: job.salaryCurrency,
           salaryPeriod: job.salaryPeriod,
-          questions: job.questions.map((q) => ({ id: q.id, label: q.label, type: q.type, options: q.options, required: q.required })),
+          questions: job.questions.map((q) => ({
+            id: q.id,
+            label: q.label,
+            type: q.type,
+            options: q.options,
+            required: q.required,
+          })),
           memberIds: job.memberIds,
         }}
       />

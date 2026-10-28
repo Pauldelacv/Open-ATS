@@ -18,7 +18,14 @@ const optionalAmount = z
   .optional()
   .transform((v, ctx) => {
     if (v === null || v === undefined || v === "") return null;
-    const n = typeof v === "number" ? v : Number(String(v).replace(/[\s  ]/g, "").replace(",", "."));
+    const n =
+      typeof v === "number"
+        ? v
+        : Number(
+            String(v)
+              .replace(/[\s  ]/g, "")
+              .replace(",", "."),
+          );
     if (!Number.isFinite(n) || n < 0 || n > 100_000_000) {
       ctx.addIssue({ code: "custom", message: "jobs.errors.salary" });
       return z.NEVER;

@@ -21,12 +21,16 @@ async function load(params: PageProps<"/careers/[org]/jobs/[slug]">["params"]) {
   return job ? { org, job } : null;
 }
 
-export async function generateMetadata({ params }: PageProps<"/careers/[org]/jobs/[slug]">): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/careers/[org]/jobs/[slug]">): Promise<Metadata> {
   const data = await load(params);
   if (!data) return {};
   const { org, job } = data;
   const url = appUrl(`/careers/${org.slug}/jobs/${job.slug}`);
-  const description = (richTextToPlain(job.descriptionHtml) || job.title).replace(/\s+/g, " ").slice(0, 180);
+  const description = (richTextToPlain(job.descriptionHtml) || job.title)
+    .replace(/\s+/g, " ")
+    .slice(0, 180);
   return {
     title: job.title,
     description,
@@ -61,7 +65,9 @@ export default async function CareerJobPage({ params }: PageProps<"/careers/[org
     [t("job.remote"), tj(`remote.${job.remote}`)],
     ...(job.department ? ([[t("job.department"), job.department]] as Array<[string, string]>) : []),
     ...(salary ? ([[t("job.salary"), salary]] as Array<[string, string]>) : []),
-    ...(job.publishedAt ? ([[t("job.published"), formatDate(job.publishedAt, org.locale)]] as Array<[string, string]>) : []),
+    ...(job.publishedAt
+      ? ([[t("job.published"), formatDate(job.publishedAt, org.locale)]] as Array<[string, string]>)
+      : []),
   ];
 
   return (
@@ -69,7 +75,10 @@ export default async function CareerJobPage({ params }: PageProps<"/careers/[org
       <BrandBar org={org} />
       <main className="flex-1 pb-24 lg:pb-0">
         <CareersContainer className="pt-5 md:pt-10">
-          <Link href={`/careers/${org.slug}`} className="inline-flex items-center gap-1 rounded-sm text-14 text-ink-muted hover:text-ink">
+          <Link
+            href={`/careers/${org.slug}`}
+            className="inline-flex items-center gap-1 rounded-sm text-14 text-ink-muted hover:text-ink"
+          >
             <ChevronLeft className="size-4" aria-hidden="true" />
             {t("job.back")}
           </Link>
@@ -85,10 +94,17 @@ export default async function CareerJobPage({ params }: PageProps<"/careers/[org
                 ))}
               </dl>
               {job.descriptionHtml ? (
-                <div className="rich-text mt-8" dangerouslySetInnerHTML={{ __html: job.descriptionHtml }} />
+                <div
+                  className="rich-text mt-8"
+                  dangerouslySetInnerHTML={{ __html: job.descriptionHtml }}
+                />
               ) : null}
 
-              <section id="apply" aria-labelledby="apply-title" className="mt-12 scroll-mt-6 border-t border-line pt-8">
+              <section
+                id="apply"
+                aria-labelledby="apply-title"
+                className="mt-12 scroll-mt-6 border-t border-line pt-8"
+              >
                 <h2 id="apply-title" className="font-heading text-32 text-ink">
                   {t("apply.title")}
                 </h2>
@@ -99,7 +115,13 @@ export default async function CareerJobPage({ params }: PageProps<"/careers/[org
                     company={org.name}
                     retentionMonths={org.retentionMonths}
                     locale={org.locale}
-                    questions={job.questions.map((q) => ({ id: q.id, label: q.label, type: q.type, options: q.options, required: q.required }))}
+                    questions={job.questions.map((q) => ({
+                      id: q.id,
+                      label: q.label,
+                      type: q.type,
+                      options: q.options,
+                      required: q.required,
+                    }))}
                   />
                 </div>
               </section>
@@ -136,7 +158,11 @@ export default async function CareerJobPage({ params }: PageProps<"/careers/[org
             jobPostingLd({
               ...job,
               url,
-              organization: { name: org.name, websiteUrl: org.websiteUrl, logoUrl: org.logoUrl ? appUrl(org.logoUrl) : null },
+              organization: {
+                name: org.name,
+                websiteUrl: org.websiteUrl,
+                logoUrl: org.logoUrl ? appUrl(org.logoUrl) : null,
+              },
             }),
           ),
         }}

@@ -15,7 +15,9 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <header className={cn("flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", className)}>
+    <header
+      className={cn("flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", className)}
+    >
       <div className="min-w-0">
         {before}
         <h1 className="text-24 font-semibold text-ink">{title}</h1>
@@ -26,6 +28,16 @@ export function PageHeader({
   );
 }
 
-export function PageContainer({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("mx-auto w-full max-w-6xl px-4 py-5 md:px-6 md:py-6", className)}>{children}</div>;
+export function PageContainer({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("mx-auto w-full max-w-6xl px-4 py-5 md:px-6 md:py-6", className)}>
+      {children}
+    </div>
+  );
 }

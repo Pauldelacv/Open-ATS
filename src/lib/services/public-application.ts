@@ -1,9 +1,22 @@
 import { and, asc, eq, min, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { applications, candidates, files, pipelineStages, type ApplicationAnswer } from "@/lib/db/schema";
+import {
+  applications,
+  candidates,
+  files,
+  pipelineStages,
+  type ApplicationAnswer,
+} from "@/lib/db/schema";
 import { extractCvText } from "@/lib/cv-text";
 import { storage } from "@/lib/storage";
-import { CV_MIME, cvKind, cvSignatureMatches, MAX_CV_BYTES, type ApplicationData, type PublicQuestion } from "@/lib/validation/application";
+import {
+  CV_MIME,
+  cvKind,
+  cvSignatureMatches,
+  MAX_CV_BYTES,
+  type ApplicationData,
+  type PublicQuestion,
+} from "@/lib/validation/application";
 import { logActivity } from "./activity";
 import { sendConfirmationEmail } from "./emails";
 import { refreshSearchText } from "./search-index";
@@ -17,14 +30,25 @@ export class CvRejectedError extends Error {
 
 export type IncomingCv = { name: string; type: string; size: number; data: Buffer };
 
-export function cvStorageKey(orgId: string, candidateId: string, fileId: string, kind: "pdf" | "docx") {
+export function cvStorageKey(
+  orgId: string,
+  candidateId: string,
+  fileId: string,
+  kind: "pdf" | "docx",
+) {
   return `org/${orgId}/candidates/${candidateId}/${fileId}.${kind}`;
 }
 
 /** Stores a CV and its extracted text for a candidate. */
-export async function storeCv(orgId: string, candidateId: string, applicationId: string | null, cv: IncomingCv) {
+export async function storeCv(
+  orgId: string,
+  candidateId: string,
+  applicationId: string | null,
+  cv: IncomingCv,
+) {
   const kind = cvKind(cv);
-  if (!kind || cv.size > MAX_CV_BYTES || !cvSignatureMatches(kind, cv.data)) throw new CvRejectedError();
+  if (!kind || cv.size > MAX_CV_BYTES || !cvSignatureMatches(kind, cv.data))
+    throw new CvRejectedError();
   const fileId = crypto.randomUUID();
   const key = cvStorageKey(orgId, candidateId, fileId, kind);
   await storage().put(key, cv.data, CV_MIME[kind]);
@@ -63,7 +87,12 @@ export async function submitPublicApplication(input: {
   if (!kind || !cvSignatureMatches(kind, input.cv.data)) throw new CvRejectedError();
 
   const answers: ApplicationAnswer[] = input.questions
-    .map((q) => ({ questionId: q.id, label: q.label, type: q.type, value: data.answers[q.id] ?? "" }))
+    .map((q) => ({
+      questionId: q.id,
+      label: q.label,
+      type: q.type,
+      value: data.answers[q.id] ?? "",
+    }))
     .filter((a) => a.value !== "");
   const now = new Date();
 
@@ -72,7 +101,10 @@ export async function submitPublicApplication(input: {
       .select({ id: pipelineStages.id })
       .from(pipelineStages)
       .where(and(eq(pipelineStages.jobId, jobId), eq(pipelineStages.organizationId, orgId)))
-      .orderBy(sql`case when ${pipelineStages.kind} = 'new' then 0 else 1 end`, asc(pipelineStages.position))
+      .orderBy(
+        sql`case when ${pipelineStages.kind} = 'new' then 0 else 1 end`,
+        asc(pipelineStages.position),
+      )
       .limit(1);
     if (!firstStage) throw new Error("Job has no pipeline stage");
 
@@ -108,7 +140,13 @@ export async function submitPublicApplication(input: {
     if (existing) {
       await tx
         .update(applications)
-        .set({ answers, message: data.message || null, consentAt: now, consentText: input.consentText, viewedAt: null })
+        .set({
+          answers,
+          message: data.message || null,
+          consentAt: now,
+          consentText: input.consentText,
+          viewedAt: null,
+        })
         .where(eq(applications.id, existing.id));
       return { candidateId: candidate!.id, applicationId: existing.id, reapplied: true };
     }
@@ -137,7 +175,11 @@ export async function submitPublicApplication(input: {
   });
 
   await storeCv(orgId, candidateId, applicationId, input.cv);
-  await logActivity(db, { orgId }, { candidateId, applicationId, jobId, type: reapplied ? "reapplied" : "applied" });
+  await logActivity(
+    db,
+    { orgId },
+    { candidateId, applicationId, jobId, type: reapplied ? "reapplied" : "applied" },
+  );
   await refreshSearchText(db, candidateId);
   try {
     await sendConfirmationEmail(orgId, applicationId);

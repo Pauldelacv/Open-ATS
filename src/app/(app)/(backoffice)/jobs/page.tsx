@@ -26,8 +26,12 @@ export default async function JobsPage({ searchParams }: PageProps<"/jobs">) {
   const locale = await getLocale();
   const params = await searchParams;
   const counts = await jobStatusCounts(ctx);
-  const requested = typeof params.status === "string" && tabs.includes(params.status as JobStatus) ? (params.status as JobStatus) : null;
-  const status: JobStatus = requested ?? (counts.published === 0 && counts.draft > 0 ? "draft" : "published");
+  const requested =
+    typeof params.status === "string" && tabs.includes(params.status as JobStatus)
+      ? (params.status as JobStatus)
+      : null;
+  const status: JobStatus =
+    requested ?? (counts.published === 0 && counts.draft > 0 ? "draft" : "published");
   const list = await listJobs(ctx, status);
   const canManage = can(ctx.role, "job:manage");
   const total = counts.published + counts.draft + counts.archived;
@@ -60,7 +64,9 @@ export default async function JobsPage({ searchParams }: PageProps<"/jobs">) {
               aria-current={tab === status ? "page" : undefined}
               className={cn(
                 "-mb-px inline-flex h-9 items-center gap-1.5 border-b-2 text-14 font-medium",
-                tab === status ? "border-ink text-ink" : "border-transparent text-ink-muted hover:text-ink",
+                tab === status
+                  ? "border-ink text-ink"
+                  : "border-transparent text-ink-muted hover:text-ink",
               )}
             >
               {t(`tabs.${tab}`)}
@@ -75,12 +81,19 @@ export default async function JobsPage({ searchParams }: PageProps<"/jobs">) {
           ctx.role === "member" ? (
             <EmptyState title={t("list.emptyMember")} description={t("list.emptyMemberBody")} />
           ) : (
-            <EmptyState title={empty[0]} description={empty[1]} action={status !== "archived" ? createButton : undefined} />
+            <EmptyState
+              title={empty[0]}
+              description={empty[1]}
+              action={status !== "archived" ? createButton : undefined}
+            />
           )
         ) : (
           <ul className="divide-y divide-line">
             {list.map((job) => (
-              <li key={job.id} className="relative flex flex-col gap-1 px-4 py-3 hover:bg-stone sm:flex-row sm:items-center sm:gap-4">
+              <li
+                key={job.id}
+                className="relative flex flex-col gap-1 px-4 py-3 hover:bg-stone sm:flex-row sm:items-center sm:gap-4"
+              >
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/jobs/${job.id}`}
@@ -100,8 +113,14 @@ export default async function JobsPage({ searchParams }: PageProps<"/jobs">) {
                   </div>
                 </div>
                 <div className="flex items-center gap-4 text-13 sm:justify-end">
-                  {job.newCount > 0 ? <Mark className="text-12 font-medium">{t("list.new", { count: job.newCount })}</Mark> : null}
-                  <span className="text-ink tabular-nums sm:w-28 sm:text-right">{t("list.candidates", { count: job.activeCount })}</span>
+                  {job.newCount > 0 ? (
+                    <Mark className="text-12 font-medium">
+                      {t("list.new", { count: job.newCount })}
+                    </Mark>
+                  ) : null}
+                  <span className="text-ink tabular-nums sm:w-28 sm:text-right">
+                    {t("list.candidates", { count: job.activeCount })}
+                  </span>
                   <span className="whitespace-nowrap text-ink-muted tabular-nums sm:w-40 sm:text-right">
                     {status === "published" && job.publishedAt
                       ? t("list.published", { date: formatRelative(job.publishedAt, locale, now) })

@@ -4,7 +4,12 @@ import { cn } from "@/lib/cn";
 /** The highlighter. Reserved for new items, mentions of the viewer and search hits. */
 export function Mark({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <mark className={cn("rounded-xs bg-highlighter px-0.5 text-ink [box-decoration-break:clone]", className)}>
+    <mark
+      className={cn(
+        "rounded-xs bg-highlighter [box-decoration-break:clone] px-0.5 text-ink",
+        className,
+      )}
+    >
       {children}
     </mark>
   );

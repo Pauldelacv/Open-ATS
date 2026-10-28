@@ -19,7 +19,13 @@ export class AlreadyAppliedError extends Error {
 export async function addCandidateToJob(
   ctx: Ctx,
   jobId: string,
-  input: { firstName: string; lastName: string; email: string | null; phone: string | null; linkUrl: string | null },
+  input: {
+    firstName: string;
+    lastName: string;
+    email: string | null;
+    phone: string | null;
+    linkUrl: string | null;
+  },
   cv: IncomingCv | null,
 ) {
   assertCan(ctx.role, "candidate:create");
@@ -30,18 +36,32 @@ export async function addCandidateToJob(
       .select({ id: pipelineStages.id })
       .from(pipelineStages)
       .where(eq(pipelineStages.jobId, job.id))
-      .orderBy(sql`case when ${pipelineStages.kind} = 'new' then 0 else 1 end`, asc(pipelineStages.position))
+      .orderBy(
+        sql`case when ${pipelineStages.kind} = 'new' then 0 else 1 end`,
+        asc(pipelineStages.position),
+      )
       .limit(1);
     let candidateId: string;
     if (input.email) {
       const [row] = await tx
         .insert(candidates)
-        .values({ organizationId: ctx.orgId, ...input, email: input.email.toLowerCase(), lastActivityAt: now })
-        .onConflictDoUpdate({ target: [candidates.organizationId, candidates.email], set: { lastActivityAt: now } })
+        .values({
+          organizationId: ctx.orgId,
+          ...input,
+          email: input.email.toLowerCase(),
+          lastActivityAt: now,
+        })
+        .onConflictDoUpdate({
+          target: [candidates.organizationId, candidates.email],
+          set: { lastActivityAt: now },
+        })
         .returning({ id: candidates.id });
       candidateId = row!.id;
     } else {
-      const [row] = await tx.insert(candidates).values({ organizationId: ctx.orgId, ...input, lastActivityAt: now }).returning({ id: candidates.id });
+      const [row] = await tx
+        .insert(candidates)
+        .values({ organizationId: ctx.orgId, ...input, lastActivityAt: now })
+        .returning({ id: candidates.id });
       candidateId = row!.id;
     }
     const [existing] = await tx
@@ -49,7 +69,10 @@ export async function addCandidateToJob(
       .from(applications)
       .where(and(eq(applications.jobId, job.id), eq(applications.candidateId, candidateId)));
     if (existing) throw new AlreadyAppliedError();
-    const [top] = await tx.select({ value: min(applications.position) }).from(applications).where(eq(applications.stageId, firstStage!.id));
+    const [top] = await tx
+      .select({ value: min(applications.position) })
+      .from(applications)
+      .where(eq(applications.stageId, firstStage!.id));
     const [app] = await tx
       .insert(applications)
       .values({

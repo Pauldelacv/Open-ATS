@@ -11,14 +11,23 @@ export async function JobHeader({
   job,
   actions,
 }: {
-  job: { title: string; status: JobStatus; department: string | null; location: string | null; contract: ContractType; remote: RemotePolicy };
+  job: {
+    title: string;
+    status: JobStatus;
+    department: string | null;
+    location: string | null;
+    contract: ContractType;
+    remote: RemotePolicy;
+  };
   actions?: ReactNode;
 }) {
   const t = await getTranslations("jobs");
   return (
     <header className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
       <div className="min-w-0">
-        <BackLink href={job.status === "published" ? "/jobs" : `/jobs?status=${job.status}`}>{t("title")}</BackLink>
+        <BackLink href={job.status === "published" ? "/jobs" : `/jobs?status=${job.status}`}>
+          {t("title")}
+        </BackLink>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <h1 className="text-24 font-semibold text-ink">{job.title}</h1>
           <Badge tone={statusTone[job.status]}>{t(`status.${job.status}`)}</Badge>

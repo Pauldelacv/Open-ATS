@@ -1,20 +1,52 @@
 import { getTableColumns, getTableName } from "drizzle-orm";
 import { beforeAll, describe, expect, it } from "vitest";
 import { db } from "@/lib/db";
-import { applications, files, invitations, memberships, notes, tenantTables } from "@/lib/db/schema";
+import {
+  applications,
+  files,
+  invitations,
+  memberships,
+  notes,
+  tenantTables,
+} from "@/lib/db/schema";
 import { NotFoundError } from "@/lib/permissions";
-import { getApplicationDetail, addNote, saveEvaluation, listEvaluations, assertCandidateAccess } from "@/lib/services/candidates";
-import { listTemplates, saveTemplate, sendCandidateEmails, listEmailJournal } from "@/lib/services/emails";
+import {
+  getApplicationDetail,
+  addNote,
+  saveEvaluation,
+  listEvaluations,
+  assertCandidateAccess,
+} from "@/lib/services/candidates";
+import {
+  listTemplates,
+  saveTemplate,
+  sendCandidateEmails,
+  listEmailJournal,
+} from "@/lib/services/emails";
 import { getAccessibleFile } from "@/lib/services/files";
 import { exportCandidate, deleteCandidate, retentionOverview } from "@/lib/services/gdpr";
-import { getJob, listJobs, setJobStatus, updateJob, saveStages, listStages, deleteDraftJob } from "@/lib/services/jobs";
+import {
+  getJob,
+  listJobs,
+  setJobStatus,
+  updateJob,
+  saveStages,
+  listStages,
+  deleteDraftJob,
+} from "@/lib/services/jobs";
 import { addCandidateToJob } from "@/lib/services/manual-candidate";
 import { unreadMentionCount } from "@/lib/services/notifications";
 import { getBoard, moveApplications, markViewed } from "@/lib/services/pipeline";
 import { rejectApplications } from "@/lib/services/rejections";
 import { quickSearch, searchPool } from "@/lib/services/search";
 import { addTag, removeTag, listTags } from "@/lib/services/tags";
-import { changeRole, listMembers, removeMember, revokeInvitation, inviteMember } from "@/lib/services/team";
+import {
+  changeRole,
+  listMembers,
+  removeMember,
+  revokeInvitation,
+  inviteMember,
+} from "@/lib/services/team";
 import type { Ctx } from "@/lib/services/types";
 import { eq, sql } from "drizzle-orm";
 import { apply, createTenant, publishedJob } from "../helpers";
@@ -41,20 +73,43 @@ describe("tenant isolation", () => {
     b = await createTenant("Beta");
     await publishedJob(a, "Poste chez Alpha");
     bJob = await publishedJob(b, "Poste secret chez Beta");
-    const applied = await apply(b, bJob.id, { firstName: "Bérénice", lastName: "Secret", email: "berenice@beta.test" }, "Compétence confidentielle zephyr");
+    const applied = await apply(
+      b,
+      bJob.id,
+      { firstName: "Bérénice", lastName: "Secret", email: "berenice@beta.test" },
+      "Compétence confidentielle zephyr",
+    );
     bApplicationId = applied.applicationId;
     bCandidateId = applied.candidateId;
     const board = await getBoard(b, bJob.id);
     bStageId = board.stages[2]!.id;
     bTemplateId = (await listTemplates(b))[0]!.id;
-    bFileId = (await db.select({ id: files.id }).from(files).where(eq(files.candidateId, bCandidateId)))[0]!.id;
-    await addNote(b, { candidateId: bCandidateId, applicationId: bApplicationId, body: "Note privée zephyr" });
-    bNoteId = (await db.select({ id: notes.id }).from(notes).where(eq(notes.candidateId, bCandidateId)))[0]!.id;
+    bFileId = (
+      await db.select({ id: files.id }).from(files).where(eq(files.candidateId, bCandidateId))
+    )[0]!.id;
+    await addNote(b, {
+      candidateId: bCandidateId,
+      applicationId: bApplicationId,
+      body: "Note privée zephyr",
+    });
+    bNoteId = (
+      await db.select({ id: notes.id }).from(notes).where(eq(notes.candidateId, bCandidateId))
+    )[0]!.id;
     await saveEvaluation(b, { applicationId: bApplicationId, rating: 5, comment: "Top" });
     await addTag(b, [bCandidateId], "Beta-only");
-    bMembershipId = (await db.select({ id: memberships.id }).from(memberships).where(eq(memberships.organizationId, b.orgId)))[0]!.id;
+    bMembershipId = (
+      await db
+        .select({ id: memberships.id })
+        .from(memberships)
+        .where(eq(memberships.organizationId, b.orgId))
+    )[0]!.id;
     await inviteMember(b, { email: "invitee@beta.test", role: "recruiter" });
-    bInvitationId = (await db.select({ id: invitations.id }).from(invitations).where(eq(invitations.organizationId, b.orgId)))[0]!.id;
+    bInvitationId = (
+      await db
+        .select({ id: invitations.id })
+        .from(invitations)
+        .where(eq(invitations.organizationId, b.orgId))
+    )[0]!.id;
   });
 
   it("every tenant table carries a non-null organization_id in the database", async () => {
@@ -108,28 +163,50 @@ describe("tenant isolation", () => {
     await expect(updateJob(a, bJob.id, { title: "Piraté" })).rejects.toBeInstanceOf(NotFoundError);
     await expect(setJobStatus(a, bJob.id, "archived")).rejects.toBeInstanceOf(NotFoundError);
     await expect(deleteDraftJob(a, bJob.id)).rejects.toBeInstanceOf(NotFoundError);
-    await expect(saveStages(a, bJob.id, [{ name: "Piraté" }])).rejects.toBeInstanceOf(NotFoundError);
-    await expect(moveApplications(a, [bApplicationId], bStageId, 0)).rejects.toBeInstanceOf(NotFoundError);
-    await expect(rejectApplications(a, [bApplicationId], { reason: "other" })).rejects.toBeInstanceOf(NotFoundError);
-    await expect(addNote(a, { candidateId: bCandidateId, body: "Intrusion" })).rejects.toBeInstanceOf(NotFoundError);
-    await expect(saveEvaluation(a, { applicationId: bApplicationId, rating: 1, comment: "" })).rejects.toBeInstanceOf(NotFoundError);
-    await expect(saveTemplate(a, bTemplateId, { name: "x", kind: "other", subject: "x", body: "x" })).rejects.toBeInstanceOf(NotFoundError);
+    await expect(saveStages(a, bJob.id, [{ name: "Piraté" }])).rejects.toBeInstanceOf(
+      NotFoundError,
+    );
+    await expect(moveApplications(a, [bApplicationId], bStageId, 0)).rejects.toBeInstanceOf(
+      NotFoundError,
+    );
+    await expect(
+      rejectApplications(a, [bApplicationId], { reason: "other" }),
+    ).rejects.toBeInstanceOf(NotFoundError);
+    await expect(
+      addNote(a, { candidateId: bCandidateId, body: "Intrusion" }),
+    ).rejects.toBeInstanceOf(NotFoundError);
+    await expect(
+      saveEvaluation(a, { applicationId: bApplicationId, rating: 1, comment: "" }),
+    ).rejects.toBeInstanceOf(NotFoundError);
+    await expect(
+      saveTemplate(a, bTemplateId, { name: "x", kind: "other", subject: "x", body: "x" }),
+    ).rejects.toBeInstanceOf(NotFoundError);
     await expect(changeRole(a, bMembershipId, "member")).rejects.toBeInstanceOf(NotFoundError);
     await expect(removeMember(a, bMembershipId)).rejects.toBeInstanceOf(NotFoundError);
     await expect(deleteCandidate(a, bCandidateId)).rejects.toBeInstanceOf(NotFoundError);
-    await expect(addCandidateToJob(a, bJob.id, { firstName: "X", lastName: "Y", email: null, phone: null, linkUrl: null }, null)).rejects.toBeInstanceOf(
-      NotFoundError,
-    );
+    await expect(
+      addCandidateToJob(
+        a,
+        bJob.id,
+        { firstName: "X", lastName: "Y", email: null, phone: null, linkUrl: null },
+        null,
+      ),
+    ).rejects.toBeInstanceOf(NotFoundError);
 
     // Silent no-ops: nothing happens to B.
     await markViewed(a, bApplicationId);
-    const [viewed] = await db.select({ viewedAt: applications.viewedAt }).from(applications).where(eq(applications.id, bApplicationId));
+    const [viewed] = await db
+      .select({ viewedAt: applications.viewedAt })
+      .from(applications)
+      .where(eq(applications.id, bApplicationId));
     expect(viewed!.viewedAt).toBeNull();
     await revokeInvitation(a, bInvitationId);
     expect(await addTag(a, [bCandidateId], "Intrusion")).not.toBeNull();
     const tagB = (await listTags(b)).find((t) => t.name === "Beta-only")!;
     await removeTag(a, bCandidateId, tagB.id);
-    expect(await sendCandidateEmails(a, { applicationIds: [bApplicationId], subject: "x", body: "x" })).toEqual([]);
+    expect(
+      await sendCandidateEmails(a, { applicationIds: [bApplicationId], subject: "x", body: "x" }),
+    ).toEqual([]);
 
     // B is intact.
     const job = await getJob(b, bJob.id);
@@ -138,7 +215,9 @@ describe("tenant isolation", () => {
     const detail = await getApplicationDetail(b, bApplicationId);
     expect(detail.tags.map((t) => t.name)).toEqual(["Beta-only"]);
     expect(detail.notes.map((n) => n.id)).toEqual([bNoteId]);
-    expect((await db.select().from(invitations).where(eq(invitations.id, bInvitationId))).length).toBe(1);
+    expect(
+      (await db.select().from(invitations).where(eq(invitations.id, bInvitationId))).length,
+    ).toBe(1);
     expect((await searchPool(b, { q: "zephyr" })).total).toBe(1);
   });
 });

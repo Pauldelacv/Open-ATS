@@ -1,13 +1,28 @@
 import { and, asc, desc, eq, exists, ilike, inArray, isNull, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { applications, candidates, candidateTags, files, jobs, notes, pipelineStages, tags } from "@/lib/db/schema";
+import {
+  applications,
+  candidates,
+  candidateTags,
+  files,
+  jobs,
+  notes,
+  pipelineStages,
+  tags,
+} from "@/lib/db/schema";
 import { searchTerms, snippet, toPrefixTsQuery, type Snippet } from "@/lib/utils/text";
 import { candidateAccess, jobAccess } from "./access";
 import type { Ctx } from "./types";
 
 export type PoolStatus = "active" | "hired" | "rejected";
 
-export type PoolFilters = { q?: string; tagId?: string; jobId?: string; status?: PoolStatus; page?: number };
+export type PoolFilters = {
+  q?: string;
+  tagId?: string;
+  jobId?: string;
+  status?: PoolStatus;
+  page?: number;
+};
 
 export type PoolRow = {
   id: string;
@@ -15,7 +30,13 @@ export type PoolRow = {
   lastName: string;
   email: string | null;
   lastActivityAt: Date;
-  latest: { applicationId: string; jobId: string; jobTitle: string; stageName: string; stageKind: string } | null;
+  latest: {
+    applicationId: string;
+    jobId: string;
+    jobTitle: string;
+    stageName: string;
+    stageKind: string;
+  } | null;
   applicationCount: number;
   tags: string[];
   match: { field: "cv" | "note"; snippet: Snippet } | null;
@@ -31,7 +52,12 @@ function statusCondition(status: PoolStatus): SQL {
       .select({ one: sql`1` })
       .from(applications)
       .innerJoin(pipelineStages, eq(pipelineStages.id, applications.stageId))
-      .where(and(eq(applications.candidateId, candidates.id), inArray(pipelineStages.kind, kinds as Array<"new" | "active" | "hired" | "rejected">))),
+      .where(
+        and(
+          eq(applications.candidateId, candidates.id),
+          inArray(pipelineStages.kind, kinds as Array<"new" | "active" | "hired" | "rejected">),
+        ),
+      ),
   );
 }
 
@@ -46,12 +72,29 @@ export async function searchPool(ctx: Ctx, filters: PoolFilters) {
   if (tsQuery) conditions.push(sql`${candidates.searchVector} @@ to_tsquery('simple', ${tsQuery})`);
   if (filters.tagId) {
     conditions.push(
-      exists(db.select({ one: sql`1` }).from(candidateTags).where(and(eq(candidateTags.candidateId, candidates.id), eq(candidateTags.tagId, filters.tagId)))),
+      exists(
+        db
+          .select({ one: sql`1` })
+          .from(candidateTags)
+          .where(
+            and(
+              eq(candidateTags.candidateId, candidates.id),
+              eq(candidateTags.tagId, filters.tagId),
+            ),
+          ),
+      ),
     );
   }
   if (filters.jobId) {
     conditions.push(
-      exists(db.select({ one: sql`1` }).from(applications).where(and(eq(applications.candidateId, candidates.id), eq(applications.jobId, filters.jobId)))),
+      exists(
+        db
+          .select({ one: sql`1` })
+          .from(applications)
+          .where(
+            and(eq(applications.candidateId, candidates.id), eq(applications.jobId, filters.jobId)),
+          ),
+      ),
     );
   }
   if (filters.status) conditions.push(statusCondition(filters.status));
@@ -70,12 +113,17 @@ export async function searchPool(ctx: Ctx, filters: PoolFilters) {
       .from(candidates)
       .where(where)
       .orderBy(
-        ...(tsQuery ? [desc(sql`ts_rank(${candidates.searchVector}, to_tsquery('simple', ${tsQuery}))`)] : []),
+        ...(tsQuery
+          ? [desc(sql`ts_rank(${candidates.searchVector}, to_tsquery('simple', ${tsQuery}))`)]
+          : []),
         desc(candidates.lastActivityAt),
       )
       .limit(PAGE_SIZE)
       .offset((page - 1) * PAGE_SIZE),
-    db.select({ total: sql<number>`count(*)::int` }).from(candidates).where(where),
+    db
+      .select({ total: sql<number>`count(*)::int` })
+      .from(candidates)
+      .where(where),
   ]);
 
   const ids = rows.map((r) => r.id);
@@ -102,9 +150,17 @@ export async function searchPool(ctx: Ctx, filters: PoolFilters) {
           .innerJoin(tags, eq(tags.id, candidateTags.tagId))
           .where(inArray(candidateTags.candidateId, ids))
           .orderBy(asc(tags.name)),
-        query ? db.select({ candidateId: notes.candidateId, body: notes.body }).from(notes).where(inArray(notes.candidateId, ids)) : Promise.resolve([]),
         query
-          ? db.select({ candidateId: files.candidateId, text: files.textContent }).from(files).where(inArray(files.candidateId, ids))
+          ? db
+              .select({ candidateId: notes.candidateId, body: notes.body })
+              .from(notes)
+              .where(inArray(notes.candidateId, ids))
+          : Promise.resolve([]),
+        query
+          ? db
+              .select({ candidateId: files.candidateId, text: files.textContent })
+              .from(files)
+              .where(inArray(files.candidateId, ids))
           : Promise.resolve([]),
       ])
     : [[], [], [], []];
@@ -116,7 +172,8 @@ export async function searchPool(ctx: Ctx, filters: PoolFilters) {
     const name = `${row.firstName} ${row.lastName}`;
     const nameSnippet = terms.length ? snippet(name, terms, 200) : null;
     let match: PoolRow["match"] = null;
-    const inIdentity = nameSnippet || (row.email && terms.some((term) => row.email!.includes(term)));
+    const inIdentity =
+      nameSnippet || (row.email && terms.some((term) => row.email!.includes(term)));
     if (terms.length && !inIdentity) {
       for (const n of noteRows.filter((x) => x.candidateId === row.id)) {
         const s = snippet(n.body.replace(/<@[^>]+>/g, "@"), terms);
@@ -138,12 +195,19 @@ export async function searchPool(ctx: Ctx, filters: PoolFilters) {
     return {
       ...row,
       latest: latest
-        ? { applicationId: latest.applicationId, jobId: latest.jobId, jobTitle: latest.jobTitle, stageName: latest.stageName, stageKind: latest.stageKind }
+        ? {
+            applicationId: latest.applicationId,
+            jobId: latest.jobId,
+            jobTitle: latest.jobTitle,
+            stageName: latest.stageName,
+            stageKind: latest.stageKind,
+          }
         : null,
       applicationCount: candidateApps.length,
       tags: tagRows.filter((t) => t.candidateId === row.id).map((t) => t.name),
       match,
-      nameHighlights: nameSnippet && !nameSnippet.text.startsWith("…") ? nameSnippet.highlights : [],
+      nameHighlights:
+        nameSnippet && !nameSnippet.text.startsWith("…") ? nameSnippet.highlights : [],
     };
   });
 
@@ -157,7 +221,12 @@ export async function quickSearch(ctx: Ctx, query: string) {
   const [candidateRows, jobRows] = await Promise.all([
     tsQuery
       ? db
-          .select({ id: candidates.id, firstName: candidates.firstName, lastName: candidates.lastName, email: candidates.email })
+          .select({
+            id: candidates.id,
+            firstName: candidates.firstName,
+            lastName: candidates.lastName,
+            email: candidates.email,
+          })
           .from(candidates)
           .where(
             and(
@@ -167,20 +236,37 @@ export async function quickSearch(ctx: Ctx, query: string) {
               sql`${candidates.searchVector} @@ to_tsquery('simple', ${tsQuery})`,
             ),
           )
-          .orderBy(desc(sql`ts_rank(${candidates.searchVector}, to_tsquery('simple', ${tsQuery}))`), desc(candidates.lastActivityAt))
+          .orderBy(
+            desc(sql`ts_rank(${candidates.searchVector}, to_tsquery('simple', ${tsQuery}))`),
+            desc(candidates.lastActivityAt),
+          )
           .limit(6)
       : Promise.resolve([]),
     db
       .select({ id: jobs.id, title: jobs.title, status: jobs.status })
       .from(jobs)
-      .where(and(jobAccess(ctx), or(ilike(jobs.title, `%${q.replace(/[%_\\]/g, (m) => `\\${m}`)}%`), ilike(jobs.department, `%${q.replace(/[%_\\]/g, (m) => `\\${m}`)}%`))))
+      .where(
+        and(
+          jobAccess(ctx),
+          or(
+            ilike(jobs.title, `%${q.replace(/[%_\\]/g, (m) => `\\${m}`)}%`),
+            ilike(jobs.department, `%${q.replace(/[%_\\]/g, (m) => `\\${m}`)}%`),
+          ),
+        ),
+      )
       .orderBy(desc(jobs.updatedAt))
       .limit(5),
   ]);
   const ids = candidateRows.map((c) => c.id);
   const latest = ids.length
     ? await db
-        .select({ candidateId: applications.candidateId, applicationId: applications.id, jobId: jobs.id, jobTitle: jobs.title, createdAt: applications.createdAt })
+        .select({
+          candidateId: applications.candidateId,
+          applicationId: applications.id,
+          jobId: jobs.id,
+          jobTitle: jobs.title,
+          createdAt: applications.createdAt,
+        })
         .from(applications)
         .innerJoin(jobs, eq(jobs.id, applications.jobId))
         .where(and(inArray(applications.candidateId, ids), jobAccess(ctx)))

@@ -25,7 +25,16 @@ export function CandidatePageView({
   templates: TemplateOption[];
   companyName: string;
   recruiterName: string;
-  permissions: { move: boolean; reject: boolean; email: boolean; tag: boolean; note: boolean; evaluate: boolean; export: boolean; delete: boolean };
+  permissions: {
+    move: boolean;
+    reject: boolean;
+    email: boolean;
+    tag: boolean;
+    note: boolean;
+    evaluate: boolean;
+    export: boolean;
+    delete: boolean;
+  };
   meId: string;
 }) {
   const router = useRouter();

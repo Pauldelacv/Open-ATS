@@ -4,10 +4,22 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { sendEmailAction } from "@/app/(app)/(backoffice)/jobs/[jobId]/actions";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toast";
 import { loose } from "@/i18n/loose";
-import { draftFromTemplate, EmailFields, type EmailDraft, type Recipient, type TemplateOption } from "./email-fields";
+import {
+  draftFromTemplate,
+  EmailFields,
+  type EmailDraft,
+  type Recipient,
+  type TemplateOption,
+} from "./email-fields";
 
 export function EmailComposer({
   open,
@@ -29,7 +41,9 @@ export function EmailComposer({
   const t = useTranslations("emailComposer");
   const tx = loose(useTranslations());
   const locale = useLocale();
-  const ordered = [...templates].sort((a, b) => (a.kind === "interview" ? -1 : 0) - (b.kind === "interview" ? -1 : 0));
+  const ordered = [...templates].sort(
+    (a, b) => (a.kind === "interview" ? -1 : 0) - (b.kind === "interview" ? -1 : 0),
+  );
   const [draft, setDraft] = useState<EmailDraft>(() => draftFromTemplate(undefined));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, start] = useTransition();

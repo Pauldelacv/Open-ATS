@@ -12,7 +12,7 @@ the screen is wrong.
 1. **Paper for content, stone for the tool.** Content people read (a CV, a job description,
    a note, a form) sits on white paper. The application chrome around it is stone. Nothing
    else creates hierarchy: no gradients, no tinted cards, no decorative backgrounds.
-2. **One highlighter.** Yellow is reserved for what needs attention *now*: a new candidate,
+2. **One highlighter.** Yellow is reserved for what needs attention _now_: a new candidate,
    a mention of you, a term found by search, and never for decoration. A screen highlights
    one kind of thing at a time; when many items share it (new cards in a column), each
    gets only a thin highlighter edge and the word « Nouveau » appears once, in the count.
@@ -37,27 +37,27 @@ used in the code. Tailwind's default palette is disabled.
 
 ### 2.1 Colour
 
-| Token | Hex | Use |
-|---|---|---|
-| `ink` | `#18233A` | Text, headings, icons, primary borders of dark elements |
-| `ink-muted` | `#586174` | Secondary text, labels, meta (6.2:1 on paper, 5.4:1 on stone) |
-| `ink-subtle` | `#6B7383` | Placeholders, disabled text (4.8:1 on paper) |
-| `paper` | `#FFFFFF` | Content surfaces: panels, forms, lists, CV sheet |
-| `stone` | `#EEF0EC` | App background, secondary zones, sidebar |
-| `stone-strong` | `#E3E6E0` | Hover on stone, pressed rows, kanban column background |
-| `line` | `#D5D9D2` | Borders and separators |
-| `line-strong` | `#868E83` | Form control borders (3.4:1, WCAG 1.4.11) |
-| `cobalt` | `#2447D6` | Primary actions, links, focus ring, selection |
-| `cobalt-hover` | `#1C39B0` | Hover on primary |
-| `cobalt-press` | `#172E8F` | Pressed primary |
-| `cobalt-tint` | `#E9EDFC` | Selected row, active navigation item |
-| `highlighter` | `#FFE45C` | **Signature.** New candidates, mentions of you, search hits |
-| `success` | `#1E7A4C` | Hired |
-| `success-tint` | `#E6F2EC` | Hired badge background |
-| `danger` | `#B3261E` | Rejected, destructive actions, errors |
-| `danger-tint` | `#FBEAE9` | Error banner and rejected badge background |
-| `warning` | `#A15C00` | Waiting, pending invitation, retention due soon |
-| `warning-tint` | `#FBF0E0` | Warning badge background |
+| Token          | Hex       | Use                                                           |
+| -------------- | --------- | ------------------------------------------------------------- |
+| `ink`          | `#18233A` | Text, headings, icons, primary borders of dark elements       |
+| `ink-muted`    | `#586174` | Secondary text, labels, meta (6.2:1 on paper, 5.4:1 on stone) |
+| `ink-subtle`   | `#6B7383` | Placeholders, disabled text (4.8:1 on paper)                  |
+| `paper`        | `#FFFFFF` | Content surfaces: panels, forms, lists, CV sheet              |
+| `stone`        | `#EEF0EC` | App background, secondary zones, sidebar                      |
+| `stone-strong` | `#E3E6E0` | Hover on stone, pressed rows, kanban column background        |
+| `line`         | `#D5D9D2` | Borders and separators                                        |
+| `line-strong`  | `#868E83` | Form control borders (3.4:1, WCAG 1.4.11)                     |
+| `cobalt`       | `#2447D6` | Primary actions, links, focus ring, selection                 |
+| `cobalt-hover` | `#1C39B0` | Hover on primary                                              |
+| `cobalt-press` | `#172E8F` | Pressed primary                                               |
+| `cobalt-tint`  | `#E9EDFC` | Selected row, active navigation item                          |
+| `highlighter`  | `#FFE45C` | **Signature.** New candidates, mentions of you, search hits   |
+| `success`      | `#1E7A4C` | Hired                                                         |
+| `success-tint` | `#E6F2EC` | Hired badge background                                        |
+| `danger`       | `#B3261E` | Rejected, destructive actions, errors                         |
+| `danger-tint`  | `#FBEAE9` | Error banner and rejected badge background                    |
+| `warning`      | `#A15C00` | Waiting, pending invitation, retention due soon               |
+| `warning-tint` | `#FBF0E0` | Warning badge background                                      |
 
 All text pairs meet WCAG AA (checked with a script in `scripts/contrast.mjs`). Ink on
 highlighter is 12.3:1.
@@ -77,16 +77,16 @@ the higher contrast); links use the colour darkened until it reaches 4.5:1 on pa
 
 Strict scale — no other size is allowed:
 
-| Token | Size / line height | Use |
-|---|---|---|
-| `text-12` | 12 / 16 | Meta, counts in badges, keyboard hints |
-| `text-13` | 13 / 18 | Secondary text, table meta, sidebar items, labels |
-| `text-14` | 14 / 20 | Default back-office text, inputs, buttons |
-| `text-16` | 16 / 24 | Career site body, panel names, long reading (notes, CV text) |
-| `text-20` | 20 / 28 | Section titles, dialog titles |
-| `text-24` | 24 / 32 | Page titles in the back office |
-| `text-32` | 32 / 40 | Career site job title, mobile company heading |
-| `text-48` | 48 / 56 | Career site company heading on desktop |
+| Token     | Size / line height | Use                                                          |
+| --------- | ------------------ | ------------------------------------------------------------ |
+| `text-12` | 12 / 16            | Meta, counts in badges, keyboard hints                       |
+| `text-13` | 13 / 18            | Secondary text, table meta, sidebar items, labels            |
+| `text-14` | 14 / 20            | Default back-office text, inputs, buttons                    |
+| `text-16` | 16 / 24            | Career site body, panel names, long reading (notes, CV text) |
+| `text-20` | 20 / 28            | Section titles, dialog titles                                |
+| `text-24` | 24 / 32            | Page titles in the back office                               |
+| `text-32` | 32 / 40            | Career site job title, mobile company heading                |
+| `text-48` | 48 / 56            | Career site company heading on desktop                       |
 
 Weights: 400 for text, 500 for labels and buttons, 600 for titles. No italics in the interface
 except quotes in rich text. Sentence case everywhere. No uppercase labels.
@@ -99,12 +99,12 @@ Back-office page padding: 24 px (16 px under 768 px). Career site gutter: 16 px 
 
 ### 2.4 Radii
 
-| Token | Value | Use |
-|---|---|---|
-| `rounded-sm` | 4 px | Inputs, buttons, badges, tags, kanban cards |
-| `rounded-md` | 8 px | Panels, menus, popovers, kanban columns, CV sheet |
-| `rounded-lg` | 12 px | Dialogs |
-| `rounded-full` | — | Avatars and the rating dots only |
+| Token          | Value | Use                                               |
+| -------------- | ----- | ------------------------------------------------- |
+| `rounded-sm`   | 4 px  | Inputs, buttons, badges, tags, kanban cards       |
+| `rounded-md`   | 8 px  | Panels, menus, popovers, kanban columns, CV sheet |
+| `rounded-lg`   | 12 px | Dialogs                                           |
+| `rounded-full` | —     | Avatars and the rating dots only                  |
 
 ### 2.5 Elevation
 
@@ -117,11 +117,11 @@ Only floating elements have a shadow:
 
 ### 2.6 Motion
 
-| Token | Value | Use |
-|---|---|---|
-| `duration-fast` | 120 ms | Colour changes on press |
-| `duration-base` | 180 ms | Panel slide, dialog fade, toast, card settling after drop |
-| `ease-out` | `cubic-bezier(0.2, 0.8, 0.2, 1)` | All of the above |
+| Token           | Value                            | Use                                                       |
+| --------------- | -------------------------------- | --------------------------------------------------------- |
+| `duration-fast` | 120 ms                           | Colour changes on press                                   |
+| `duration-base` | 180 ms                           | Panel slide, dialog fade, toast, card settling after drop |
+| `ease-out`      | `cubic-bezier(0.2, 0.8, 0.2, 1)` | All of the above                                          |
 
 With `prefers-reduced-motion: reduce`, transforms are removed and durations drop to 0;
 state changes stay instant and visible.
@@ -139,6 +139,7 @@ cobalt and a 1 px cobalt outline with no offset doubles it, so the focused field
 ## 3. Layout
 
 ### Back office
+
 - **Sidebar**, 216 px, stone, collapses to a 56 px icon rail between 768 and 1279 px.
   Contents: organisation, navigation (Offres, Vivier, Mentions, Paramètres), search hint
   (⌘K), account menu. The active item uses `cobalt-tint` with ink text.
@@ -152,6 +153,7 @@ cobalt and a 1 px cobalt outline with no offset doubles it, so the focused field
 - Usable on a tablet (768 px and up): touch targets ≥ 40 px, drag and drop with touch sensor.
 
 ### Career site
+
 - Brand bar (logo, company name, link to the company website), then immediately the jobs.
 - On mobile the first job row is visible without scrolling at 390 × 844.
 - Desktop: jobs list in the main column, company presentation and photo in a side column.
@@ -164,32 +166,32 @@ cobalt and a 1 px cobalt outline with no offset doubles it, so the focused field
 
 Each component is shown in every state on `/design`.
 
-| Component | Notes |
-|---|---|
-| **Button** | `primary` (cobalt fill), `secondary` (paper, `line-strong` border), `ghost` (no border), `danger` (danger fill). Sizes 28 / 32 / 40 px. States: rest, hover, focus, pressed, disabled, loading (label kept, small inline indicator). Never an arrow glyph. |
-| **Icon button** | Square 28 / 32 px, always with `aria-label` and tooltip. |
-| **Input / Textarea / Select** | 32 px high (40 px on the career site), `line-strong` border, 4 px radius, paper fill. Error: danger border + message below that says what to fix. Disabled: stone fill. |
-| **Checkbox / Radio** | 16 px, ink border, cobalt when checked. Label clickable. |
-| **Field** | Label (13 px, 500) above, optional hint below, error replaces hint. Optional fields are marked « (facultatif) » everywhere; forms whose fields are mostly required say so once at the top instead of repeating it on every label. |
-| **Badge** | Status of a job or an application: text + tint background, 12 px. Draft = stone, Published = success tint, Archived = stone with muted text, Hired = success, Rejected = danger, Pending = warning. |
-| **Tag** | Free labels on candidates: paper, `line` border, 12 px, removable with a 16 px button. |
-| **Mark** | The highlighter: `highlighter` background behind text, 2 px horizontal padding, no radius beyond 2 px. Used for search hits, mentions of you and the « Nouveau » count. |
-| **Avatar** | Initials on stone, 24 / 32 px, ink text. No generated colours. |
-| **Tabs** | Text tabs with a 2 px ink underline on the active tab. |
-| **Dialog** | 12 px radius, paper, `shadow-lift`, title 20 px, actions bottom right, primary on the right. Esc closes. Focus trapped. |
-| **Side panel** | Paper, 1 px left line, slides 16 px + fades in 180 ms. |
-| **Dropdown / Popover** | Paper, 8 px radius, `shadow-float`, 32 px items, keyboard navigable. |
-| **Tooltip** | Ink background, paper text, 12 px, 4 px radius, appears after 400 ms. |
-| **Toast** | Bottom left, ink background, paper text, one action button (« Annuler »), 6 s. |
-| **Skeleton** | Stone-strong blocks with the exact shape of the content. No shimmer. |
-| **Empty state** | One sentence of what is missing, one sentence of why it matters, one primary action. No illustration. |
-| **Kbd** | Paper, `line` border, 12 px, used for shortcut hints. |
-| **Rating** | Five 24 px numbered circles (the digits teach the 1–5 shortcuts); filled ink up to the rating. Averages show as « 3,8 sur 5 » in tabular figures. |
-| **Dropzone** | Dashed `line-strong` border, paper, explains accepted types and size; drag-over turns the border cobalt. Selected file shows name, size, « Remplacer » and « Retirer ». |
-| **Rich text** | TipTap with bold, italic, headings (2 levels), lists, links. Rendered with a reading style: 16 px, 24 px line height, 680 px max. |
-| **List row** | 40 px min height, 1 px line between rows, hover `stone` background, selected `cobalt-tint`. |
-| **Kanban card** | Paper, 1 px line, 4 px radius. Name (14, 500), applied date, rating (once you have given yours), tags. A new card has a 3 px highlighter edge on the left; the column header counts « 3 nouveaux » once. The selection checkbox shows on hover, on focus and while a selection exists. While dragged: `shadow-lift`, no rotation. |
-| **Command palette** | Dialog at top third, input 16 px, grouped results, ↑ ↓ Enter, Esc. |
+| Component                     | Notes                                                                                                                                                                                                                                                                                                                             |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Button**                    | `primary` (cobalt fill), `secondary` (paper, `line-strong` border), `ghost` (no border), `danger` (danger fill). Sizes 28 / 32 / 40 px. States: rest, hover, focus, pressed, disabled, loading (label kept, small inline indicator). Never an arrow glyph.                                                                        |
+| **Icon button**               | Square 28 / 32 px, always with `aria-label` and tooltip.                                                                                                                                                                                                                                                                          |
+| **Input / Textarea / Select** | 32 px high (40 px on the career site), `line-strong` border, 4 px radius, paper fill. Error: danger border + message below that says what to fix. Disabled: stone fill.                                                                                                                                                           |
+| **Checkbox / Radio**          | 16 px, ink border, cobalt when checked. Label clickable.                                                                                                                                                                                                                                                                          |
+| **Field**                     | Label (13 px, 500) above, optional hint below, error replaces hint. Optional fields are marked « (facultatif) » everywhere; forms whose fields are mostly required say so once at the top instead of repeating it on every label.                                                                                                 |
+| **Badge**                     | Status of a job or an application: text + tint background, 12 px. Draft = stone, Published = success tint, Archived = stone with muted text, Hired = success, Rejected = danger, Pending = warning.                                                                                                                               |
+| **Tag**                       | Free labels on candidates: paper, `line` border, 12 px, removable with a 16 px button.                                                                                                                                                                                                                                            |
+| **Mark**                      | The highlighter: `highlighter` background behind text, 2 px horizontal padding, no radius beyond 2 px. Used for search hits, mentions of you and the « Nouveau » count.                                                                                                                                                           |
+| **Avatar**                    | Initials on stone, 24 / 32 px, ink text. No generated colours.                                                                                                                                                                                                                                                                    |
+| **Tabs**                      | Text tabs with a 2 px ink underline on the active tab.                                                                                                                                                                                                                                                                            |
+| **Dialog**                    | 12 px radius, paper, `shadow-lift`, title 20 px, actions bottom right, primary on the right. Esc closes. Focus trapped.                                                                                                                                                                                                           |
+| **Side panel**                | Paper, 1 px left line, slides 16 px + fades in 180 ms.                                                                                                                                                                                                                                                                            |
+| **Dropdown / Popover**        | Paper, 8 px radius, `shadow-float`, 32 px items, keyboard navigable.                                                                                                                                                                                                                                                              |
+| **Tooltip**                   | Ink background, paper text, 12 px, 4 px radius, appears after 400 ms.                                                                                                                                                                                                                                                             |
+| **Toast**                     | Bottom left, ink background, paper text, one action button (« Annuler »), 6 s.                                                                                                                                                                                                                                                    |
+| **Skeleton**                  | Stone-strong blocks with the exact shape of the content. No shimmer.                                                                                                                                                                                                                                                              |
+| **Empty state**               | One sentence of what is missing, one sentence of why it matters, one primary action. No illustration.                                                                                                                                                                                                                             |
+| **Kbd**                       | Paper, `line` border, 12 px, used for shortcut hints.                                                                                                                                                                                                                                                                             |
+| **Rating**                    | Five 24 px numbered circles (the digits teach the 1–5 shortcuts); filled ink up to the rating. Averages show as « 3,8 sur 5 » in tabular figures.                                                                                                                                                                                 |
+| **Dropzone**                  | Dashed `line-strong` border, paper, explains accepted types and size; drag-over turns the border cobalt. Selected file shows name, size, « Remplacer » and « Retirer ».                                                                                                                                                           |
+| **Rich text**                 | TipTap with bold, italic, headings (2 levels), lists, links. Rendered with a reading style: 16 px, 24 px line height, 680 px max.                                                                                                                                                                                                 |
+| **List row**                  | 40 px min height, 1 px line between rows, hover `stone` background, selected `cobalt-tint`.                                                                                                                                                                                                                                       |
+| **Kanban card**               | Paper, 1 px line, 4 px radius. Name (14, 500), applied date, rating (once you have given yours), tags. A new card has a 3 px highlighter edge on the left; the column header counts « 3 nouveaux » once. The selection checkbox shows on hover, on focus and while a selection exists. While dragged: `shadow-lift`, no rotation. |
+| **Command palette**           | Dialog at top third, input 16 px, grouped results, ↑ ↓ Enter, Esc.                                                                                                                                                                                                                                                                |
 
 ---
 
@@ -242,6 +244,7 @@ Findings and corrections are logged in `DECISIONS.md` under « Design reviews »
 ## 8. Self-review of this document
 
 Reviewed against §6 before the first screen:
+
 - Kanban cards had a hover lift in the first draft. Removed: hover only darkens the border;
   the grab cursor already says the card can be moved.
 - Badges were drafted in uppercase 11 px. Replaced by 12 px sentence case, which is also on

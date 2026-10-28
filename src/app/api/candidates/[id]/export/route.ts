@@ -3,7 +3,10 @@ import { ForbiddenError, NotFoundError } from "@/lib/permissions";
 import { isUuid } from "@/lib/services/access";
 import { exportCandidate } from "@/lib/services/gdpr";
 
-export async function GET(_request: Request, { params }: RouteContext<"/api/candidates/[id]/export">) {
+export async function GET(
+  _request: Request,
+  { params }: RouteContext<"/api/candidates/[id]/export">,
+) {
   const ctx = await getApiContext();
   if (!ctx) return new Response("Unauthorized", { status: 401 });
   const { id } = await params;

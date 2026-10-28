@@ -4,7 +4,11 @@ import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
-import { addNoteAction, deleteNoteAction, saveEvaluationAction } from "@/app/(app)/(backoffice)/jobs/[jobId]/actions";
+import {
+  addNoteAction,
+  deleteNoteAction,
+  saveEvaluationAction,
+} from "@/app/(app)/(backoffice)/jobs/[jobId]/actions";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,7 +35,9 @@ export function ApplicationSection({ detail }: { detail: Detail }) {
       <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-14">
         <div>
           <dt className="text-12 text-ink-muted">{t("applied")}</dt>
-          <dd className="tabular-nums">{t("appliedOn", { date: formatDate(application.createdAt, locale) })}</dd>
+          <dd className="tabular-nums">
+            {t("appliedOn", { date: formatDate(application.createdAt, locale) })}
+          </dd>
         </div>
         <div>
           <dt className="text-12 text-ink-muted">{t("source")}</dt>
@@ -51,7 +57,12 @@ export function ApplicationSection({ detail }: { detail: Detail }) {
           <div className="min-w-0">
             <dt className="text-12 text-ink-muted">{t("link")}</dt>
             <dd className="truncate">
-              <a href={candidate.linkUrl} target="_blank" rel="noopener noreferrer nofollow" className="text-cobalt hover:underline">
+              <a
+                href={candidate.linkUrl}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="text-cobalt hover:underline"
+              >
                 {candidate.linkUrl.replace(/^https?:\/\/(www\.)?/, "")}
               </a>
             </dd>
@@ -85,7 +96,9 @@ export function ApplicationSection({ detail }: { detail: Detail }) {
             {application.answers.map((a) => (
               <div key={a.questionId}>
                 <dt className="text-13 text-ink-muted">{a.label}</dt>
-                <dd className="text-14 whitespace-pre-line">{a.type === "yes_no" ? t(a.value === "yes" ? "yes" : "no") : a.value}</dd>
+                <dd className="text-14 whitespace-pre-line">
+                  {a.type === "yes_no" ? t(a.value === "yes" ? "yes" : "no") : a.value}
+                </dd>
               </div>
             ))}
           </dl>
@@ -98,9 +111,22 @@ export function ApplicationSection({ detail }: { detail: Detail }) {
           <ul className="mt-2 divide-y divide-line rounded-md border border-line">
             {detail.otherApplications.map((a) => (
               <li key={a.id}>
-                <Link href={`/jobs/${a.jobId}?a=${a.id}`} className="flex items-center justify-between gap-3 px-3 py-2 text-14 hover:bg-stone">
+                <Link
+                  href={`/jobs/${a.jobId}?a=${a.id}`}
+                  className="flex items-center justify-between gap-3 px-3 py-2 text-14 hover:bg-stone"
+                >
                   <span className="min-w-0 truncate">{a.jobTitle}</span>
-                  <Badge tone={a.stageKind === "rejected" ? "danger" : a.stageKind === "hired" ? "success" : "neutral"}>{a.stageName}</Badge>
+                  <Badge
+                    tone={
+                      a.stageKind === "rejected"
+                        ? "danger"
+                        : a.stageKind === "hired"
+                          ? "success"
+                          : "neutral"
+                    }
+                  >
+                    {a.stageName}
+                  </Badge>
                 </Link>
               </li>
             ))}
@@ -111,7 +137,17 @@ export function ApplicationSection({ detail }: { detail: Detail }) {
   );
 }
 
-export function NotesSection({ detail, meId, canNote, onChanged }: { detail: Detail; meId: string; canNote: boolean; onChanged: () => void }) {
+export function NotesSection({
+  detail,
+  meId,
+  canNote,
+  onChanged,
+}: {
+  detail: Detail;
+  meId: string;
+  canNote: boolean;
+  onChanged: () => void;
+}) {
   const t = useTranslations("panel.notes");
   const tx = loose(useTranslations());
   const locale = useLocale();
@@ -122,7 +158,11 @@ export function NotesSection({ detail, meId, canNote, onChanged }: { detail: Det
   const add = (body: string) =>
     new Promise<boolean>((resolve) =>
       start(async () => {
-        const result = await addNoteAction({ candidateId: detail.candidate.id, applicationId: detail.application.id, body });
+        const result = await addNoteAction({
+          candidateId: detail.candidate.id,
+          applicationId: detail.application.id,
+          body,
+        });
         if (!result.ok) {
           toast({ message: tx(result.error), tone: "danger" });
           return resolve(false);
@@ -146,11 +186,17 @@ export function NotesSection({ detail, meId, canNote, onChanged }: { detail: Det
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-x-2">
                   <span className="text-13 font-medium">{note.authorName ?? "?"}</span>
-                  <time dateTime={new Date(note.createdAt).toISOString()} title={formatDateTime(note.createdAt, locale)} className="text-12 text-ink-muted tabular-nums">
+                  <time
+                    dateTime={new Date(note.createdAt).toISOString()}
+                    title={formatDateTime(note.createdAt, locale)}
+                    className="text-12 text-ink-muted tabular-nums"
+                  >
                     {formatRelative(note.createdAt, locale)}
                   </time>
                   {note.jobTitle && note.applicationId !== detail.application.id ? (
-                    <span className="text-12 text-ink-muted">{t("about", { job: note.jobTitle })}</span>
+                    <span className="text-12 text-ink-muted">
+                      {t("about", { job: note.jobTitle })}
+                    </span>
                   ) : null}
                 </div>
                 <p className="mt-1 text-14 break-words whitespace-pre-line">
@@ -174,7 +220,8 @@ export function NotesSection({ detail, meId, canNote, onChanged }: { detail: Det
                   onClick={() =>
                     start(async () => {
                       const result = await deleteNoteAction(note.id);
-                      if (!result.ok) return void toast({ message: tx(result.error), tone: "danger" });
+                      if (!result.ok)
+                        return void toast({ message: tx(result.error), tone: "danger" });
                       toast(t("deleted"));
                       onChanged();
                     })
@@ -224,7 +271,11 @@ export function EvaluationsSection({
             e.preventDefault();
             if (!rating) return setError("panel.evaluations.ratingRequired");
             start(async () => {
-              const result = await saveEvaluationAction({ applicationId: detail.application.id, rating, comment });
+              const result = await saveEvaluationAction({
+                applicationId: detail.application.id,
+                rating,
+                comment,
+              });
               if (!result.ok) return void toast({ message: tx(result.error), tone: "danger" });
               setError(null);
               toast(t("saved"));
@@ -233,11 +284,28 @@ export function EvaluationsSection({
           }}
         >
           <h3 className="text-13 font-semibold">{t("yours")}</h3>
-          <RatingInput value={rating} onChange={(v) => { setRating(v); setError(null); }} label={t("rating")} valueLabels={valueLabels} />
-          {error ? <p className="text-13 text-danger" role="alert">{tx(error)}</p> : null}
+          <RatingInput
+            value={rating}
+            onChange={(v) => {
+              setRating(v);
+              setError(null);
+            }}
+            label={t("rating")}
+            valueLabels={valueLabels}
+          />
+          {error ? (
+            <p className="text-13 text-danger" role="alert">
+              {tx(error)}
+            </p>
+          ) : null}
           <label className="flex flex-col gap-1.5">
             <span className="text-13 font-medium">{t("comment")}</span>
-            <Textarea rows={3} value={comment} onChange={(e) => setComment(e.target.value)} placeholder={t("commentPlaceholder")} />
+            <Textarea
+              rows={3}
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder={t("commentPlaceholder")}
+            />
           </label>
           <Button type="submit" size="sm" variant="primary" loading={pending} className="self-end">
             {t("save")}
@@ -257,7 +325,9 @@ export function EvaluationsSection({
           ) : null}
         </div>
         {hiddenCount > 0 ? (
-          <p className="mt-2 rounded-md border border-line bg-stone px-3 py-2.5 text-14">{t("hidden", { count: hiddenCount })}</p>
+          <p className="mt-2 rounded-md border border-line bg-stone px-3 py-2.5 text-14">
+            {t("hidden", { count: hiddenCount })}
+          </p>
         ) : others.length === 0 ? (
           <p className="mt-2 text-14 text-ink-muted">{mine ? t("onlyYou") : t("noneYet")}</p>
         ) : (
@@ -269,9 +339,13 @@ export function EvaluationsSection({
                   <div className="flex flex-wrap items-center gap-x-3">
                     <span className="text-13 font-medium">{e.authorName}</span>
                     <RatingDots value={e.rating} label={tr("value", { value: e.rating })} />
-                    <span className="text-12 text-ink-muted tabular-nums">{tr("value", { value: e.rating })}</span>
+                    <span className="text-12 text-ink-muted tabular-nums">
+                      {tr("value", { value: e.rating })}
+                    </span>
                   </div>
-                  {e.comment ? <p className="mt-1 text-14 whitespace-pre-line">{e.comment}</p> : null}
+                  {e.comment ? (
+                    <p className="mt-1 text-14 whitespace-pre-line">{e.comment}</p>
+                  ) : null}
                 </div>
               </li>
             ))}
@@ -301,14 +375,27 @@ export function ActivitySection({ detail }: { detail: Detail }) {
         };
         return (
           <li key={a.id} className="relative">
-            <span aria-hidden="true" className="absolute top-1.5 -left-[21px] size-2 rounded-full border border-line-strong bg-paper" />
+            <span
+              aria-hidden="true"
+              className="absolute top-1.5 -left-[21px] size-2 rounded-full border border-line-strong bg-paper"
+            />
             <p className="text-14">
               {tx(`panel.activity.types.${a.type}`, values)}
-              {a.type === "rejected" && data.reason ? <span className="text-ink-muted"> ({tr(String(data.reason) as "other")})</span> : null}
-              {a.type === "email_sent" && data.status === "logged" ? <span className="text-ink-muted"> ({t("emailLogged")})</span> : null}
-              {a.type === "email_sent" && data.status === "failed" ? <span className="text-danger"> ({t("emailFailed")})</span> : null}
+              {a.type === "rejected" && data.reason ? (
+                <span className="text-ink-muted"> ({tr(String(data.reason) as "other")})</span>
+              ) : null}
+              {a.type === "email_sent" && data.status === "logged" ? (
+                <span className="text-ink-muted"> ({t("emailLogged")})</span>
+              ) : null}
+              {a.type === "email_sent" && data.status === "failed" ? (
+                <span className="text-danger"> ({t("emailFailed")})</span>
+              ) : null}
             </p>
-            <time dateTime={new Date(a.createdAt).toISOString()} title={formatDateTime(a.createdAt, locale)} className="text-12 text-ink-muted tabular-nums">
+            <time
+              dateTime={new Date(a.createdAt).toISOString()}
+              title={formatDateTime(a.createdAt, locale)}
+              className="text-12 text-ink-muted tabular-nums"
+            >
               {formatRelative(a.createdAt, locale)}
             </time>
           </li>

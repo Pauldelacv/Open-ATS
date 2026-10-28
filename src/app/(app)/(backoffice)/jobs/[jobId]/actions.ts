@@ -14,10 +14,19 @@ type Position = { id: string; stageId: string; position: number };
 
 const ids = z.array(z.string().uuid()).min(1).max(500);
 
-export async function moveApplicationsAction(applicationIds: string[], stageId: string, index: number): Promise<ActionResult<Position[]>> {
+export async function moveApplicationsAction(
+  applicationIds: string[],
+  stageId: string,
+  index: number,
+): Promise<ActionResult<Position[]>> {
   const ctx = await requireContext();
   try {
-    const previous = await moveApplications(ctx, ids.parse(applicationIds), z.string().uuid().parse(stageId), Math.max(0, Math.floor(index)));
+    const previous = await moveApplications(
+      ctx,
+      ids.parse(applicationIds),
+      z.string().uuid().parse(stageId),
+      Math.max(0, Math.floor(index)),
+    );
     revalidatePath("/jobs");
     return ok(previous);
   } catch (error) {
@@ -28,7 +37,14 @@ export async function moveApplicationsAction(applicationIds: string[], stageId: 
 export async function undoMoveAction(previous: Position[]): Promise<ActionResult> {
   const ctx = await requireContext();
   try {
-    await restorePositions(ctx, z.array(z.object({ id: z.string().uuid(), stageId: z.string().uuid(), position: z.number() })).parse(previous));
+    await restorePositions(
+      ctx,
+      z
+        .array(
+          z.object({ id: z.string().uuid(), stageId: z.string().uuid(), position: z.number() }),
+        )
+        .parse(previous),
+    );
     revalidatePath("/jobs");
     return ok();
   } catch (error) {
@@ -44,15 +60,24 @@ const emailSchema = z.object({
 
 export async function rejectAction(
   applicationIds: string[],
-  input: { reason: string; email: { subject: string; body: string; templateId?: string | null } | null },
+  input: {
+    reason: string;
+    email: { subject: string; body: string; templateId?: string | null } | null;
+  },
 ): Promise<ActionResult<{ rejected: number; statuses: string[] }>> {
   const ctx = await requireContext();
   const reason = z.enum(rejectionReasons).safeParse(input.reason);
   if (!reason.success) return fail("common.unknownError");
   const email = input.email ? emailSchema.safeParse(input.email) : null;
-  if (email && !email.success) return fail("form", { [String(email.error.issues[0]?.path[0])]: email.error.issues[0]!.message });
+  if (email && !email.success)
+    return fail("form", {
+      [String(email.error.issues[0]?.path[0])]: email.error.issues[0]!.message,
+    });
   try {
-    const result = await rejectApplications(ctx, ids.parse(applicationIds), { reason: reason.data, email: email?.data ?? null });
+    const result = await rejectApplications(ctx, ids.parse(applicationIds), {
+      reason: reason.data,
+      email: email?.data ?? null,
+    });
     revalidatePath("/jobs");
     return ok({ rejected: result.rejected, statuses: result.emails.map((e) => e.status) });
   } catch (error) {
@@ -66,19 +91,32 @@ export async function sendEmailAction(
 ): Promise<ActionResult<{ statuses: string[] }>> {
   const ctx = await requireContext();
   const parsed = emailSchema.safeParse(input);
-  if (!parsed.success) return fail("form", { [String(parsed.error.issues[0]?.path[0])]: parsed.error.issues[0]!.message });
+  if (!parsed.success)
+    return fail("form", {
+      [String(parsed.error.issues[0]?.path[0])]: parsed.error.issues[0]!.message,
+    });
   try {
-    const results = await sendCandidateEmails(ctx, { applicationIds: ids.parse(applicationIds), ...parsed.data });
+    const results = await sendCandidateEmails(ctx, {
+      applicationIds: ids.parse(applicationIds),
+      ...parsed.data,
+    });
     return ok({ statuses: results.map((r) => r.status) });
   } catch (error) {
     return failFrom(error);
   }
 }
 
-export async function addTagAction(candidateIds: string[], name: string): Promise<ActionResult<{ id: string; name: string } | null>> {
+export async function addTagAction(
+  candidateIds: string[],
+  name: string,
+): Promise<ActionResult<{ id: string; name: string } | null>> {
   const ctx = await requireContext();
   try {
-    const tag = await addTag(ctx, ids.parse(candidateIds), z.string().trim().min(1).max(40).parse(name));
+    const tag = await addTag(
+      ctx,
+      ids.parse(candidateIds),
+      z.string().trim().min(1).max(40).parse(name),
+    );
     return ok(tag ? { id: tag.id, name: tag.name } : null);
   } catch (error) {
     return failFrom(error);
@@ -95,12 +133,20 @@ export async function removeTagAction(candidateId: string, tagId: string): Promi
   }
 }
 
-export async function addNoteAction(input: { candidateId: string; applicationId: string | null; body: string }): Promise<ActionResult> {
+export async function addNoteAction(input: {
+  candidateId: string;
+  applicationId: string | null;
+  body: string;
+}): Promise<ActionResult> {
   const ctx = await requireContext();
   const body = z.string().trim().min(1, "panel.notes.empty").max(10_000).safeParse(input.body);
   if (!body.success) return fail("panel.notes.empty");
   try {
-    await addNote(ctx, { candidateId: z.string().uuid().parse(input.candidateId), applicationId: input.applicationId, body: body.data });
+    await addNote(ctx, {
+      candidateId: z.string().uuid().parse(input.candidateId),
+      applicationId: input.applicationId,
+      body: body.data,
+    });
     return ok();
   } catch (error) {
     return failFrom(error);
@@ -117,10 +163,18 @@ export async function deleteNoteAction(noteId: string): Promise<ActionResult> {
   }
 }
 
-export async function saveEvaluationAction(input: { applicationId: string; rating: number; comment: string }): Promise<ActionResult> {
+export async function saveEvaluationAction(input: {
+  applicationId: string;
+  rating: number;
+  comment: string;
+}): Promise<ActionResult> {
   const ctx = await requireContext();
   const parsed = z
-    .object({ applicationId: z.string().uuid(), rating: z.number().int().min(1).max(5), comment: z.string().max(5000) })
+    .object({
+      applicationId: z.string().uuid(),
+      rating: z.number().int().min(1).max(5),
+      comment: z.string().max(5000),
+    })
     .safeParse(input);
   if (!parsed.success) return fail("panel.evaluations.ratingRequired");
   try {

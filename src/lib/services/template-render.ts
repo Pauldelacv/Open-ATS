@@ -10,7 +10,8 @@ export const templateVariables = [
 export type TemplateValues = Partial<Record<(typeof templateVariables)[number]["key"], string>>;
 
 const lookup = new Map<string, (typeof templateVariables)[number]["key"]>();
-for (const variable of templateVariables) for (const name of variable.names) lookup.set(name, variable.key);
+for (const variable of templateVariables)
+  for (const name of variable.names) lookup.set(name, variable.key);
 
 const PATTERN = /\{\{\s*([\p{L}_]+)\s*\}\}/gu;
 
@@ -26,6 +27,7 @@ export function renderTemplate(text: string, values: TemplateValues): string {
 /** Variables used in `text` that are not recognised. */
 export function unknownVariables(text: string): string[] {
   const unknown = new Set<string>();
-  for (const [, name] of text.matchAll(PATTERN)) if (name && !lookup.has(name.toLowerCase())) unknown.add(name);
+  for (const [, name] of text.matchAll(PATTERN))
+    if (name && !lookup.has(name.toLowerCase())) unknown.add(name);
   return [...unknown];
 }

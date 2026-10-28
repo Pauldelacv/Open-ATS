@@ -1,7 +1,15 @@
 import { cn } from "@/lib/cn";
 import { initials } from "@/lib/utils/text";
 
-export function Avatar({ name, size = 24, className }: { name: string; size?: 24 | 32; className?: string }) {
+export function Avatar({
+  name,
+  size = 24,
+  className,
+}: {
+  name: string;
+  size?: 24 | 32;
+  className?: string;
+}) {
   return (
     <span
       aria-hidden="true"

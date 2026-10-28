@@ -14,8 +14,19 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter } from "@/components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Field } from "@/components/ui/field";
 import { Input, Select } from "@/components/ui/input";
 import { toast } from "@/components/ui/toast";
@@ -28,7 +39,15 @@ type Invitation = { id: string; email: string; role: Role; expiresAt: Date };
 
 const roles: Role[] = ["admin", "recruiter", "member"];
 
-export function TeamManager({ members, invitations, currentUserId }: { members: Member[]; invitations: Invitation[]; currentUserId: string }) {
+export function TeamManager({
+  members,
+  invitations,
+  currentUserId,
+}: {
+  members: Member[];
+  invitations: Invitation[];
+  currentUserId: string;
+}) {
   const t = useTranslations("settings.team");
   const tr = useTranslations("roles");
   const tx = loose(useTranslations());
@@ -45,7 +64,8 @@ export function TeamManager({ members, invitations, currentUserId }: { members: 
   const run = (action: () => Promise<{ ok: boolean; error?: string }>, success: string) =>
     start(async () => {
       const result = await action();
-      if (!result.ok) return void toast({ message: tx(result.error ?? "common.unknownError"), tone: "danger" });
+      if (!result.ok)
+        return void toast({ message: tx(result.error ?? "common.unknownError"), tone: "danger" });
       toast(success);
       router.refresh();
     });
@@ -84,8 +104,14 @@ export function TeamManager({ members, invitations, currentUserId }: { members: 
         </Button>
       </div>
 
-      <section className="overflow-hidden rounded-md border border-line bg-paper" aria-labelledby="members-title">
-        <h3 id="members-title" className="border-b border-line px-4 py-2.5 text-13 font-medium text-ink-muted">
+      <section
+        className="overflow-hidden rounded-md border border-line bg-paper"
+        aria-labelledby="members-title"
+      >
+        <h3
+          id="members-title"
+          className="border-b border-line px-4 py-2.5 text-13 font-medium text-ink-muted"
+        >
           {t("members")} <span className="tabular-nums">{members.length}</span>
         </h3>
         <ul className="divide-y divide-line">
@@ -95,7 +121,9 @@ export function TeamManager({ members, invitations, currentUserId }: { members: 
               <div className="min-w-0 flex-1 basis-40">
                 <p className="truncate text-14 font-medium">
                   {m.name}
-                  {m.userId === currentUserId ? <span className="font-normal text-ink-muted"> ({t("you")})</span> : null}
+                  {m.userId === currentUserId ? (
+                    <span className="font-normal text-ink-muted"> ({t("you")})</span>
+                  ) : null}
                 </p>
                 <p className="truncate text-13 text-ink-muted">{m.email}</p>
               </div>
@@ -104,7 +132,12 @@ export function TeamManager({ members, invitations, currentUserId }: { members: 
                 value={m.role}
                 disabled={pending}
                 className="w-full sm:w-44"
-                onChange={(e) => run(() => changeRoleAction(m.membershipId, e.target.value as Role), t("roleChanged"))}
+                onChange={(e) =>
+                  run(
+                    () => changeRoleAction(m.membershipId, e.target.value as Role),
+                    t("roleChanged"),
+                  )
+                }
               >
                 {roles.map((r) => (
                   <option key={r} value={r}>
@@ -130,8 +163,14 @@ export function TeamManager({ members, invitations, currentUserId }: { members: 
       </section>
 
       {invitations.length > 0 ? (
-        <section className="overflow-hidden rounded-md border border-line bg-paper" aria-labelledby="pending-title">
-          <h3 id="pending-title" className="border-b border-line px-4 py-2.5 text-13 font-medium text-ink-muted">
+        <section
+          className="overflow-hidden rounded-md border border-line bg-paper"
+          aria-labelledby="pending-title"
+        >
+          <h3
+            id="pending-title"
+            className="border-b border-line px-4 py-2.5 text-13 font-medium text-ink-muted"
+          >
             {t("pending")} <span className="tabular-nums">{invitations.length}</span>
           </h3>
           <ul className="divide-y divide-line">
@@ -145,7 +184,12 @@ export function TeamManager({ members, invitations, currentUserId }: { members: 
                   </p>
                 </div>
                 <Badge tone="warning">{t("pendingBadge")}</Badge>
-                <Button size="sm" variant="ghost" disabled={pending} onClick={() => run(() => revokeInvitationAction(inv.id), t("revoked"))}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={pending}
+                  onClick={() => run(() => revokeInvitationAction(inv.id), t("revoked"))}
+                >
                   {t("revoke")}
                 </Button>
               </li>
@@ -154,7 +198,10 @@ export function TeamManager({ members, invitations, currentUserId }: { members: 
         </section>
       ) : null}
 
-      <section className="rounded-md border border-line bg-paper px-4 py-3" aria-labelledby="roles-title">
+      <section
+        className="rounded-md border border-line bg-paper px-4 py-3"
+        aria-labelledby="roles-title"
+      >
         <h3 id="roles-title" className="text-14 font-semibold">
           {t("roles")}
         </h3>
@@ -173,7 +220,9 @@ export function TeamManager({ members, invitations, currentUserId }: { members: 
           {createdLink ? (
             <>
               <DialogBody className="flex flex-col gap-3">
-                <Banner tone={createdLink.logged ? "warning" : "info"}>{createdLink.logged ? t("invitedLogged") : t("invited")}</Banner>
+                <Banner tone={createdLink.logged ? "warning" : "info"}>
+                  {createdLink.logged ? t("invitedLogged") : t("invited")}
+                </Banner>
                 <Field label={t("inviteLink")}>
                   <Input readOnly value={createdLink.link} onFocus={(e) => e.target.select()} />
                 </Field>
@@ -203,7 +252,13 @@ export function TeamManager({ members, invitations, currentUserId }: { members: 
             >
               <DialogBody className="flex flex-col gap-4">
                 <Field label={t("inviteEmail")} error={inviteError ? tx(inviteError) : undefined}>
-                  <Input type="email" inputMode="email" autoFocus value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <Input
+                    type="email"
+                    inputMode="email"
+                    autoFocus
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </Field>
                 <Field label={t("inviteRole")} hint={tr(`${role}Hint`)}>
                   <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
@@ -230,7 +285,11 @@ export function TeamManager({ members, invitations, currentUserId }: { members: 
 
       <Dialog open={removing !== null} onOpenChange={(open) => !open && setRemoving(null)}>
         {removing ? (
-          <DialogContent width="sm" title={t("removeTitle", { name: removing.name })} closeLabel={tx("common.close")}>
+          <DialogContent
+            width="sm"
+            title={t("removeTitle", { name: removing.name })}
+            closeLabel={tx("common.close")}
+          >
             <DialogBody>
               <p className="text-14">{t("removeBody", { name: removing.name })}</p>
             </DialogBody>

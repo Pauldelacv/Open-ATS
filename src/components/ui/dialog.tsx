@@ -39,7 +39,9 @@ export function DialogContent({
       >
         <div className="flex items-start justify-between gap-4 px-5 pt-4">
           <div>
-            <DialogPrimitive.Title className="text-20 font-semibold text-ink">{title}</DialogPrimitive.Title>
+            <DialogPrimitive.Title className="text-20 font-semibold text-ink">
+              {title}
+            </DialogPrimitive.Title>
             {description ? (
               <DialogPrimitive.Description className="mt-1 text-14 text-ink-muted">
                 {description}
@@ -62,13 +64,18 @@ export function DialogContent({
 }
 
 export function DialogBody({ className, ...props }: ComponentProps<"div">) {
-  return <div className={cn("min-h-0 flex-1 overflow-y-auto px-5 pt-4 pb-5", className)} {...props} />;
+  return (
+    <div className={cn("min-h-0 flex-1 overflow-y-auto px-5 pt-4 pb-5", className)} {...props} />
+  );
 }
 
 export function DialogFooter({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
-      className={cn("flex flex-wrap items-center justify-end gap-2 border-t border-line px-5 py-3", className)}
+      className={cn(
+        "flex flex-wrap items-center justify-end gap-2 border-t border-line px-5 py-3",
+        className,
+      )}
       {...props}
     />
   );

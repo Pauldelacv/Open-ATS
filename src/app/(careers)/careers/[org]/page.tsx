@@ -52,10 +52,15 @@ export default async function CareersHome({ params }: PageProps<"/careers/[org]"
       <BrandBar org={org} />
       <main className="flex-1">
         <CareersContainer className="pt-6 md:pt-12">
-          <div className={hasAbout ? "grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-16" : ""}>
+          <div
+            className={hasAbout ? "grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-16" : ""}
+          >
             <section aria-labelledby="openings">
               <h1 className="font-heading text-32 text-ink md:text-48">{heading}</h1>
-              <p id="openings" className="mt-2 mb-5 text-16 text-ink-muted tabular-nums md:mt-3 md:mb-8">
+              <p
+                id="openings"
+                className="mt-2 mb-5 text-16 text-ink-muted tabular-nums md:mt-3 md:mb-8"
+              >
                 {t("openings", { count: jobs.length })}
               </p>
               {jobs.length === 0 ? (
@@ -85,7 +90,10 @@ export default async function CareersHome({ params }: PageProps<"/careers/[org]"
                   {t("about", { company: org.name })}
                 </h2>
                 {org.descriptionHtml ? (
-                  <div className="rich-text mt-3" dangerouslySetInnerHTML={{ __html: org.descriptionHtml }} />
+                  <div
+                    className="rich-text mt-3"
+                    dangerouslySetInnerHTML={{ __html: org.descriptionHtml }}
+                  />
                 ) : null}
               </aside>
             ) : null}
@@ -93,7 +101,12 @@ export default async function CareersHome({ params }: PageProps<"/careers/[org]"
         </CareersContainer>
       </main>
       <CareersFooter org={org} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd).replace(/</g, "\\u003c") }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationLd).replace(/</g, "\\u003c"),
+        }}
+      />
     </>
   );
 }

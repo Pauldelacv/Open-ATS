@@ -6,7 +6,13 @@ import { useEffect, useRef, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/cn";
 
-export type CvFile = { id: string; fileName: string; mimeType: string; size: number; createdAt: string };
+export type CvFile = {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  createdAt: string;
+};
 
 type PdfState = { status: "loading" } | { status: "ready"; pages: number } | { status: "error" };
 
@@ -18,7 +24,12 @@ export function CvViewer({ files, className }: { files: CvFile[]; className?: st
 
   if (!file) {
     return (
-      <div className={cn("flex flex-col items-center justify-center bg-stone px-6 py-16 text-center", className)}>
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center bg-stone px-6 py-16 text-center",
+          className,
+        )}
+      >
         <p className="text-14 font-medium">{t("none")}</p>
         <p className="mt-1 text-13 text-ink-muted">{t("noneBody")}</p>
       </div>
@@ -65,7 +76,11 @@ export function CvViewer({ files, className }: { files: CvFile[]; className?: st
         </a>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto p-3 md:p-4">
-        {file.mimeType === "application/pdf" ? <PdfPages key={file.id} fileId={file.id} /> : <DocxPreview key={file.id} fileId={file.id} />}
+        {file.mimeType === "application/pdf" ? (
+          <PdfPages key={file.id} fileId={file.id} />
+        ) : (
+          <DocxPreview key={file.id} fileId={file.id} />
+        )}
       </div>
     </div>
   );
@@ -128,7 +143,10 @@ function PdfPages({ fileId }: { fileId: string }) {
   return (
     <>
       {state.status === "loading" ? (
-        <div className="flex flex-col gap-3 rounded-md border border-line bg-paper p-8" aria-hidden="true">
+        <div
+          className="flex flex-col gap-3 rounded-md border border-line bg-paper p-8"
+          aria-hidden="true"
+        >
           <Skeleton className="h-6 w-1/2" />
           <Skeleton className="h-3.5 w-1/3" />
           <Skeleton className="mt-6 h-3 w-full" />
@@ -138,7 +156,11 @@ function PdfPages({ fileId }: { fileId: string }) {
           <Skeleton className="h-3 w-10/12" />
         </div>
       ) : null}
-      {state.status === "error" ? <p className="rounded-md border border-line bg-paper p-6 text-14 text-ink-muted">{t("error")}</p> : null}
+      {state.status === "error" ? (
+        <p className="rounded-md border border-line bg-paper p-6 text-14 text-ink-muted">
+          {t("error")}
+        </p>
+      ) : null}
       <div ref={container} className="flex flex-col items-center gap-3" />
     </>
   );
@@ -158,15 +180,28 @@ function DocxPreview({ fileId }: { fileId: string }) {
       cancelled = true;
     };
   }, [fileId]);
-  if (error) return <p className="rounded-md border border-line bg-paper p-6 text-14 text-ink-muted">{t("error")}</p>;
+  if (error)
+    return (
+      <p className="rounded-md border border-line bg-paper p-6 text-14 text-ink-muted">
+        {t("error")}
+      </p>
+    );
   if (html === null) {
     return (
-      <div className="flex flex-col gap-3 rounded-md border border-line bg-paper p-8" aria-hidden="true">
+      <div
+        className="flex flex-col gap-3 rounded-md border border-line bg-paper p-8"
+        aria-hidden="true"
+      >
         <Skeleton className="h-6 w-1/2" />
         <Skeleton className="h-3 w-full" />
         <Skeleton className="h-3 w-11/12" />
       </div>
     );
   }
-  return <div className="rich-text rich-text-compact rounded-md border border-line bg-paper p-6 md:p-8" dangerouslySetInnerHTML={{ __html: html }} />;
+  return (
+    <div
+      className="rich-text rich-text-compact rounded-md border border-line bg-paper p-6 md:p-8"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
 }

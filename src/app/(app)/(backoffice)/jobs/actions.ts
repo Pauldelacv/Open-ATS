@@ -29,7 +29,8 @@ export async function saveJobAction(
   try {
     if (jobId) {
       const job = await updateJob(ctx, jobId, input);
-      if (options.publish && job.status !== "published") await setJobStatus(ctx, jobId, "published");
+      if (options.publish && job.status !== "published")
+        await setJobStatus(ctx, jobId, "published");
       revalidatePath("/jobs");
       return ok({ id: job.id });
     }
@@ -78,7 +79,10 @@ export async function deleteJobAction(jobId: string): Promise<ActionResult> {
   }
 }
 
-export async function saveStagesAction(jobId: string, stages: Array<{ id?: string; name: string }>): Promise<ActionResult> {
+export async function saveStagesAction(
+  jobId: string,
+  stages: Array<{ id?: string; name: string }>,
+): Promise<ActionResult> {
   const ctx = await requireContext();
   try {
     await saveStages(ctx, jobId, stages);

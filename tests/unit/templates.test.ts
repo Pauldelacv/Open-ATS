@@ -3,15 +3,21 @@ import { renderTemplate, unknownVariables } from "@/lib/services/template-render
 import { defaultTemplates } from "@/lib/services/default-templates";
 
 describe("email templates", () => {
-  const values = { firstName: "Marion", lastName: "Lefort", job: "Ébéniste", company: "Maison Pivert", recruiter: "Hugo" };
+  const values = {
+    firstName: "Marion",
+    lastName: "Lefort",
+    job: "Ébéniste",
+    company: "Maison Pivert",
+    recruiter: "Hugo",
+  };
 
   it("replaces French and English variable names", () => {
     expect(renderTemplate("Bonjour {{prénom}}, poste {{offre}} chez {{entreprise}}", values)).toBe(
       "Bonjour Marion, poste Ébéniste chez Maison Pivert",
     );
-    expect(renderTemplate("Hello {{first_name}} {{ last_name }} for {{job}} at {{company}}", values)).toBe(
-      "Hello Marion Lefort for Ébéniste at Maison Pivert",
-    );
+    expect(
+      renderTemplate("Hello {{first_name}} {{ last_name }} for {{job}} at {{company}}", values),
+    ).toBe("Hello Marion Lefort for Ébéniste at Maison Pivert");
     expect(renderTemplate("{{prenom}} {{Prénom}}", values)).toBe("Marion Marion");
   });
 

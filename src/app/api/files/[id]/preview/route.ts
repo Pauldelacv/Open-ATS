@@ -13,12 +13,17 @@ export async function GET(_request: Request, { params }: RouteContext<"/api/file
   if (!isUuid(id)) return Response.json({ error: "not_found" }, { status: 404 });
   try {
     const file = await getAccessibleFile(ctx, id);
-    if (!file.mimeType.includes("wordprocessingml")) return Response.json({ error: "unsupported" }, { status: 415 });
+    if (!file.mimeType.includes("wordprocessingml"))
+      return Response.json({ error: "unsupported" }, { status: 415 });
     const data = await storage().get(file.storageKey);
     if (!data) return Response.json({ error: "not_found" }, { status: 404 });
-    return Response.json({ html: await docxToHtml(data) }, { headers: { "Cache-Control": "private, no-store" } });
+    return Response.json(
+      { html: await docxToHtml(data) },
+      { headers: { "Cache-Control": "private, no-store" } },
+    );
   } catch (error) {
-    if (error instanceof NotFoundError) return Response.json({ error: "not_found" }, { status: 404 });
+    if (error instanceof NotFoundError)
+      return Response.json({ error: "not_found" }, { status: 404 });
     throw error;
   }
 }

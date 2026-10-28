@@ -6,13 +6,25 @@ import { rejectAction } from "@/app/(app)/(backoffice)/jobs/[jobId]/actions";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { Select } from "@/components/ui/input";
 import { toast } from "@/components/ui/toast";
 import { loose } from "@/i18n/loose";
 import { rejectionReasons, type RejectionReason } from "@/lib/services/rejection-reasons";
-import { draftFromTemplate, EmailFields, type EmailDraft, type Recipient, type TemplateOption } from "./email-fields";
+import {
+  draftFromTemplate,
+  EmailFields,
+  type EmailDraft,
+  type Recipient,
+  type TemplateOption,
+} from "./email-fields";
 
 export function RejectDialog({
   open,
@@ -52,14 +64,23 @@ export function RejectDialog({
         return;
       }
       const logged = result.data.statuses.includes("logged");
-      toast(logged ? t("doneLogged", { count: result.data.rejected }) : t("done", { count: result.data.rejected }));
+      toast(
+        logged
+          ? t("doneLogged", { count: result.data.rejected })
+          : t("done", { count: result.data.rejected }),
+      );
       onRejected(ids);
       onOpenChange(false);
     });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent width="lg" closeLabel={tx("common.close")} title={t("title", { count })} description={t("description", { count })}>
+      <DialogContent
+        width="lg"
+        closeLabel={tx("common.close")}
+        title={t("title", { count })}
+        description={t("description", { count })}
+      >
         <form
           noValidate
           className="contents"
@@ -85,10 +106,17 @@ export function RejectDialog({
                 ))}
               </Select>
             </Field>
-            <Checkbox id="reject-send-email" checked={sendEmail} onChange={(e) => setSendEmail(e.target.checked)} label={t("sendEmail", { count })} />
+            <Checkbox
+              id="reject-send-email"
+              checked={sendEmail}
+              onChange={(e) => setSendEmail(e.target.checked)}
+              label={t("sendEmail", { count })}
+            />
             {sendEmail ? (
               <div className="border-t border-line pt-4">
-                {rejectionTemplates.length === 0 ? <Banner className="mb-4">{tx("emailComposer.noTemplates")}</Banner> : null}
+                {rejectionTemplates.length === 0 ? (
+                  <Banner className="mb-4">{tx("emailComposer.noTemplates")}</Banner>
+                ) : null}
                 <EmailFields
                   draft={draft}
                   onChange={(d) => {

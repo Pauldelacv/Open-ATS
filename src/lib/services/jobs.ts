@@ -67,7 +67,11 @@ export async function jobStatusCounts(ctx: Ctx) {
 export async function getJob(ctx: Ctx, jobId: string) {
   const job = await getAccessibleJob(ctx, jobId);
   const [questions, members] = await Promise.all([
-    db.select().from(jobQuestions).where(eq(jobQuestions.jobId, job.id)).orderBy(asc(jobQuestions.position)),
+    db
+      .select()
+      .from(jobQuestions)
+      .where(eq(jobQuestions.jobId, job.id))
+      .orderBy(asc(jobQuestions.position)),
     db.select({ userId: jobMembers.userId }).from(jobMembers).where(eq(jobMembers.jobId, job.id)),
   ]);
   return { ...job, questions, memberIds: members.map((m) => m.userId) };
@@ -81,8 +85,12 @@ export async function jobSuggestions(ctx: Ctx) {
     .selectDistinct({ department: jobs.department, location: jobs.location })
     .from(jobs)
     .where(eq(jobs.organizationId, ctx.orgId));
-  const departments = [...new Set(rows.map((r) => r.department).filter((v): v is string => Boolean(v)))].sort();
-  const locations = [...new Set(rows.map((r) => r.location).filter((v): v is string => Boolean(v)))].sort();
+  const departments = [
+    ...new Set(rows.map((r) => r.department).filter((v): v is string => Boolean(v))),
+  ].sort();
+  const locations = [
+    ...new Set(rows.map((r) => r.location).filter((v): v is string => Boolean(v))),
+  ].sort();
   return { departments, locations };
 }
 
@@ -154,9 +162,13 @@ async function saveQuestions(tx: Tx, ctx: Ctx, jobId: string, questions: JobData
 
 async function saveMembers(tx: Tx, ctx: Ctx, jobId: string, memberIds: string[]) {
   const ids = await validMemberIds(tx, ctx.orgId, [...new Set(memberIds)]);
-  await tx.delete(jobMembers).where(and(eq(jobMembers.jobId, jobId), eq(jobMembers.organizationId, ctx.orgId)));
+  await tx
+    .delete(jobMembers)
+    .where(and(eq(jobMembers.jobId, jobId), eq(jobMembers.organizationId, ctx.orgId)));
   if (ids.length > 0) {
-    await tx.insert(jobMembers).values(ids.map((userId) => ({ organizationId: ctx.orgId, jobId, userId })));
+    await tx
+      .insert(jobMembers)
+      .values(ids.map((userId) => ({ organizationId: ctx.orgId, jobId, userId })));
   }
 }
 
@@ -179,7 +191,10 @@ export async function createJob(ctx: Ctx, input: JobInput, options: { publish?: 
   assertCan(ctx.role, "job:manage");
   const data = jobInputSchema.parse(input);
   return db.transaction(async (tx) => {
-    const [org] = await tx.select({ locale: organizations.locale }).from(organizations).where(eq(organizations.id, ctx.orgId));
+    const [org] = await tx
+      .select({ locale: organizations.locale })
+      .from(organizations)
+      .where(eq(organizations.id, ctx.orgId));
     const now = new Date();
     const [job] = await tx
       .insert(jobs)
@@ -250,7 +265,11 @@ export async function deleteDraftJob(ctx: Ctx, jobId: string) {
   assertCan(ctx.role, "job:manage");
   const job = await getAccessibleJob(ctx, jobId);
   if (job.status !== "draft") throw new JobHasApplicationsError();
-  const [any] = await db.select({ id: applications.id }).from(applications).where(eq(applications.jobId, jobId)).limit(1);
+  const [any] = await db
+    .select({ id: applications.id })
+    .from(applications)
+    .where(eq(applications.jobId, jobId))
+    .limit(1);
   if (any) throw new JobHasApplicationsError();
   await db.delete(jobs).where(and(eq(jobs.id, jobId), eq(jobs.organizationId, ctx.orgId)));
 }
@@ -269,7 +288,12 @@ export async function duplicateJob(ctx: Ctx, jobId: string, title: string) {
     salaryMax: job.salaryMax,
     salaryCurrency: job.salaryCurrency,
     salaryPeriod: job.salaryPeriod,
-    questions: job.questions.map((q) => ({ label: q.label, type: q.type, options: q.options, required: q.required })),
+    questions: job.questions.map((q) => ({
+      label: q.label,
+      type: q.type,
+      options: q.options,
+      required: q.required,
+    })),
     memberIds: job.memberIds,
   });
 }
@@ -311,7 +335,9 @@ export async function saveStages(
       .where(and(eq(pipelineStages.jobId, jobId), eq(pipelineStages.organizationId, ctx.orgId)))
       .orderBy(asc(pipelineStages.position));
     const byId = new Map(current.map((s) => [s.id, s]));
-    const kept = new Set(stages.map((s) => s.id).filter((id): id is string => Boolean(id && byId.has(id))));
+    const kept = new Set(
+      stages.map((s) => s.id).filter((id): id is string => Boolean(id && byId.has(id))),
+    );
     for (const stage of current) {
       if (!kept.has(stage.id) && stage.kind !== "active") throw new StageError("fixed");
     }
@@ -348,8 +374,21 @@ export async function saveStages(
       await tx
         .update(applications)
         .set({ stageId: fallback!, stageChangedAt: new Date() })
-        .where(and(inArray(applications.stageId, removed.map((s) => s.id)), eq(applications.organizationId, ctx.orgId)));
-      await tx.delete(pipelineStages).where(inArray(pipelineStages.id, removed.map((s) => s.id)));
+        .where(
+          and(
+            inArray(
+              applications.stageId,
+              removed.map((s) => s.id),
+            ),
+            eq(applications.organizationId, ctx.orgId),
+          ),
+        );
+      await tx.delete(pipelineStages).where(
+        inArray(
+          pipelineStages.id,
+          removed.map((s) => s.id),
+        ),
+      );
     }
     return tx
       .select()
@@ -386,7 +425,13 @@ export async function getPublishedJob(organizationId: string, slug: string) {
   const [job] = await db
     .select()
     .from(jobs)
-    .where(and(eq(jobs.organizationId, organizationId), eq(jobs.slug, slug), eq(jobs.status, "published")));
+    .where(
+      and(
+        eq(jobs.organizationId, organizationId),
+        eq(jobs.slug, slug),
+        eq(jobs.status, "published"),
+      ),
+    );
   if (!job) return null;
   const questions = await db
     .select()
@@ -399,10 +444,17 @@ export async function getPublishedJob(organizationId: string, slug: string) {
 /** Every published job of the instance, for the sitemap. */
 export async function listAllPublishedJobs() {
   return db
-    .select({ slug: jobs.slug, updatedAt: jobs.updatedAt, orgSlug: organizations.slug, orgUpdatedAt: organizations.updatedAt })
+    .select({
+      slug: jobs.slug,
+      updatedAt: jobs.updatedAt,
+      orgSlug: organizations.slug,
+      orgUpdatedAt: organizations.updatedAt,
+    })
     .from(jobs)
     .innerJoin(organizations, eq(organizations.id, jobs.organizationId))
-    .where(and(eq(jobs.status, "published"), isNotNull(jobs.publishedAt), ne(organizations.slug, "")));
+    .where(
+      and(eq(jobs.status, "published"), isNotNull(jobs.publishedAt), ne(organizations.slug, "")),
+    );
 }
 
 export { NotFoundError };

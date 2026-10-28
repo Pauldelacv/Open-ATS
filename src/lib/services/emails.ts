@@ -22,7 +22,12 @@ export async function listTemplates(ctx: Ctx, kind?: EmailTemplateKind) {
   return db
     .select()
     .from(emailTemplates)
-    .where(and(eq(emailTemplates.organizationId, ctx.orgId), kind ? eq(emailTemplates.kind, kind) : undefined))
+    .where(
+      and(
+        eq(emailTemplates.organizationId, ctx.orgId),
+        kind ? eq(emailTemplates.kind, kind) : undefined,
+      ),
+    )
     .orderBy(asc(emailTemplates.kind), asc(emailTemplates.name));
 }
 
@@ -35,7 +40,12 @@ export async function getTemplate(ctx: Ctx, id: string) {
   return template;
 }
 
-export type TemplateInput = { name: string; kind: EmailTemplateKind; subject: string; body: string };
+export type TemplateInput = {
+  name: string;
+  kind: EmailTemplateKind;
+  subject: string;
+  body: string;
+};
 
 export async function saveTemplate(ctx: Ctx, id: string | null, input: TemplateInput) {
   assertCan(ctx.role, "templates:manage");
@@ -48,13 +58,18 @@ export async function saveTemplate(ctx: Ctx, id: string | null, input: TemplateI
     if (!row) throw new NotFoundError("Template");
     return row;
   }
-  const [row] = await db.insert(emailTemplates).values({ ...input, organizationId: ctx.orgId }).returning();
+  const [row] = await db
+    .insert(emailTemplates)
+    .values({ ...input, organizationId: ctx.orgId })
+    .returning();
   return row!;
 }
 
 export async function deleteTemplate(ctx: Ctx, id: string) {
   assertCan(ctx.role, "templates:manage");
-  await db.delete(emailTemplates).where(and(eq(emailTemplates.id, id), eq(emailTemplates.organizationId, ctx.orgId)));
+  await db
+    .delete(emailTemplates)
+    .where(and(eq(emailTemplates.id, id), eq(emailTemplates.organizationId, ctx.orgId)));
 }
 
 /* ---------------------------------- Sending --------------------------------- */
@@ -84,10 +99,16 @@ async function recipients(ctx: Ctx, applicationIds: string[]): Promise<Recipient
     .from(applications)
     .innerJoin(candidates, eq(candidates.id, applications.candidateId))
     .innerJoin(jobs, eq(jobs.id, applications.jobId))
-    .where(and(eq(applications.organizationId, ctx.orgId), inArray(applications.id, applicationIds)));
+    .where(
+      and(eq(applications.organizationId, ctx.orgId), inArray(applications.id, applicationIds)),
+    );
 }
 
-export function valuesFor(r: { firstName: string; lastName: string; jobTitle: string }, company: string, recruiter: string): TemplateValues {
+export function valuesFor(
+  r: { firstName: string; lastName: string; jobTitle: string },
+  company: string,
+  recruiter: string,
+): TemplateValues {
   return { firstName: r.firstName, lastName: r.lastName, job: r.jobTitle, company, recruiter };
 }
 
@@ -103,8 +124,14 @@ export async function sendCandidateEmails(
   if (!options.skipPermission) assertCan(ctx.role, "candidate:email");
   const list = await recipients(ctx, input.applicationIds);
   const [org] = await db.select().from(organizations).where(eq(organizations.id, ctx.orgId));
-  const [sender] = await db.select({ name: user.name, email: user.email }).from(user).where(eq(user.id, ctx.userId));
-  const results: Array<{ applicationId: string; status: "sent" | "logged" | "failed" | "skipped" }> = [];
+  const [sender] = await db
+    .select({ name: user.name, email: user.email })
+    .from(user)
+    .where(eq(user.id, ctx.userId));
+  const results: Array<{
+    applicationId: string;
+    status: "sent" | "logged" | "failed" | "skipped";
+  }> = [];
   for (const r of list) {
     if (!r.email) {
       results.push({ applicationId: r.applicationId, status: "skipped" });
@@ -162,7 +189,13 @@ export async function sendConfirmationEmail(orgId: string, applicationId: string
   const values = valuesFor(r, org.name, org.name);
   const subject = renderTemplate(template.subject, values);
   const body = renderTemplate(template.body, values);
-  const result = await deliver({ to: r.email, subject, text: body, html: textToHtml(body), fromName: org.name });
+  const result = await deliver({
+    to: r.email,
+    subject,
+    text: body,
+    html: textToHtml(body),
+    fromName: org.name,
+  });
   await db.insert(emailMessages).values({
     organizationId: orgId,
     category: "candidate",
@@ -175,13 +208,17 @@ export async function sendConfirmationEmail(orgId: string, applicationId: string
     status: result.status,
     error: result.error,
   });
-  await logActivity(db, { orgId }, {
-    candidateId: r.candidateId,
-    applicationId,
-    jobId: r.jobId,
-    type: "email_sent",
-    data: { subject, status: result.status, automatic: true },
-  });
+  await logActivity(
+    db,
+    { orgId },
+    {
+      candidateId: r.candidateId,
+      applicationId,
+      jobId: r.jobId,
+      type: "email_sent",
+      data: { subject, status: result.status, automatic: true },
+    },
+  );
 }
 
 /* --------------------------------- Journal --------------------------------- */
@@ -220,6 +257,8 @@ export async function listCandidateEmails(ctx: Ctx, candidateId: string) {
     })
     .from(emailMessages)
     .leftJoin(user, eq(user.id, emailMessages.sentById))
-    .where(and(eq(emailMessages.organizationId, ctx.orgId), eq(emailMessages.candidateId, candidateId)))
+    .where(
+      and(eq(emailMessages.organizationId, ctx.orgId), eq(emailMessages.candidateId, candidateId)),
+    )
     .orderBy(desc(emailMessages.createdAt));
 }

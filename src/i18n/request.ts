@@ -1,6 +1,12 @@
 import { cookies, headers } from "next/headers";
 import { getRequestConfig } from "next-intl/server";
-import { defaultLocale, isLocale, LOCALE_COOKIE, localeFromAcceptLanguage, timeZone } from "./config";
+import {
+  defaultLocale,
+  isLocale,
+  LOCALE_COOKIE,
+  localeFromAcceptLanguage,
+  timeZone,
+} from "./config";
 import { messages } from "./messages";
 
 export default getRequestConfig(async ({ locale: explicit }) => {

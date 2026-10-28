@@ -1,10 +1,28 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
-type PaletteContext = { isOpen: boolean; open: () => void; close: () => void; setOpen: (open: boolean) => void };
+type PaletteContext = {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+  setOpen: (open: boolean) => void;
+};
 
-const Context = createContext<PaletteContext>({ isOpen: false, open: () => {}, close: () => {}, setOpen: () => {} });
+const Context = createContext<PaletteContext>({
+  isOpen: false,
+  open: () => {},
+  close: () => {},
+  setOpen: () => {},
+});
 
 export function CommandPaletteProvider({ children }: { children: ReactNode }) {
   const [isOpen, setOpen] = useState(false);

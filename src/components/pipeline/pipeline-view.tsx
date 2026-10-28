@@ -24,13 +24,22 @@ import { Search, Tag as TagIcon, UserPlus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { addTagAction, moveApplicationsAction, undoMoveAction } from "@/app/(app)/(backoffice)/jobs/[jobId]/actions";
+import {
+  addTagAction,
+  moveApplicationsAction,
+  undoMoveAction,
+} from "@/app/(app)/(backoffice)/jobs/[jobId]/actions";
 import { CandidatePanel } from "@/components/candidates/candidate-panel";
 import { EmailComposer } from "@/components/candidates/email-composer";
 import type { Recipient, TemplateOption } from "@/components/candidates/email-fields";
 import { RejectDialog } from "@/components/candidates/reject-dialog";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -50,7 +59,8 @@ type Columns = Record<string, string[]>;
 
 function buildColumns(stages: StageInfo[], cards: BoardCard[]): Columns {
   const columns: Columns = Object.fromEntries(stages.map((s) => [s.id, [] as string[]]));
-  for (const card of [...cards].sort((a, b) => a.position - b.position)) columns[card.stageId]?.push(card.id);
+  for (const card of [...cards].sort((a, b) => a.position - b.position))
+    columns[card.stageId]?.push(card.id);
   return columns;
 }
 
@@ -129,10 +139,17 @@ export function PipelineView({
 
   /** Cards in reading order, used for J/K navigation in the panel. */
   const orderedIds = useMemo(
-    () => stages.flatMap((s) => (s.kind === "rejected" && !rejectedOpen && openId && cards.get(openId)?.stageId !== s.id ? [] : columns[s.id] ?? [])).filter((id) => {
-      const card = cards.get(id);
-      return card ? matches(card) : false;
-    }),
+    () =>
+      stages
+        .flatMap((s) =>
+          s.kind === "rejected" && !rejectedOpen && openId && cards.get(openId)?.stageId !== s.id
+            ? []
+            : (columns[s.id] ?? []),
+        )
+        .filter((id) => {
+          const card = cards.get(id);
+          return card ? matches(card) : false;
+        }),
     [stages, columns, cards, matches, rejectedOpen, openId],
   );
 
@@ -192,11 +209,14 @@ export function PipelineView({
     const card = cards.get(String(id));
     return card ? `${card.firstName} ${card.lastName}` : "";
   };
-  const stageName = (id: UniqueIdentifier | undefined) => (id ? (stageById.get(findColumn(id) ?? "")?.name ?? "") : "");
+  const stageName = (id: UniqueIdentifier | undefined) =>
+    id ? (stageById.get(findColumn(id) ?? "")?.name ?? "") : "";
   const announcements: Announcements = {
     onDragStart: ({ active }) => t("dnd.pickedUp", { name: nameOf(active.id) }),
-    onDragOver: ({ active, over }) => (over ? t("dnd.over", { name: nameOf(active.id), stage: stageName(over.id) }) : undefined),
-    onDragEnd: ({ active, over }) => (over ? t("dnd.dropped", { name: nameOf(active.id), stage: stageName(over.id) }) : undefined),
+    onDragOver: ({ active, over }) =>
+      over ? t("dnd.over", { name: nameOf(active.id), stage: stageName(over.id) }) : undefined,
+    onDragEnd: ({ active, over }) =>
+      over ? t("dnd.dropped", { name: nameOf(active.id), stage: stageName(over.id) }) : undefined,
     onDragCancel: ({ active }) => t("dnd.cancelled", { name: nameOf(active.id) }),
   };
 
@@ -206,7 +226,13 @@ export function PipelineView({
       const kind = stageById.get(stageId)?.kind;
       for (const id of ids) {
         const card = next.get(id);
-        if (card) next.set(id, { ...card, stageId, rejected: kind === "rejected", isNew: kind === "rejected" ? false : card.isNew });
+        if (card)
+          next.set(id, {
+            ...card,
+            stageId,
+            rejected: kind === "rejected",
+            isNew: kind === "rejected" ? false : card.isNew,
+          });
       }
       return next;
     });
@@ -218,7 +244,12 @@ export function PipelineView({
           for (const id of ids) {
             const card = next.get(id);
             const from = Object.keys(previousColumns).find((s) => previousColumns[s]!.includes(id));
-            if (card && from) next.set(id, { ...card, stageId: from, rejected: stageById.get(from)?.kind === "rejected" });
+            if (card && from)
+              next.set(id, {
+                ...card,
+                stageId: from,
+                rejected: stageById.get(from)?.kind === "rejected",
+              });
           }
           return next;
         });
@@ -237,11 +268,20 @@ export function PipelineView({
               const next = new Map(prev);
               for (const p of previous) {
                 const card = next.get(p.id);
-                if (card) next.set(p.id, { ...card, stageId: p.stageId, rejected: stageById.get(p.stageId)?.kind === "rejected" });
+                if (card)
+                  next.set(p.id, {
+                    ...card,
+                    stageId: p.stageId,
+                    rejected: stageById.get(p.stageId)?.kind === "rejected",
+                  });
               }
               return next;
             });
-            undoMoveAction(previous).then((r) => toast(r.ok ? t("toasts.undone") : { message: tx(r.ok ? "" : r.error), tone: "danger" }));
+            undoMoveAction(previous).then((r) =>
+              toast(
+                r.ok ? t("toasts.undone") : { message: tx(r.ok ? "" : r.error), tone: "danger" },
+              ),
+            );
           },
         },
       });
@@ -261,7 +301,9 @@ export function PipelineView({
     setColumns((prev) => {
       const source = prev[from]!.filter((id) => id !== active.id);
       const target = [...prev[to]!];
-      const overIndex = String(over.id).startsWith("column:") ? target.length : target.indexOf(String(over.id));
+      const overIndex = String(over.id).startsWith("column:")
+        ? target.length
+        : target.indexOf(String(over.id));
       target.splice(overIndex < 0 ? target.length : overIndex, 0, String(active.id));
       return { ...prev, [from]: source, [to]: target };
     });
@@ -277,7 +319,9 @@ export function PipelineView({
     let next = columns;
     const list = columns[to]!;
     const oldIndex = list.indexOf(String(active.id));
-    const overIndex = String(over.id).startsWith("column:") ? list.length - 1 : list.indexOf(String(over.id));
+    const overIndex = String(over.id).startsWith("column:")
+      ? list.length - 1
+      : list.indexOf(String(over.id));
     if (oldIndex !== -1 && overIndex !== -1 && oldIndex !== overIndex) {
       next = { ...columns, [to]: arrayMove(list, oldIndex, overIndex) };
       setColumns(next);
@@ -299,7 +343,9 @@ export function PipelineView({
     const ids = [...selected];
     if (stageById.get(stageId)?.kind === "rejected") return setRejectIds(ids);
     const before = columns;
-    const next: Columns = Object.fromEntries(Object.entries(columns).map(([s, list]) => [s, list.filter((id) => !selected.has(id))]));
+    const next: Columns = Object.fromEntries(
+      Object.entries(columns).map(([s, list]) => [s, list.filter((id) => !selected.has(id))]),
+    );
     next[stageId] = [...ids, ...next[stageId]!];
     setColumns(next);
     applyMove(ids, stageId, 0, before);
@@ -326,7 +372,9 @@ export function PipelineView({
   const onRejected = (ids: string[]) => {
     if (!rejectedStage) return;
     setColumns((prev) => {
-      const next: Columns = Object.fromEntries(Object.entries(prev).map(([s, list]) => [s, list.filter((id) => !ids.includes(id))]));
+      const next: Columns = Object.fromEntries(
+        Object.entries(prev).map(([s, list]) => [s, list.filter((id) => !ids.includes(id))]),
+      );
       next[rejectedStage.id] = [...next[rejectedStage.id]!, ...ids];
       return next;
     });
@@ -334,7 +382,8 @@ export function PipelineView({
       const next = new Map(prev);
       for (const id of ids) {
         const card = next.get(id);
-        if (card) next.set(id, { ...card, stageId: rejectedStage.id, rejected: true, isNew: false });
+        if (card)
+          next.set(id, { ...card, stageId: rejectedStage.id, rejected: true, isNew: false });
       }
       return next;
     });
@@ -347,20 +396,35 @@ export function PipelineView({
     ids
       .map((id) => cards.get(id))
       .filter((c): c is BoardCard => Boolean(c))
-      .map((c) => ({ applicationId: c.id, firstName: c.firstName, lastName: c.lastName, jobTitle: job.title, email: null }));
+      .map((c) => ({
+        applicationId: c.id,
+        firstName: c.firstName,
+        lastName: c.lastName,
+        jobTitle: job.title,
+        email: null,
+      }));
 
   const addTagToSelection = async () => {
     const name = tagName.trim();
     if (!name) return;
     const ids = [...selected];
-    const candidateIds = [...new Set(ids.map((id) => cards.get(id)?.candidateId).filter((x): x is string => Boolean(x)))];
+    const candidateIds = [
+      ...new Set(
+        ids.map((id) => cards.get(id)?.candidateId).filter((x): x is string => Boolean(x)),
+      ),
+    ];
     const result = await addTagAction(candidateIds, name);
-    if (!result.ok || !result.data) return void toast({ message: tx(result.ok ? "common.unknownError" : result.error), tone: "danger" });
+    if (!result.ok || !result.data)
+      return void toast({
+        message: tx(result.ok ? "common.unknownError" : result.error),
+        tone: "danger",
+      });
     const tag = result.data.name;
     setCards((prev) => {
       const next = new Map(prev);
       for (const card of next.values()) {
-        if (candidateIds.includes(card.candidateId) && !card.tags.includes(tag)) next.set(card.id, { ...card, tags: [...card.tags, tag].sort() });
+        if (candidateIds.includes(card.candidateId) && !card.tags.includes(tag))
+          next.set(card.id, { ...card, tags: [...card.tags, tag].sort() });
       }
       return next;
     });
@@ -380,7 +444,10 @@ export function PipelineView({
       <div className={cn("flex min-w-0 flex-1 flex-col", openId && "hidden xl:flex")}>
         <div className="flex flex-wrap items-center gap-2 px-4 pt-3 pb-2 md:px-6">
           <div className="relative w-full max-w-64">
-            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
+            <Search
+              className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-ink-muted"
+              aria-hidden="true"
+            />
             <Input
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
@@ -416,7 +483,9 @@ export function PipelineView({
           <div className="mx-4 mt-2 rounded-md border border-line bg-paper md:mx-6">
             <EmptyState
               title={t("emptyBoard")}
-              description={job.status === "published" ? t("emptyBoardPublished") : t("emptyBoardDraft")}
+              description={
+                job.status === "published" ? t("emptyBoardPublished") : t("emptyBoardDraft")
+              }
               action={
                 job.status === "published" ? (
                   <Button
@@ -445,7 +514,12 @@ export function PipelineView({
             }}
             accessibility={{ announcements, screenReaderInstructions: { draggable: t("help") } }}
           >
-            <div className="flex min-h-0 flex-1 gap-2 overflow-x-auto px-4 pb-24 md:px-6" role="region" aria-label={t("board")} aria-describedby="pipeline-help">
+            <div
+              className="flex min-h-0 flex-1 gap-2 overflow-x-auto px-4 pb-24 md:px-6"
+              role="region"
+              aria-label={t("board")}
+              aria-describedby="pipeline-help"
+            >
               {visibleStages.map((stage) => {
                 const ids = columns[stage.id] ?? [];
                 const visible = ids.filter((id) => {
@@ -482,7 +556,9 @@ export function PipelineView({
                 );
               })}
             </div>
-            <DragOverlay dropAnimation={{ duration: 180, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" }}>
+            <DragOverlay
+              dropAnimation={{ duration: 180, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" }}
+            >
               {activeCard ? (
                 <div className="w-64 cursor-grabbing rounded-sm border border-line-strong bg-paper py-2.5 pr-3 pl-8 shadow-lift">
                   <CardBody card={activeCard} />
@@ -498,7 +574,9 @@ export function PipelineView({
             aria-label={t("selected", { count: selected.size })}
             className="fixed bottom-4 left-1/2 z-30 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-wrap items-center gap-1.5 rounded-md border border-line bg-paper p-1.5 pl-3 shadow-float md:left-[calc(50%+28px)] xl:left-[calc(50%+108px)]"
           >
-            <span className="mr-2 text-13 font-medium tabular-nums">{t("selected", { count: selected.size })}</span>
+            <span className="mr-2 text-13 font-medium tabular-nums">
+              {t("selected", { count: selected.size })}
+            </span>
             {permissions.move ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -532,7 +610,14 @@ export function PipelineView({
                     <label htmlFor="bulk-tag" className="text-13 font-medium">
                       {t("tagName")}
                     </label>
-                    <Input id="bulk-tag" autoFocus value={tagName} onChange={(e) => setTagName(e.target.value)} placeholder={t("tagPlaceholder")} maxLength={40} />
+                    <Input
+                      id="bulk-tag"
+                      autoFocus
+                      value={tagName}
+                      onChange={(e) => setTagName(e.target.value)}
+                      placeholder={t("tagPlaceholder")}
+                      maxLength={40}
+                    />
                     <Button type="submit" size="sm" variant="primary" className="self-end">
                       {t("apply")}
                     </Button>
@@ -546,7 +631,10 @@ export function PipelineView({
               </Button>
             ) : null}
             {permissions.reject ? (
-              <Button size="sm" onClick={() => setRejectIds([...selected].filter((id) => !cards.get(id)?.rejected))}>
+              <Button
+                size="sm"
+                onClick={() => setRejectIds([...selected].filter((id) => !cards.get(id)?.rejected))}
+              >
                 {t("reject")}
               </Button>
             ) : null}
@@ -568,14 +656,21 @@ export function PipelineView({
           onChanged={onPanelChange}
           onMoved={(id, stageId) => {
             setColumns((prev) => {
-              const next: Columns = Object.fromEntries(Object.entries(prev).map(([s, list]) => [s, list.filter((x) => x !== id)]));
+              const next: Columns = Object.fromEntries(
+                Object.entries(prev).map(([s, list]) => [s, list.filter((x) => x !== id)]),
+              );
               next[stageId] = [id, ...next[stageId]!];
               return next;
             });
             setCards((prev) => {
               const next = new Map(prev);
               const card = next.get(id);
-              if (card) next.set(id, { ...card, stageId, rejected: stageById.get(stageId)?.kind === "rejected" });
+              if (card)
+                next.set(id, {
+                  ...card,
+                  stageId,
+                  rejected: stageById.get(stageId)?.kind === "rejected",
+                });
               return next;
             });
           }}
@@ -596,8 +691,17 @@ export function PipelineView({
           permissions={permissions}
           meId={meId}
           onDeleted={(candidateId) => {
-            const removed = [...cards.values()].filter((c) => c.candidateId === candidateId).map((c) => c.id);
-            setColumns((prev) => Object.fromEntries(Object.entries(prev).map(([s, list]) => [s, list.filter((id) => !removed.includes(id))])));
+            const removed = [...cards.values()]
+              .filter((c) => c.candidateId === candidateId)
+              .map((c) => c.id);
+            setColumns((prev) =>
+              Object.fromEntries(
+                Object.entries(prev).map(([s, list]) => [
+                  s,
+                  list.filter((id) => !removed.includes(id)),
+                ]),
+              ),
+            );
             setCards((prev) => {
               const next = new Map(prev);
               for (const id of removed) next.delete(id);
@@ -635,7 +739,13 @@ export function PipelineView({
           }}
         />
       ) : null}
-      {manualOpen ? <ManualCandidateDialog jobId={job.id} onClose={() => setManualOpen(false)} onAdded={() => router.refresh()} /> : null}
+      {manualOpen ? (
+        <ManualCandidateDialog
+          jobId={job.id}
+          onClose={() => setManualOpen(false)}
+          onAdded={() => router.refresh()}
+        />
+      ) : null}
     </div>
   );
 }

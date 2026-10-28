@@ -8,9 +8,12 @@ export function StickyApply({ label, targetId }: { label: string; targetId: stri
   useEffect(() => {
     const target = document.getElementById(targetId);
     if (!target) return;
-    const observer = new IntersectionObserver(([entry]) => setVisible(!entry?.isIntersecting && (entry?.boundingClientRect.top ?? 0) > 0), {
-      rootMargin: "0px 0px -20% 0px",
-    });
+    const observer = new IntersectionObserver(
+      ([entry]) => setVisible(!entry?.isIntersecting && (entry?.boundingClientRect.top ?? 0) > 0),
+      {
+        rootMargin: "0px 0px -20% 0px",
+      },
+    );
     observer.observe(target);
     return () => observer.disconnect();
   }, [targetId]);

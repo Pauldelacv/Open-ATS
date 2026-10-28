@@ -14,7 +14,9 @@ import { listTemplates } from "@/lib/services/emails";
 import { listStages } from "@/lib/services/jobs";
 import { getOrganization } from "@/lib/services/organizations";
 
-export async function generateMetadata({ params }: PageProps<"/candidates/[candidateId]">): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/candidates/[candidateId]">): Promise<Metadata> {
   const { candidateId } = await params;
   if (!isUuid(candidateId)) return {};
   const ctx = await requireContext();
@@ -22,7 +24,10 @@ export async function generateMetadata({ params }: PageProps<"/candidates/[candi
   return { title: candidate ? `${candidate.firstName} ${candidate.lastName}` : undefined };
 }
 
-export default async function CandidatePage({ params, searchParams }: PageProps<"/candidates/[candidateId]">) {
+export default async function CandidatePage({
+  params,
+  searchParams,
+}: PageProps<"/candidates/[candidateId]">) {
   const { candidateId } = await params;
   if (!isUuid(candidateId)) notFound();
   const ctx = await requireContext();
@@ -35,7 +40,11 @@ export default async function CandidatePage({ params, searchParams }: PageProps<
   if (apps.length === 0) notFound();
   const query = await searchParams;
   const selected = apps.find((a) => a.id === query.a) ?? apps[0]!;
-  const [stages, templates, org] = await Promise.all([listStages(ctx, selected.jobId), listTemplates(ctx), getOrganization(ctx)]);
+  const [stages, templates, org] = await Promise.all([
+    listStages(ctx, selected.jobId),
+    listTemplates(ctx),
+    getOrganization(ctx),
+  ]);
 
   return (
     <div className="flex h-[calc(100dvh-3rem)] flex-col px-4 py-4 md:h-dvh md:px-6">
@@ -51,11 +60,23 @@ export default async function CandidatePage({ params, searchParams }: PageProps<
               aria-current={a.id === selected.id ? "page" : undefined}
               className={cn(
                 "flex shrink-0 items-center gap-2 rounded-sm border px-2.5 py-1.5 text-13",
-                a.id === selected.id ? "border-cobalt bg-cobalt-tint" : "border-line bg-paper hover:border-line-strong",
+                a.id === selected.id
+                  ? "border-cobalt bg-cobalt-tint"
+                  : "border-line bg-paper hover:border-line-strong",
               )}
             >
               <span className="font-medium">{a.jobTitle}</span>
-              <Badge tone={a.stageKind === "rejected" ? "danger" : a.stageKind === "hired" ? "success" : "neutral"}>{a.stageName}</Badge>
+              <Badge
+                tone={
+                  a.stageKind === "rejected"
+                    ? "danger"
+                    : a.stageKind === "hired"
+                      ? "success"
+                      : "neutral"
+                }
+              >
+                {a.stageName}
+              </Badge>
             </Link>
           ))}
         </nav>
@@ -66,8 +87,20 @@ export default async function CandidatePage({ params, searchParams }: PageProps<
         <CandidatePageView
           applicationId={selected.id}
           stages={stages.map((s) => ({ id: s.id, name: s.name, kind: s.kind }))}
-          recipient={{ applicationId: selected.id, firstName: candidate.firstName, lastName: candidate.lastName, jobTitle: selected.jobTitle, email: candidate.email }}
-          templates={templates.map((tpl) => ({ id: tpl.id, name: tpl.name, kind: tpl.kind, subject: tpl.subject, body: tpl.body }))}
+          recipient={{
+            applicationId: selected.id,
+            firstName: candidate.firstName,
+            lastName: candidate.lastName,
+            jobTitle: selected.jobTitle,
+            email: candidate.email,
+          }}
+          templates={templates.map((tpl) => ({
+            id: tpl.id,
+            name: tpl.name,
+            kind: tpl.kind,
+            subject: tpl.subject,
+            body: tpl.body,
+          }))}
           companyName={org.name}
           recruiterName={ctx.user.name}
           meId={ctx.userId}

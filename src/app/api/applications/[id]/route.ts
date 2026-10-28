@@ -14,7 +14,8 @@ export async function GET(_request: Request, { params }: RouteContext<"/api/appl
     const detail = await getApplicationDetail(ctx, id);
     return Response.json(detail, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    if (error instanceof NotFoundError) return Response.json({ error: "not_found" }, { status: 404 });
+    if (error instanceof NotFoundError)
+      return Response.json({ error: "not_found" }, { status: 404 });
     throw error;
   }
 }

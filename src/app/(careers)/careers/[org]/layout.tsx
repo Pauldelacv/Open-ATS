@@ -11,7 +11,9 @@ import "../../../globals.css";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: LayoutProps<"/careers/[org]">): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: LayoutProps<"/careers/[org]">): Promise<Metadata> {
   const { org: slug } = await params;
   const org = await getCareerOrganization(slug);
   if (!org) return {};
@@ -23,13 +25,18 @@ export async function generateMetadata({ params }: LayoutProps<"/careers/[org]">
   };
 }
 
-export async function generateViewport({ params }: LayoutProps<"/careers/[org]">): Promise<Viewport> {
+export async function generateViewport({
+  params,
+}: LayoutProps<"/careers/[org]">): Promise<Viewport> {
   const { org: slug } = await params;
   const org = await getCareerOrganization(slug);
   return { themeColor: org?.palette.brand ?? "#2447D6" };
 }
 
-export default async function CareersRootLayout({ children, params }: LayoutProps<"/careers/[org]">) {
+export default async function CareersRootLayout({
+  children,
+  params,
+}: LayoutProps<"/careers/[org]">) {
   const { org: slug } = await params;
   const org = await getCareerOrganization(slug);
   if (!org) notFound();
@@ -39,10 +46,15 @@ export default async function CareersRootLayout({ children, params }: LayoutProp
     "--brand-hover": org.palette.brandHover,
     "--brand-fg": org.palette.brandFg,
     "--brand-link": org.palette.brandLink,
-    "--heading-font": org.headingFont === "sans" ? "var(--font-instrument-sans)" : "var(--font-instrument-serif)",
+    "--heading-font":
+      org.headingFont === "sans" ? "var(--font-instrument-sans)" : "var(--font-instrument-serif)",
   } as CSSProperties;
   return (
-    <html lang={org.locale} className={cn(instrumentSans.variable, instrumentSerif.variable)} style={style}>
+    <html
+      lang={org.locale}
+      className={cn(instrumentSans.variable, instrumentSerif.variable)}
+      style={style}
+    >
       <body className="flex min-h-dvh flex-col bg-paper text-ink">
         <NextIntlClientProvider locale={org.locale} messages={messages}>
           {children}

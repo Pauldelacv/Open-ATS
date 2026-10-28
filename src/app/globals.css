@@ -88,7 +88,8 @@
 
 /* Values that depend on runtime variables (fonts from next/font, brand colour). */
 @theme inline {
-  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans:
+    var(--font-instrument-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
   --font-heading: var(--heading-font, var(--font-serif));
   --color-brand: var(--brand, #2447d6);

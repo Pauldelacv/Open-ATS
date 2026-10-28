@@ -1,6 +1,16 @@
 "use client";
 
-import { AtSign, Briefcase, ExternalLink, LogOut, Menu, Search, Settings, UserRound, Users } from "lucide-react";
+import {
+  AtSign,
+  Briefcase,
+  ExternalLink,
+  LogOut,
+  Menu,
+  Search,
+  Settings,
+  UserRound,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -31,25 +41,50 @@ export type SidebarProps = {
 
 const noopSubscribe = () => () => {};
 
-type NavItem = { href: string; label: string; icon: ComponentType<{ className?: string }>; badge?: number };
+type NavItem = {
+  href: string;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+  badge?: number;
+};
 
-function OrgBadge({ organization, compact }: { organization: SidebarProps["organization"]; compact?: boolean }) {
+function OrgBadge({
+  organization,
+  compact,
+}: {
+  organization: SidebarProps["organization"];
+  compact?: boolean;
+}) {
   return (
     <span className="flex min-w-0 items-center gap-2.5">
       {organization.logoUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={organization.logoUrl} alt="" className="size-7 shrink-0 rounded-sm border border-line bg-paper object-contain" />
+        <img
+          src={organization.logoUrl}
+          alt=""
+          className="size-7 shrink-0 rounded-sm border border-line bg-paper object-contain"
+        />
       ) : (
         <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-sm border border-line bg-paper">
           <LogoMark className="size-4" />
         </span>
       )}
-      {!compact ? <span className="truncate text-14 font-semibold text-ink">{organization.name}</span> : null}
+      {!compact ? (
+        <span className="truncate text-14 font-semibold text-ink">{organization.name}</span>
+      ) : null}
     </span>
   );
 }
 
-function SidebarContent({ props, rail, onNavigate }: { props: SidebarProps; rail: boolean; onNavigate?: () => void }) {
+function SidebarContent({
+  props,
+  rail,
+  onNavigate,
+}: {
+  props: SidebarProps;
+  rail: boolean;
+  onNavigate?: () => void;
+}) {
   const t = useTranslations("nav");
   const tAuth = useTranslations("auth");
   const pathname = usePathname();
@@ -65,7 +100,11 @@ function SidebarContent({ props, rail, onNavigate }: { props: SidebarProps; rail
     { href: "/jobs", label: t("jobs"), icon: Briefcase },
     { href: "/candidates", label: t("candidates"), icon: Users },
     { href: "/inbox", label: t("inbox"), icon: AtSign, badge: props.unreadMentions },
-    { href: props.canSeeSettings ? "/settings" : "/settings/profile", label: t("settings"), icon: Settings },
+    {
+      href: props.canSeeSettings ? "/settings" : "/settings/profile",
+      label: t("settings"),
+      icon: Settings,
+    },
   ];
 
   const signOut = async () => {
@@ -75,7 +114,10 @@ function SidebarContent({ props, rail, onNavigate }: { props: SidebarProps; rail
   };
 
   const link = (item: NavItem) => {
-    const active = pathname === item.href || pathname.startsWith(`${item.href}/`) || (item.href === "/settings/profile" && pathname.startsWith("/settings"));
+    const active =
+      pathname === item.href ||
+      pathname.startsWith(`${item.href}/`) ||
+      (item.href === "/settings/profile" && pathname.startsWith("/settings"));
     const Icon = item.icon;
     const content = (
       <Link
@@ -86,16 +128,23 @@ function SidebarContent({ props, rail, onNavigate }: { props: SidebarProps; rail
         className={cn(
           "flex h-8 items-center gap-2.5 rounded-sm text-13 font-medium transition-colors duration-[120ms]",
           rail ? "w-8 justify-center" : "px-2",
-          active ? "bg-cobalt-tint text-ink" : "text-ink-muted hover:bg-stone-strong hover:text-ink",
+          active
+            ? "bg-cobalt-tint text-ink"
+            : "text-ink-muted hover:bg-stone-strong hover:text-ink",
         )}
       >
         <span className="relative inline-flex">
           <Icon className={cn("size-4 shrink-0", active ? "text-cobalt" : "")} />
-          {rail && item.badge ? <span className="absolute -top-1 -right-1 size-2 rounded-full bg-highlighter ring-2 ring-stone" /> : null}
+          {rail && item.badge ? (
+            <span className="absolute -top-1 -right-1 size-2 rounded-full bg-highlighter ring-2 ring-stone" />
+          ) : null}
         </span>
         {!rail ? <span className="flex-1 truncate">{item.label}</span> : null}
         {!rail && item.badge ? (
-          <span className="rounded-xs bg-highlighter px-1 text-12 font-medium text-ink tabular-nums" aria-label={t("unread", { count: item.badge })}>
+          <span
+            className="rounded-xs bg-highlighter px-1 text-12 font-medium text-ink tabular-nums"
+            aria-label={t("unread", { count: item.badge })}
+          >
             {item.badge}
           </span>
         ) : null}
@@ -145,7 +194,13 @@ function SidebarContent({ props, rail, onNavigate }: { props: SidebarProps; rail
       <div className={cn("flex h-9 items-center", rail ? "justify-center" : "px-1")}>
         <OrgBadge organization={props.organization} compact={rail} />
       </div>
-      {rail ? <Tooltip side="right" content={t("search")}>{searchButton}</Tooltip> : searchButton}
+      {rail ? (
+        <Tooltip side="right" content={t("search")}>
+          {searchButton}
+        </Tooltip>
+      ) : (
+        searchButton
+      )}
       <nav aria-label={t("main")}>
         <ul className="flex flex-col gap-0.5">{items.map(link)}</ul>
       </nav>
@@ -159,7 +214,11 @@ function SidebarContent({ props, rail, onNavigate }: { props: SidebarProps; rail
             aria-label={t("account")}
           >
             <Avatar name={props.user.name} />
-            {!rail ? <span className="min-w-0 flex-1 truncate font-medium text-ink">{props.user.name}</span> : null}
+            {!rail ? (
+              <span className="min-w-0 flex-1 truncate font-medium text-ink">
+                {props.user.name}
+              </span>
+            ) : null}
           </DropdownMenuTrigger>
           <DropdownMenuContent side={rail ? "right" : "top"} align="start" className="w-60">
             <DropdownMenuLabel>
@@ -171,7 +230,11 @@ function SidebarContent({ props, rail, onNavigate }: { props: SidebarProps; rail
               <UserRound aria-hidden="true" />
               {t("profile")}
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => window.open(`/careers/${props.organization.slug}`, "_blank", "noopener")}>
+            <DropdownMenuItem
+              onSelect={() =>
+                window.open(`/careers/${props.organization.slug}`, "_blank", "noopener")
+              }
+            >
               <ExternalLink aria-hidden="true" />
               {t("careerSite")}
             </DropdownMenuItem>
@@ -212,7 +275,9 @@ export function Sidebar(props: SidebarProps) {
             <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-ink/30 data-[state=open]:animate-fade-in" />
             <DialogPrimitive.Content className="fixed inset-y-0 left-0 z-50 w-64 border-r border-line bg-stone shadow-lift data-[state=open]:animate-fade-in">
               <DialogPrimitive.Title className="sr-only">{t("main")}</DialogPrimitive.Title>
-              <DialogPrimitive.Description className="sr-only">{props.organization.name}</DialogPrimitive.Description>
+              <DialogPrimitive.Description className="sr-only">
+                {props.organization.name}
+              </DialogPrimitive.Description>
               <SidebarContent props={props} rail={false} onNavigate={() => setDrawer(false)} />
             </DialogPrimitive.Content>
           </DialogPrimitive.Portal>

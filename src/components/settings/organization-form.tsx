@@ -4,8 +4,17 @@ import { ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRef, useState, useTransition } from "react";
-import { deleteDemoAction, saveOrganizationAction } from "@/app/(app)/(backoffice)/settings/actions";
-import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import {
+  deleteDemoAction,
+  saveOrganizationAction,
+} from "@/app/(app)/(backoffice)/settings/actions";
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Radio } from "@/components/ui/checkbox";
 import { Field, Fieldset } from "@/components/ui/field";
@@ -56,7 +65,9 @@ export function OrganizationForm({
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: "" }));
   };
   const err = (key: string) => (errors[key] ? tx(errors[key]!) : undefined);
-  const palette = brandPalette(/^#[0-9a-f]{6}$/i.test(value.brandColor) ? value.brandColor : initial.brandColor);
+  const palette = brandPalette(
+    /^#[0-9a-f]{6}$/i.test(value.brandColor) ? value.brandColor : initial.brandColor,
+  );
 
   const save = () =>
     start(async () => {
@@ -72,11 +83,35 @@ export function OrganizationForm({
     });
 
   const richLabels = Object.fromEntries(
-    (["toolbar", "bold", "italic", "heading2", "heading3", "bulletList", "orderedList", "link", "linkUrl", "applyLink", "removeLink"] as const).map((k) => [
-      k,
-      tAll(`ui.richText.${k}`),
-    ]),
-  ) as Record<"toolbar" | "bold" | "italic" | "heading2" | "heading3" | "bulletList" | "orderedList" | "link" | "linkUrl" | "applyLink" | "removeLink", string>;
+    (
+      [
+        "toolbar",
+        "bold",
+        "italic",
+        "heading2",
+        "heading3",
+        "bulletList",
+        "orderedList",
+        "link",
+        "linkUrl",
+        "applyLink",
+        "removeLink",
+      ] as const
+    ).map((k) => [k, tAll(`ui.richText.${k}`)]),
+  ) as Record<
+    | "toolbar"
+    | "bold"
+    | "italic"
+    | "heading2"
+    | "heading3"
+    | "bulletList"
+    | "orderedList"
+    | "link"
+    | "linkUrl"
+    | "applyLink"
+    | "removeLink",
+    string
+  >;
 
   return (
     <form
@@ -119,10 +154,19 @@ export function OrganizationForm({
           </div>
         </Field>
         <Field label={t("website")} qualifier={tx("common.optional")} error={err("websiteUrl")}>
-          <Input type="url" inputMode="url" value={value.websiteUrl} placeholder={t("websitePlaceholder")} onChange={(e) => set("websiteUrl", e.target.value)} />
+          <Input
+            type="url"
+            inputMode="url"
+            value={value.websiteUrl}
+            placeholder={t("websitePlaceholder")}
+            onChange={(e) => set("websiteUrl", e.target.value)}
+          />
         </Field>
         <Field label={t("locale")}>
-          <Select value={value.locale} onChange={(e) => set("locale", e.target.value as Value["locale"])}>
+          <Select
+            value={value.locale}
+            onChange={(e) => set("locale", e.target.value as Value["locale"])}
+          >
             <option value="fr">{tx("common.languages.fr")}</option>
             <option value="en">{tx("common.languages.en")}</option>
           </Select>
@@ -131,7 +175,13 @@ export function OrganizationForm({
 
       <SettingsSection title={t("brand")}>
         <div className="grid gap-4 lg:grid-cols-2">
-          <ImageField kind="logo" label={t("logo")} hint={t("logoHint")} initialUrl={logoUrl} square />
+          <ImageField
+            kind="logo"
+            label={t("logo")}
+            hint={t("logoHint")}
+            initialUrl={logoUrl}
+            square
+          />
           <ImageField kind="cover" label={t("cover")} hint={t("coverHint")} initialUrl={coverUrl} />
         </div>
         <Field label={t("color")} hint={t("colorHint")} error={err("brandColor")}>
@@ -143,7 +193,12 @@ export function OrganizationForm({
               onChange={(e) => set("brandColor", e.target.value.toUpperCase())}
               className="h-8 w-10 cursor-pointer rounded-sm border border-line-strong bg-paper p-0.5"
             />
-            <Input value={value.brandColor} onChange={(e) => set("brandColor", e.target.value)} className="w-32 tabular-nums" maxLength={7} />
+            <Input
+              value={value.brandColor}
+              onChange={(e) => set("brandColor", e.target.value)}
+              className="w-32 tabular-nums"
+              maxLength={7}
+            />
             <span
               className="ml-2 inline-flex h-8 items-center rounded-sm px-3 text-14 font-medium"
               style={{ background: palette.brand, color: palette.brandFg }}
@@ -174,8 +229,17 @@ export function OrganizationForm({
       </SettingsSection>
 
       <SettingsSection title={t("presentation")}>
-        <Field label={t("tagline")} qualifier={tx("common.optional")} hint={t("taglineHint", { company: value.name })} error={err("tagline")}>
-          <Input value={value.tagline} onChange={(e) => set("tagline", e.target.value)} maxLength={120} />
+        <Field
+          label={t("tagline")}
+          qualifier={tx("common.optional")}
+          hint={t("taglineHint", { company: value.name })}
+          error={err("tagline")}
+        >
+          <Input
+            value={value.tagline}
+            onChange={(e) => set("tagline", e.target.value)}
+            maxLength={120}
+          />
         </Field>
         <div className="flex flex-col gap-1.5">
           <span className="text-13 font-medium">{t("descriptionLabel")}</span>
@@ -222,7 +286,8 @@ export function OrganizationForm({
                   onClick={() =>
                     startDelete(async () => {
                       const result = await deleteDemoAction();
-                      if (result && !result.ok) toast({ message: tx(result.error), tone: "danger" });
+                      if (result && !result.ok)
+                        toast({ message: tx(result.error), tone: "danger" });
                     })
                   }
                 >
@@ -264,7 +329,11 @@ function ImageField({
     const body = new FormData();
     body.set("file", file);
     const res = await fetch(`/api/settings/assets?kind=${kind}`, { method: "POST", body });
-    const data = (await res.json().catch(() => ({ ok: false }))) as { ok: boolean; url?: string; error?: string };
+    const data = (await res.json().catch(() => ({ ok: false }))) as {
+      ok: boolean;
+      url?: string;
+      error?: string;
+    };
     setBusy(false);
     if (!data.ok || !data.url) {
       setError(data.error ?? "settings.organization.errors.image");
@@ -295,7 +364,11 @@ function ImageField({
         >
           {url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={url} alt="" className={square ? "size-full object-contain" : "size-full object-cover"} />
+            <img
+              src={url}
+              alt=""
+              className={square ? "size-full object-contain" : "size-full object-cover"}
+            />
           ) : null}
         </div>
         <div className="flex flex-wrap gap-2">

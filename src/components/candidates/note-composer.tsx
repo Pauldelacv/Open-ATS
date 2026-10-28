@@ -11,7 +11,15 @@ import { fold } from "@/lib/utils/text";
 type Member = { id: string; name: string };
 
 /** Note textarea with an @mention picker (keyboard friendly). */
-export function NoteComposer({ team, onSubmit, pending }: { team: Member[]; onSubmit: (body: string) => Promise<boolean>; pending: boolean }) {
+export function NoteComposer({
+  team,
+  onSubmit,
+  pending,
+}: {
+  team: Member[];
+  onSubmit: (body: string) => Promise<boolean>;
+  pending: boolean;
+}) {
   const t = useTranslations("panel.notes");
   const listId = useId();
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -51,7 +59,10 @@ export function NoteComposer({ team, onSubmit, pending }: { team: Member[]; onSu
   };
 
   const submit = async () => {
-    const body = encodeMentions(text.trim(), picked.filter((m) => text.includes(`@${m.name}`)));
+    const body = encodeMentions(
+      text.trim(),
+      picked.filter((m) => text.includes(`@${m.name}`)),
+    );
     if (!body) return;
     if (await onSubmit(body)) {
       setText("");
@@ -124,7 +135,10 @@ export function NoteComposer({ team, onSubmit, pending }: { team: Member[]; onSu
                 e.preventDefault();
                 pick(m);
               }}
-              className={cn("flex h-8 cursor-default items-center rounded-sm px-2 text-14", i === highlight && "bg-stone")}
+              className={cn(
+                "flex h-8 cursor-default items-center rounded-sm px-2 text-14",
+                i === highlight && "bg-stone",
+              )}
             >
               {m.name}
             </li>
@@ -133,7 +147,13 @@ export function NoteComposer({ team, onSubmit, pending }: { team: Member[]; onSu
       ) : null}
       <div className="mt-2 flex items-center justify-between gap-2">
         <span className="text-12 text-ink-muted">{t("shortcut")}</span>
-        <Button size="sm" variant="primary" loading={pending} disabled={!text.trim()} onClick={() => void submit()}>
+        <Button
+          size="sm"
+          variant="primary"
+          loading={pending}
+          disabled={!text.trim()}
+          onClick={() => void submit()}
+        >
           {t("submit")}
         </Button>
       </div>

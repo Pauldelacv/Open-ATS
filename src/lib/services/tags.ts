@@ -8,7 +8,11 @@ import type { Ctx } from "./types";
 
 export async function listTags(ctx: Ctx) {
   return db
-    .select({ id: tags.id, name: tags.name, count: sql<number>`(select count(*)::int from ${candidateTags} ct where ct.tag_id = "tags"."id")` })
+    .select({
+      id: tags.id,
+      name: tags.name,
+      count: sql<number>`(select count(*)::int from ${candidateTags} ct where ct.tag_id = "tags"."id")`,
+    })
     .from(tags)
     .where(eq(tags.organizationId, ctx.orgId))
     .orderBy(asc(tags.name));
@@ -66,11 +70,20 @@ export async function addTag(ctx: Ctx, candidateIds: string[], name: string) {
 
 export async function removeTag(ctx: Ctx, candidateId: string, tagId: string) {
   assertCan(ctx.role, "candidate:tag");
-  const [tag] = await db.select().from(tags).where(and(eq(tags.id, tagId), eq(tags.organizationId, ctx.orgId)));
+  const [tag] = await db
+    .select()
+    .from(tags)
+    .where(and(eq(tags.id, tagId), eq(tags.organizationId, ctx.orgId)));
   if (!tag) return;
   const removed = await db
     .delete(candidateTags)
-    .where(and(eq(candidateTags.candidateId, candidateId), eq(candidateTags.tagId, tagId), eq(candidateTags.organizationId, ctx.orgId)))
+    .where(
+      and(
+        eq(candidateTags.candidateId, candidateId),
+        eq(candidateTags.tagId, tagId),
+        eq(candidateTags.organizationId, ctx.orgId),
+      ),
+    )
     .returning();
   if (removed.length > 0) {
     await logActivity(db, ctx, { candidateId, type: "tag_removed", data: { tag: tag.name } });
@@ -83,6 +96,8 @@ export async function candidateTagList(ctx: Ctx, candidateId: string) {
     .select({ id: tags.id, name: tags.name })
     .from(candidateTags)
     .innerJoin(tags, eq(tags.id, candidateTags.tagId))
-    .where(and(eq(candidateTags.candidateId, candidateId), eq(candidateTags.organizationId, ctx.orgId)))
+    .where(
+      and(eq(candidateTags.candidateId, candidateId), eq(candidateTags.organizationId, ctx.orgId)),
+    )
     .orderBy(asc(tags.name));
 }

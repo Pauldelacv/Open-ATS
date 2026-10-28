@@ -52,7 +52,9 @@ export async function getBoard(ctx: Ctx, jobId: string) {
       rejectedAt: applications.rejectedAt,
       evaluationCount: sql<number>`(select count(*)::int from ${evaluations} e where e.application_id = "applications"."id")`,
       mine: sql<number>`(select count(*)::int from ${evaluations} e where e.application_id = "applications"."id" and e.author_id = ${ctx.userId})`,
-      average: sql<number | null>`(select avg(e.rating)::float from ${evaluations} e where e.application_id = "applications"."id")`,
+      average: sql<
+        number | null
+      >`(select avg(e.rating)::float from ${evaluations} e where e.application_id = "applications"."id")`,
       hasCv: sql<boolean>`exists(select 1 from ${files} f where f.candidate_id = "applications"."candidate_id")`,
     })
     .from(applications)
@@ -66,11 +68,17 @@ export async function getBoard(ctx: Ctx, jobId: string) {
         .select({ candidateId: candidateTags.candidateId, name: tags.name })
         .from(candidateTags)
         .innerJoin(tags, eq(tags.id, candidateTags.tagId))
-        .where(and(eq(candidateTags.organizationId, ctx.orgId), inArray(candidateTags.candidateId, candidateIds)))
+        .where(
+          and(
+            eq(candidateTags.organizationId, ctx.orgId),
+            inArray(candidateTags.candidateId, candidateIds),
+          ),
+        )
         .orderBy(asc(tags.name))
     : [];
   const tagsByCandidate = new Map<string, string[]>();
-  for (const t of tagRows) tagsByCandidate.set(t.candidateId, [...(tagsByCandidate.get(t.candidateId) ?? []), t.name]);
+  for (const t of tagRows)
+    tagsByCandidate.set(t.candidateId, [...(tagsByCandidate.get(t.candidateId) ?? []), t.name]);
 
   const cards: BoardCard[] = rows.map((r) => ({
     id: r.id,
@@ -94,7 +102,12 @@ export async function getBoard(ctx: Ctx, jobId: string) {
  * Moves applications to `stageId`, inserted before the card at `index` of that column
  * (cards being moved excluded). Returns where each application was, for undo.
  */
-export async function moveApplications(ctx: Ctx, applicationIds: string[], stageId: string, index: number) {
+export async function moveApplications(
+  ctx: Ctx,
+  applicationIds: string[],
+  stageId: string,
+  index: number,
+) {
   assertCan(ctx.role, "pipeline:move");
   if (applicationIds.length === 0) return [];
   return db.transaction(async (tx) => {
@@ -128,7 +141,15 @@ export async function moveApplications(ctx: Ctx, applicationIds: string[], stage
     const column = await tx
       .select({ id: applications.id, position: applications.position })
       .from(applications)
-      .where(and(eq(applications.stageId, stageId), notInArray(applications.id, moving.map((m) => m.id))))
+      .where(
+        and(
+          eq(applications.stageId, stageId),
+          notInArray(
+            applications.id,
+            moving.map((m) => m.id),
+          ),
+        ),
+      )
       .orderBy(asc(applications.position), asc(applications.createdAt));
     const at = Math.max(0, Math.min(index, column.length));
     const before = column[at - 1]?.position;
@@ -150,17 +171,27 @@ export async function moveApplications(ctx: Ctx, applicationIds: string[], stage
           position: start + step * (i + 1),
           ...(changedStage ? { stageChangedAt: now } : {}),
           ...(stage.kind === "hired" ? { hiredAt: now } : {}),
-          ...(stage.kind !== "rejected" && app.rejectedAt ? { rejectedAt: null, rejectionReason: null } : {}),
+          ...(stage.kind !== "rejected" && app.rejectedAt
+            ? { rejectedAt: null, rejectionReason: null }
+            : {}),
           ...(stage.kind === "rejected" && !app.rejectedAt ? { rejectedAt: now } : {}),
         })
         .where(eq(applications.id, app.id));
       if (changedStage) {
-        await tx.update(candidates).set({ lastActivityAt: now }).where(eq(candidates.id, app.candidateId));
+        await tx
+          .update(candidates)
+          .set({ lastActivityAt: now })
+          .where(eq(candidates.id, app.candidateId));
         await logActivity(tx, ctx, {
           candidateId: app.candidateId,
           applicationId: app.id,
           jobId: stage.jobId,
-          type: stage.kind === "hired" ? "hired" : app.rejectedAt && stage.kind !== "rejected" ? "unrejected" : "stage_changed",
+          type:
+            stage.kind === "hired"
+              ? "hired"
+              : app.rejectedAt && stage.kind !== "rejected"
+                ? "unrejected"
+                : "stage_changed",
           data: { from: app.stageName, to: stage.name },
         });
       }
@@ -170,12 +201,20 @@ export async function moveApplications(ctx: Ctx, applicationIds: string[], stage
 }
 
 /** Restores positions returned by `moveApplications` (undo). */
-export async function restorePositions(ctx: Ctx, previous: Array<{ id: string; stageId: string; position: number }>) {
+export async function restorePositions(
+  ctx: Ctx,
+  previous: Array<{ id: string; stageId: string; position: number }>,
+) {
   assertCan(ctx.role, "pipeline:move");
   await db.transaction(async (tx) => {
     for (const p of previous) {
       const [stage] = await tx
-        .select({ id: pipelineStages.id, kind: pipelineStages.kind, name: pipelineStages.name, jobId: pipelineStages.jobId })
+        .select({
+          id: pipelineStages.id,
+          kind: pipelineStages.kind,
+          name: pipelineStages.name,
+          jobId: pipelineStages.jobId,
+        })
         .from(pipelineStages)
         .where(and(eq(pipelineStages.id, p.stageId), eq(pipelineStages.organizationId, ctx.orgId)));
       if (!stage) continue;
@@ -212,5 +251,11 @@ export async function markViewed(ctx: Ctx, applicationId: string) {
   await db
     .update(applications)
     .set({ viewedAt: new Date() })
-    .where(and(eq(applications.id, applicationId), eq(applications.organizationId, ctx.orgId), isNull(applications.viewedAt)));
+    .where(
+      and(
+        eq(applications.id, applicationId),
+        eq(applications.organizationId, ctx.orgId),
+        isNull(applications.viewedAt),
+      ),
+    );
 }

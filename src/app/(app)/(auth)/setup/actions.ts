@@ -9,9 +9,14 @@ import { getSession, ORG_COOKIE } from "@/lib/context";
 import { canCreateOrganization, createOrganization } from "@/lib/services/organizations";
 import { organizationOnlySchema, setupSchema } from "@/lib/validation/auth";
 
-export async function setupWorkspace(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function setupWorkspace(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const session = await getSession();
-  const parsed = (session ? organizationOnlySchema : setupSchema).safeParse(Object.fromEntries(formData));
+  const parsed = (session ? organizationOnlySchema : setupSchema).safeParse(
+    Object.fromEntries(formData),
+  );
   if (!parsed.success) return fail("form", fieldErrorsFrom(parsed.error.issues));
   if (!(await canCreateOrganization())) return fail("auth.setup.closed");
 
@@ -36,7 +41,15 @@ export async function setupWorkspace(_prev: ActionResult | null, formData: FormD
     }
   }
 
-  const org = await createOrganization(userId, { name: parsed.data.company, locale: parsed.data.locale });
-  (await cookies()).set(ORG_COOKIE, org.id, { path: "/", httpOnly: true, sameSite: "lax", maxAge: 60 * 60 * 24 * 365 });
+  const org = await createOrganization(userId, {
+    name: parsed.data.company,
+    locale: parsed.data.locale,
+  });
+  (await cookies()).set(ORG_COOKIE, org.id, {
+    path: "/",
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 365,
+  });
   redirect("/jobs");
 }

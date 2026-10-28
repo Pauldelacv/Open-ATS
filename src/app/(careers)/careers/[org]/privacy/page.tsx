@@ -3,7 +3,9 @@ import { getTranslations } from "next-intl/server";
 import { BrandBar, CareersContainer, CareersFooter } from "@/components/careers/chrome";
 import { getCareerOrganization } from "@/lib/careers";
 
-export async function generateMetadata({ params }: PageProps<"/careers/[org]/privacy">): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/careers/[org]/privacy">): Promise<Metadata> {
   const { org: slug } = await params;
   const org = await getCareerOrganization(slug);
   if (!org) return {};
@@ -43,7 +45,10 @@ export default async function PrivacyPage({ params }: PageProps<"/careers/[org]/
                   ? t.rich("contact", {
                       email: org.privacyContactEmail,
                       link: (chunks) => (
-                        <a href={`mailto:${org.privacyContactEmail}`} className="text-brand-link underline underline-offset-2">
+                        <a
+                          href={`mailto:${org.privacyContactEmail}`}
+                          className="text-brand-link underline underline-offset-2"
+                        >
                           {chunks}
                         </a>
                       ),

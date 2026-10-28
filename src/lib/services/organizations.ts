@@ -1,6 +1,13 @@
 import { and, count, eq, ne } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db";
-import { emailTemplates, files, memberships, organizations, user, type Locale } from "@/lib/db/schema";
+import {
+  emailTemplates,
+  files,
+  memberships,
+  organizations,
+  user,
+  type Locale,
+} from "@/lib/db/schema";
 import { storage } from "@/lib/storage";
 import { env } from "@/lib/env";
 import { assertCan } from "@/lib/permissions";
@@ -10,7 +17,10 @@ import type { Ctx } from "./types";
 
 /** Organisations of the instance, the demo one excluded. */
 export async function realOrganizationCount(): Promise<number> {
-  const [row] = await db.select({ total: count() }).from(organizations).where(eq(organizations.isDemo, false));
+  const [row] = await db
+    .select({ total: count() })
+    .from(organizations)
+    .where(eq(organizations.isDemo, false));
   return row?.total ?? 0;
 }
 
@@ -26,7 +36,11 @@ async function uniqueSlug(tx: Tx, name: string, excludeId?: string): Promise<str
     const clash = await tx
       .select({ id: organizations.id })
       .from(organizations)
-      .where(excludeId ? and(eq(organizations.slug, slug), ne(organizations.id, excludeId)) : eq(organizations.slug, slug))
+      .where(
+        excludeId
+          ? and(eq(organizations.slug, slug), ne(organizations.id, excludeId))
+          : eq(organizations.slug, slug),
+      )
       .limit(1);
     if (clash.length === 0) return slug;
   }
@@ -86,7 +100,9 @@ export class SlugTakenError extends Error {
 }
 
 export async function updateOrganization(ctx: Ctx, input: OrganizationUpdate) {
-  const privacyOnly = Object.keys(input).every((k) => k === "retentionMonths" || k === "privacyContactEmail");
+  const privacyOnly = Object.keys(input).every(
+    (k) => k === "retentionMonths" || k === "privacyContactEmail",
+  );
   assertCan(ctx.role, privacyOnly ? "settings:privacy" : "settings:organization");
   return db.transaction(async (tx) => {
     if (input.slug !== undefined) {
@@ -115,7 +131,9 @@ export async function getPublicOrganization(slug: string) {
 }
 
 /** Where an anonymous visitor of `/` should go. */
-export async function homeDestination(): Promise<{ kind: "setup" } | { kind: "careers"; slug: string } | { kind: "login" }> {
+export async function homeDestination(): Promise<
+  { kind: "setup" } | { kind: "careers"; slug: string } | { kind: "login" }
+> {
   const rows = await db
     .select({ slug: organizations.slug, isDemo: organizations.isDemo })
     .from(organizations)
@@ -138,12 +156,25 @@ export async function deleteDemoOrganization(ctx: Ctx) {
   assertCan(ctx.role, "settings:organization");
   const [org] = await db.select().from(organizations).where(eq(organizations.id, ctx.orgId));
   if (!org?.isDemo) throw new NotDemoError();
-  const keys = (await db.select({ key: files.storageKey }).from(files).where(eq(files.organizationId, org.id))).map((f) => f.key);
-  for (const key of [...keys, org.logoKey, org.coverKey]) if (key) await storage().delete(key).catch(() => {});
-  const members = await db.select({ userId: memberships.userId }).from(memberships).where(eq(memberships.organizationId, org.id));
+  const keys = (
+    await db.select({ key: files.storageKey }).from(files).where(eq(files.organizationId, org.id))
+  ).map((f) => f.key);
+  for (const key of [...keys, org.logoKey, org.coverKey])
+    if (key)
+      await storage()
+        .delete(key)
+        .catch(() => {});
+  const members = await db
+    .select({ userId: memberships.userId })
+    .from(memberships)
+    .where(eq(memberships.organizationId, org.id));
   await db.delete(organizations).where(eq(organizations.id, org.id));
   for (const { userId } of members) {
-    const [other] = await db.select({ id: memberships.id }).from(memberships).where(eq(memberships.userId, userId)).limit(1);
+    const [other] = await db
+      .select({ id: memberships.id })
+      .from(memberships)
+      .where(eq(memberships.userId, userId))
+      .limit(1);
     if (!other && userId.startsWith("demo_")) await db.delete(user).where(eq(user.id, userId));
   }
 }

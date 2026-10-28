@@ -1,6 +1,13 @@
 import { and, asc, count, eq, gt, isNull } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { emailMessages, invitations, memberships, organizations, user, type Role } from "@/lib/db/schema";
+import {
+  emailMessages,
+  invitations,
+  memberships,
+  organizations,
+  user,
+  type Role,
+} from "@/lib/db/schema";
 import { appUrl } from "@/lib/env";
 import { serverTranslator } from "@/i18n/server";
 import { deliver, textToHtml } from "@/lib/mail";
@@ -71,7 +78,13 @@ export async function inviteMember(ctx: Ctx, input: { email: string; role: Role 
   await db.transaction(async (tx) => {
     await tx
       .delete(invitations)
-      .where(and(eq(invitations.organizationId, ctx.orgId), eq(invitations.email, email), isNull(invitations.acceptedAt)));
+      .where(
+        and(
+          eq(invitations.organizationId, ctx.orgId),
+          eq(invitations.email, email),
+          isNull(invitations.acceptedAt),
+        ),
+      );
     await tx.insert(invitations).values({
       organizationId: ctx.orgId,
       email,
@@ -87,8 +100,19 @@ export async function inviteMember(ctx: Ctx, input: { email: string; role: Role 
   const [inviter] = await db.select({ name: user.name }).from(user).where(eq(user.id, ctx.userId));
   const t = serverTranslator(org!.locale, "emails.invitation");
   const subject = t("subject", { organization: org!.name });
-  const text = t("body", { inviter: inviter?.name ?? "", organization: org!.name, url: link, days: INVITATION_DAYS });
-  const result = await deliver({ to: email, subject, text, html: textToHtml(text), fromName: org!.name });
+  const text = t("body", {
+    inviter: inviter?.name ?? "",
+    organization: org!.name,
+    url: link,
+    days: INVITATION_DAYS,
+  });
+  const result = await deliver({
+    to: email,
+    subject,
+    text,
+    html: textToHtml(text),
+    fromName: org!.name,
+  });
   await db.insert(emailMessages).values({
     organizationId: ctx.orgId,
     category: "team",
@@ -127,7 +151,10 @@ export async function findInvitation(token: string) {
     .where(eq(invitations.tokenHash, sha256(token)));
   if (!row) return null;
   const valid = !row.acceptedAt && row.expiresAt > new Date();
-  const [existingUser] = await db.select({ id: user.id }).from(user).where(eq(user.email, row.email));
+  const [existingUser] = await db
+    .select({ id: user.id })
+    .from(user)
+    .where(eq(user.email, row.email));
   return { ...row, valid, hasAccount: Boolean(existingUser) };
 }
 
@@ -145,9 +172,16 @@ export async function acceptInvitation(token: string, account: { id: string; ema
   await db.transaction(async (tx) => {
     await tx
       .insert(memberships)
-      .values({ organizationId: invitation.organizationId, userId: account.id, role: invitation.role })
+      .values({
+        organizationId: invitation.organizationId,
+        userId: account.id,
+        role: invitation.role,
+      })
       .onConflictDoNothing();
-    await tx.update(invitations).set({ acceptedAt: new Date() }).where(eq(invitations.id, invitation.id));
+    await tx
+      .update(invitations)
+      .set({ acceptedAt: new Date() })
+      .where(eq(invitations.id, invitation.id));
   });
   return invitation.organizationId;
 }
