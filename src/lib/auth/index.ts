@@ -5,16 +5,23 @@ import { nextCookies } from "better-auth/next-js";
 import { magicLink } from "better-auth/plugins";
 import { and, count, eq, gt, isNull } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { account, invitations, session, user, verification } from "@/lib/db/schema";
+import { account, invitations, organizations, session, user, verification } from "@/lib/db/schema";
 import { env } from "@/lib/env";
 import { serverTranslator } from "@/i18n/server";
 import { deliver, textToHtml } from "@/lib/mail";
 import { authSecret } from "./secret";
 
-/** Whether a new account may be created for this email address. */
+/**
+ * Whether a new account may be created for this email address: while the instance has no
+ * organisation of its own yet (first setup; the demo one does not count), for an invited
+ * address, or always when ALLOW_SIGNUP is set.
+ */
 export async function signUpAllowed(email: string): Promise<boolean> {
   if (env().ALLOW_SIGNUP) return true;
-  const [{ total } = { total: 0 }] = await db.select({ total: count() }).from(user);
+  const [{ total } = { total: 0 }] = await db
+    .select({ total: count() })
+    .from(organizations)
+    .where(eq(organizations.isDemo, false));
   if (total === 0) return true;
   const pending = await db
     .select({ id: invitations.id })

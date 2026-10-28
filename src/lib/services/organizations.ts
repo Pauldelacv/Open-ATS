@@ -7,14 +7,15 @@ import { defaultTemplates } from "./default-templates";
 import { shortId, slugify } from "@/lib/utils/text";
 import type { Ctx } from "./types";
 
-export async function organizationCount(): Promise<number> {
-  const [row] = await db.select({ total: count() }).from(organizations);
+/** Organisations of the instance, the demo one excluded. */
+export async function realOrganizationCount(): Promise<number> {
+  const [row] = await db.select({ total: count() }).from(organizations).where(eq(organizations.isDemo, false));
   return row?.total ?? 0;
 }
 
 /** A first organisation can always be created; more only when the instance allows sign-ups. */
 export async function canCreateOrganization(): Promise<boolean> {
-  return env().ALLOW_SIGNUP || (await organizationCount()) === 0;
+  return env().ALLOW_SIGNUP || (await realOrganizationCount()) === 0;
 }
 
 async function uniqueSlug(tx: Tx, name: string, excludeId?: string): Promise<string> {
@@ -111,7 +112,14 @@ export async function getPublicOrganization(slug: string) {
   return org ?? null;
 }
 
-export async function firstOrganizationSlug(): Promise<string | null> {
-  const rows = await db.select({ slug: organizations.slug }).from(organizations).limit(2);
-  return rows.length === 1 ? rows[0]!.slug : null;
+/** Where an anonymous visitor of `/` should go. */
+export async function homeDestination(): Promise<{ kind: "setup" } | { kind: "careers"; slug: string } | { kind: "login" }> {
+  const rows = await db
+    .select({ slug: organizations.slug, isDemo: organizations.isDemo })
+    .from(organizations)
+    .limit(10);
+  const real = rows.filter((r) => !r.isDemo);
+  if (real.length === 1) return { kind: "careers", slug: real[0]!.slug };
+  if (rows.length === 0) return { kind: "setup" };
+  return { kind: "login" };
 }

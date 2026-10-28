@@ -158,5 +158,173 @@
       "hired": "Hired",
       "rejected": "Rejected"
     }
+  },
+  "nav": {
+    "main": "Main navigation",
+    "jobs": "Jobs",
+    "candidates": "Talent pool",
+    "inbox": "Mentions",
+    "settings": "Settings",
+    "search": "Search",
+    "openMenu": "Open menu",
+    "careerSite": "View career site",
+    "profile": "Profile and preferences",
+    "account": "Account",
+    "switchOrganization": "Switch company",
+    "unread": "{count, plural, one {# unread mention} other {# unread mentions}}"
+  },
+  "palette": {
+    "title": "Command palette",
+    "placeholder": "Search a candidate, a job or an action",
+    "candidates": "Candidates",
+    "jobs": "Jobs",
+    "actions": "Actions",
+    "navigation": "Go to",
+    "createJob": "Create a job",
+    "goJobs": "Jobs",
+    "goCandidates": "Talent pool",
+    "goInbox": "Mentions",
+    "goSettings": "Settings",
+    "empty": "No results for “{query}”.",
+    "searching": "Searching…",
+    "hint": "Enter to open, Esc to close"
+  },
+  "jobs": {
+    "title": "Jobs",
+    "create": "Create a job",
+    "copyTitle": "{title} (copy)",
+    "status": {
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "tabs": {
+      "published": "Published",
+      "draft": "Drafts",
+      "archived": "Archived"
+    },
+    "contract": {
+      "cdi": "Permanent",
+      "cdd": "Fixed-term",
+      "freelance": "Freelance",
+      "apprenticeship": "Apprenticeship",
+      "internship": "Internship"
+    },
+    "remote": {
+      "onsite": "On site",
+      "hybrid": "Hybrid",
+      "remote": "Fully remote"
+    },
+    "salaryPeriod": {
+      "year": "per year",
+      "month": "per month",
+      "day": "per day",
+      "hour": "per hour"
+    },
+    "salaryPeriodLabel": {
+      "year": "Yearly",
+      "month": "Monthly",
+      "day": "Daily",
+      "hour": "Hourly"
+    },
+    "list": {
+      "candidates": "{count, plural, =0 {No candidates} one {# candidate} other {# candidates}}",
+      "new": "{count} new",
+      "updated": "Updated {date}",
+      "published": "Published {date}",
+      "noDepartment": "No department",
+      "emptyPublished": "No published jobs",
+      "emptyPublishedBody": "Publish a job to show it on your career site.",
+      "emptyDraft": "No drafts",
+      "emptyDraftBody": "Jobs being prepared appear here until they are published.",
+      "emptyArchived": "No archived jobs",
+      "emptyArchivedBody": "Archive a filled job to remove it from the career site while keeping its candidates.",
+      "emptyMember": "No job is assigned to you",
+      "emptyMemberBody": "A recruiter can add you to the hiring team of a job.",
+      "columnTitle": "Job",
+      "columnCandidates": "Candidates",
+      "columnUpdated": "Updated"
+    },
+    "editor": {
+      "newTitle": "New job",
+      "editTitle": "Edit job",
+      "titleLabel": "Job title",
+      "titlePlaceholder": "For example: Full-stack developer",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the role, the profile you are looking for and what you offer.",
+      "details": "Details",
+      "department": "Department",
+      "departmentPlaceholder": "For example: Product",
+      "location": "Location",
+      "locationPlaceholder": "For example: Lyon",
+      "remote": "Remote work",
+      "contract": "Contract",
+      "salary": "Salary",
+      "salaryHint": "Shown on the career site when filled in.",
+      "salaryMin": "Minimum",
+      "salaryMax": "Maximum",
+      "salaryPeriod": "Period",
+      "currency": "Currency",
+      "questions": "Application questions",
+      "questionsHint": "The form always asks for the name, email, phone, CV and an optional message. Add your own questions.",
+      "addQuestion": "Add a question",
+      "questionLabel": "Question",
+      "questionType": "Answer type",
+      "questionTypes": {
+        "short_text": "Short text",
+        "long_text": "Long text",
+        "yes_no": "Yes or no",
+        "single_choice": "Single choice"
+      },
+      "questionRequired": "Answer required",
+      "options": "Choices",
+      "optionsHint": "One choice per line.",
+      "removeQuestion": "Remove the question",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "noQuestions": "No additional questions.",
+      "team": "Hiring team",
+      "teamHint": "Members only see the jobs of their team. Administrators and recruiters see every job.",
+      "saveDraft": "Save draft",
+      "publish": "Publish the job",
+      "save": "Save changes",
+      "cancel": "Cancel",
+      "fixErrors": "Fix the highlighted fields to save the job."
+    },
+    "actions": {
+      "publish": "Publish the job",
+      "unpublish": "Move back to draft",
+      "archive": "Archive the job",
+      "restore": "Publish again",
+      "edit": "Edit the job",
+      "duplicate": "Duplicate the job",
+      "delete": "Delete the draft",
+      "viewOnSite": "View on the career site",
+      "copyLink": "Copy the job link",
+      "stages": "Edit stages",
+      "deleteConfirmTitle": "Delete this draft?",
+      "deleteConfirmBody": "The draft “{title}” will be permanently deleted.",
+      "archiveConfirmTitle": "Archive this job?",
+      "archiveConfirmBody": "It will disappear from the career site. Candidates stay available."
+    },
+    "toasts": {
+      "created": "Draft saved",
+      "published": "Job published",
+      "saved": "Job saved",
+      "unpublished": "Job moved back to draft",
+      "archived": "Job archived",
+      "restored": "Job published again",
+      "duplicated": "Job duplicated",
+      "deleted": "Draft deleted",
+      "hasApplications": "This job has received applications: archive it instead."
+    },
+    "errors": {
+      "title": "Enter the job title.",
+      "tooLong": "This text is too long.",
+      "salary": "Enter an amount in figures, for example 45000.",
+      "salaryRange": "The maximum must be greater than or equal to the minimum.",
+      "questionLabel": "Enter the question.",
+      "options": "Offer at least two choices, one per line."
+    }
   }
 }

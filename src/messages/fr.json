@@ -158,5 +158,173 @@
       "hired": "Embauché",
       "rejected": "Refusé"
     }
+  },
+  "nav": {
+    "main": "Navigation principale",
+    "jobs": "Offres",
+    "candidates": "Vivier",
+    "inbox": "Mentions",
+    "settings": "Paramètres",
+    "search": "Rechercher",
+    "openMenu": "Ouvrir le menu",
+    "careerSite": "Voir le site carrière",
+    "profile": "Profil et préférences",
+    "account": "Compte",
+    "switchOrganization": "Changer d'entreprise",
+    "unread": "{count, plural, one {# mention non lue} other {# mentions non lues}}"
+  },
+  "palette": {
+    "title": "Palette de commandes",
+    "placeholder": "Rechercher un candidat, une offre ou une action",
+    "candidates": "Candidats",
+    "jobs": "Offres",
+    "actions": "Actions",
+    "navigation": "Aller à",
+    "createJob": "Créer une offre",
+    "goJobs": "Offres",
+    "goCandidates": "Vivier",
+    "goInbox": "Mentions",
+    "goSettings": "Paramètres",
+    "empty": "Aucun résultat pour « {query} ».",
+    "searching": "Recherche…",
+    "hint": "Entrée pour ouvrir, Échap pour fermer"
+  },
+  "jobs": {
+    "title": "Offres",
+    "create": "Créer une offre",
+    "copyTitle": "{title} (copie)",
+    "status": {
+      "draft": "Brouillon",
+      "published": "Publiée",
+      "archived": "Archivée"
+    },
+    "tabs": {
+      "published": "Publiées",
+      "draft": "Brouillons",
+      "archived": "Archivées"
+    },
+    "contract": {
+      "cdi": "CDI",
+      "cdd": "CDD",
+      "freelance": "Freelance",
+      "apprenticeship": "Alternance",
+      "internship": "Stage"
+    },
+    "remote": {
+      "onsite": "Sur site",
+      "hybrid": "Télétravail partiel",
+      "remote": "Télétravail complet"
+    },
+    "salaryPeriod": {
+      "year": "par an",
+      "month": "par mois",
+      "day": "par jour",
+      "hour": "par heure"
+    },
+    "salaryPeriodLabel": {
+      "year": "Annuel",
+      "month": "Mensuel",
+      "day": "Journalier",
+      "hour": "Horaire"
+    },
+    "list": {
+      "candidates": "{count, plural, =0 {Aucun candidat} one {# candidat} other {# candidats}}",
+      "new": "{count, plural, one {# nouveau} other {# nouveaux}}",
+      "updated": "Modifiée {date}",
+      "published": "Publiée {date}",
+      "noDepartment": "Sans service",
+      "emptyPublished": "Aucune offre publiée",
+      "emptyPublishedBody": "Publiez une offre pour la faire apparaître sur votre site carrière.",
+      "emptyDraft": "Aucun brouillon",
+      "emptyDraftBody": "Les offres en préparation apparaissent ici tant qu'elles ne sont pas publiées.",
+      "emptyArchived": "Aucune offre archivée",
+      "emptyArchivedBody": "Archivez une offre pourvue pour la retirer du site carrière en gardant ses candidats.",
+      "emptyMember": "Aucune offre ne vous est assignée",
+      "emptyMemberBody": "Un recruteur peut vous ajouter à l'équipe de recrutement d'une offre.",
+      "columnTitle": "Offre",
+      "columnCandidates": "Candidats",
+      "columnUpdated": "Mise à jour"
+    },
+    "editor": {
+      "newTitle": "Nouvelle offre",
+      "editTitle": "Modifier l'offre",
+      "titleLabel": "Intitulé du poste",
+      "titlePlaceholder": "Par exemple : Développeur full-stack (F/H)",
+      "description": "Description",
+      "descriptionPlaceholder": "Présentez les missions, le profil recherché et ce que vous offrez.",
+      "details": "Informations",
+      "department": "Service",
+      "departmentPlaceholder": "Par exemple : Produit",
+      "location": "Lieu",
+      "locationPlaceholder": "Par exemple : Lyon",
+      "remote": "Télétravail",
+      "contract": "Contrat",
+      "salary": "Salaire",
+      "salaryHint": "Affiché sur le site carrière s'il est renseigné.",
+      "salaryMin": "Minimum",
+      "salaryMax": "Maximum",
+      "salaryPeriod": "Période",
+      "currency": "Devise",
+      "questions": "Questions du formulaire",
+      "questionsHint": "Le formulaire demande toujours le nom, l'email, le téléphone, le CV et un message facultatif. Ajoutez vos propres questions.",
+      "addQuestion": "Ajouter une question",
+      "questionLabel": "Question",
+      "questionType": "Type de réponse",
+      "questionTypes": {
+        "short_text": "Texte court",
+        "long_text": "Texte long",
+        "yes_no": "Oui ou non",
+        "single_choice": "Choix unique"
+      },
+      "questionRequired": "Réponse obligatoire",
+      "options": "Choix proposés",
+      "optionsHint": "Un choix par ligne.",
+      "removeQuestion": "Retirer la question",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "noQuestions": "Aucune question supplémentaire.",
+      "team": "Équipe de recrutement",
+      "teamHint": "Les membres ne voient que les offres de leur équipe. Administrateurs et recruteurs voient toutes les offres.",
+      "saveDraft": "Enregistrer le brouillon",
+      "publish": "Publier l'offre",
+      "save": "Enregistrer les modifications",
+      "cancel": "Annuler",
+      "fixErrors": "Corrigez les champs signalés pour enregistrer l'offre."
+    },
+    "actions": {
+      "publish": "Publier l'offre",
+      "unpublish": "Repasser en brouillon",
+      "archive": "Archiver l'offre",
+      "restore": "Republier l'offre",
+      "edit": "Modifier l'offre",
+      "duplicate": "Dupliquer l'offre",
+      "delete": "Supprimer le brouillon",
+      "viewOnSite": "Voir sur le site carrière",
+      "copyLink": "Copier le lien de l'offre",
+      "stages": "Modifier les étapes",
+      "deleteConfirmTitle": "Supprimer ce brouillon ?",
+      "deleteConfirmBody": "Le brouillon « {title} » sera supprimé définitivement.",
+      "archiveConfirmTitle": "Archiver cette offre ?",
+      "archiveConfirmBody": "Elle disparaîtra du site carrière. Les candidats restent consultables."
+    },
+    "toasts": {
+      "created": "Brouillon enregistré",
+      "published": "Offre publiée",
+      "saved": "Offre enregistrée",
+      "unpublished": "Offre repassée en brouillon",
+      "archived": "Offre archivée",
+      "restored": "Offre republiée",
+      "duplicated": "Offre dupliquée",
+      "deleted": "Brouillon supprimé",
+      "hasApplications": "Cette offre a reçu des candidatures : archivez-la plutôt."
+    },
+    "errors": {
+      "title": "Saisissez l'intitulé du poste.",
+      "tooLong": "Ce texte est trop long.",
+      "salary": "Saisissez un montant en chiffres, par exemple 45000.",
+      "salaryRange": "Le maximum doit être supérieur ou égal au minimum.",
+      "questionLabel": "Saisissez la question.",
+      "options": "Proposez au moins deux choix, un par ligne."
+    }
   }
 }
