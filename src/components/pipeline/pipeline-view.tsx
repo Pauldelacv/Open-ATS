@@ -49,7 +49,7 @@ import { cn } from "@/lib/cn";
 import type { JobStatus, StageKind } from "@/lib/db/schema";
 import type { BoardCard } from "@/lib/services/pipeline";
 import { fold } from "@/lib/utils/text";
-import { CardBody, KanbanCard } from "./kanban-card";
+import { CardOverlay, KanbanCard } from "./kanban-card";
 import { KanbanColumn } from "./kanban-column";
 import { ManualCandidateDialog } from "./manual-candidate";
 
@@ -559,11 +559,7 @@ export function PipelineView({
             <DragOverlay
               dropAnimation={{ duration: 180, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" }}
             >
-              {activeCard ? (
-                <div className="w-64 cursor-grabbing rounded-sm border border-line-strong bg-paper py-2.5 pr-3 pl-8 shadow-lift">
-                  <CardBody card={activeCard} />
-                </div>
-              ) : null}
+              {activeCard ? <CardOverlay card={activeCard} /> : null}
             </DragOverlay>
           </DndContext>
         )}

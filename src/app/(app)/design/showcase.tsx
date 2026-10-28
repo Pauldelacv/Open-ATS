@@ -1,8 +1,12 @@
 "use client";
 
+import { DndContext } from "@dnd-kit/core";
+import { SortableContext } from "@dnd-kit/sortable";
 import { Archive, Copy, Mail, MoreHorizontal, Pencil, Search, Trash2 } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import type { BoardCard } from "@/lib/services/pipeline";
 import { Wordmark } from "@/components/app/logo";
+import { CardOverlay, KanbanCard } from "@/components/pipeline/kanban-card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
@@ -164,6 +168,7 @@ export function DesignShowcase() {
               ["upload", "Dépôt de fichier"],
               ["editor", "Texte riche"],
               ["lists", "Listes"],
+              ["cards", "Cartes du kanban"],
             ].map(([id, label]) => (
               <li key={id}>
                 <a
@@ -721,8 +726,110 @@ export function DesignShowcase() {
               </div>
             </div>
           </Section>
+
+          <Section id="cards" title="Cartes du kanban">
+            <KanbanCardStates />
+          </Section>
         </main>
       </div>
     </div>
+  );
+}
+
+function sampleCard(id: string, overrides: Partial<BoardCard>): BoardCard {
+  return {
+    id,
+    candidateId: id,
+    firstName: "Marion",
+    lastName: "Lefort",
+    stageId: "stage",
+    position: 0,
+    appliedAt: new Date(Date.now() - 2 * 86_400_000).toISOString(),
+    isNew: false,
+    rejected: false,
+    tags: ["Portfolio solide"],
+    evaluationCount: 0,
+    averageRating: null,
+    hasCv: true,
+    ...overrides,
+  };
+}
+
+const cardStates: Array<{
+  label: string;
+  card: BoardCard;
+  selected?: boolean;
+  active?: boolean;
+  selectionMode?: boolean;
+}> = [
+  { label: "Repos", card: sampleCard("rest", {}) },
+  {
+    label: "Nouvelle candidature",
+    card: sampleCard("new", { firstName: "Lucas", lastName: "Moreau", isNew: true, tags: [] }),
+  },
+  {
+    label: "Évaluée, avec tags",
+    card: sampleCard("rated", {
+      firstName: "Bastien",
+      lastName: "Roy",
+      averageRating: 4.2,
+      evaluationCount: 3,
+      tags: ["Permis B", "Anglais courant", "Lyon"],
+    }),
+  },
+  {
+    label: "Sélection en cours",
+    card: sampleCard("selection", { firstName: "Théo", lastName: "Renard" }),
+    selectionMode: true,
+  },
+  {
+    label: "Sélectionnée",
+    card: sampleCard("selected", { firstName: "Sophie", lastName: "Martin" }),
+    selected: true,
+  },
+  {
+    label: "Ouverte dans le panneau",
+    card: sampleCard("active", { firstName: "Antoine", lastName: "Petit" }),
+    active: true,
+  },
+  {
+    label: "Refusée, sans CV",
+    card: sampleCard("rejected", {
+      firstName: "Julie",
+      lastName: "Garnier",
+      rejected: true,
+      hasCv: false,
+      tags: [],
+    }),
+  },
+];
+
+function KanbanCardStates() {
+  const noop = () => {};
+  return (
+    <DndContext>
+      <SortableContext items={cardStates.map((s) => s.card.id)}>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {cardStates.map((state) => (
+            <State key={state.card.id} label={state.label} className="w-64">
+              <ul className="w-full">
+                <KanbanCard
+                  card={state.card}
+                  selected={state.selected ?? false}
+                  selectionMode={state.selectionMode ?? false}
+                  active={state.active ?? false}
+                  onOpen={noop}
+                  onToggle={noop}
+                  disabled
+                />
+              </ul>
+            </State>
+          ))}
+          <State label="En déplacement" className="w-64">
+            <CardOverlay card={sampleCard("drag", { firstName: "Ibrahim", lastName: "Traoré" })} />
+          </State>
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 }

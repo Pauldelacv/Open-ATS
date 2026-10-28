@@ -73,6 +73,15 @@ export function CardBody({ card }: { card: BoardCard }) {
   );
 }
 
+/** The card as it follows the pointer during a drag. */
+export function CardOverlay({ card }: { card: BoardCard }) {
+  return (
+    <div className="w-64 cursor-grabbing rounded-sm border border-line-strong bg-paper py-2.5 pr-3 pl-8 shadow-lift">
+      <CardBody card={card} />
+    </div>
+  );
+}
+
 export const KanbanCard = memo(function KanbanCard({
   card,
   selected,
