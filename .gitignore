@@ -1,0 +1,16 @@
+node_modules
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+/data
+/uploads
+/test-results
+/playwright-report
+/playwright/.cache
+/public/pdf.worker.min.mjs
+.DS_Store
+coverage

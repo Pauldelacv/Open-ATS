@@ -1,0 +1,162 @@
+{
+  "common": {
+    "appName": "Open ATS",
+    "close": "Fermer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "saved": "Modifications enregistrées",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "back": "Retour",
+    "continue": "Continuer",
+    "undo": "Annuler",
+    "optional": "(facultatif)",
+    "required": "(obligatoire)",
+    "loading": "Chargement",
+    "search": "Rechercher",
+    "unknownError": "Une erreur inattendue s'est produite. Réessayez dans un instant.",
+    "forbidden": "Votre rôle ne permet pas cette action.",
+    "notFound": "Cet élément n'existe plus ou n'est pas accessible.",
+    "copy": "Copier",
+    "copied": "Lien copié",
+    "more": "Plus d'actions",
+    "yes": "Oui",
+    "no": "Non",
+    "none": "Aucun",
+    "language": "Langue",
+    "languages": {
+      "fr": "Français",
+      "en": "English"
+    }
+  },
+  "ui": {
+    "dropzone": {
+      "prompt": "Déposez votre fichier ici ou",
+      "browse": "parcourez vos fichiers",
+      "replace": "Remplacer",
+      "remove": "Retirer"
+    },
+    "richText": {
+      "toolbar": "Mise en forme",
+      "bold": "Gras",
+      "italic": "Italique",
+      "heading2": "Titre",
+      "heading3": "Sous-titre",
+      "bulletList": "Liste à puces",
+      "orderedList": "Liste numérotée",
+      "link": "Lien",
+      "linkUrl": "Adresse du lien",
+      "applyLink": "Appliquer",
+      "removeLink": "Retirer le lien"
+    },
+    "rating": {
+      "label": "Note",
+      "value": "{value} sur 5",
+      "average": "{value} sur 5 en moyenne"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "subtitle": "Accédez à l'espace recrutement de votre entreprise.",
+      "email": "Adresse email",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "magicLinkSubmit": "Recevoir un lien de connexion",
+      "magicLinkHint": "Sans mot de passe : nous vous envoyons un lien valable 15 minutes.",
+      "or": "ou",
+      "usePassword": "Se connecter avec un mot de passe",
+      "useMagicLink": "Se connecter avec un lien par email",
+      "invalidCredentials": "Adresse email ou mot de passe incorrect.",
+      "magicLinkSent": "Si un compte existe pour {email}, un lien de connexion vient d'être envoyé. Il est valable 15 minutes.",
+      "magicLinkSentTitle": "Vérifiez votre boîte de réception",
+      "magicLinkNoSmtp": "L'envoi d'emails n'est pas configuré sur cette installation : le lien est écrit dans les journaux du serveur.",
+      "magicLinkError": "Ce lien de connexion n'est plus valable. Demandez-en un nouveau.",
+      "demoTitle": "Compte de démonstration",
+      "demoBody": "Email {email}, mot de passe {password}",
+      "demoFill": "Remplir",
+      "noAccount": "Pas encore de compte ? Demandez une invitation à un administrateur de votre entreprise."
+    },
+    "setup": {
+      "title": "Créer votre espace recrutement",
+      "subtitle": "Vous serez administrateur. Vous pourrez inviter votre équipe ensuite.",
+      "orgTitle": "Créer votre entreprise",
+      "orgSubtitle": "Votre compte est prêt. Il reste à créer l'espace de votre entreprise.",
+      "name": "Votre nom",
+      "email": "Adresse email professionnelle",
+      "password": "Mot de passe",
+      "passwordHint": "10 caractères minimum.",
+      "company": "Nom de l'entreprise",
+      "companyHint": "Il apparaîtra sur votre site carrière.",
+      "language": "Langue du site carrière",
+      "submit": "Créer l'espace",
+      "closed": "Cette installation est déjà configurée. Demandez une invitation à un administrateur.",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "login": "Se connecter"
+    },
+    "invite": {
+      "title": "Rejoindre {organization}",
+      "subtitle": "Vous êtes invité en tant que {role}.",
+      "email": "Adresse email",
+      "name": "Votre nom",
+      "password": "Choisissez un mot de passe",
+      "submit": "Rejoindre l'équipe",
+      "accept": "Accepter l'invitation",
+      "loginFirst": "Un compte existe déjà pour {email}. Connectez-vous pour accepter l'invitation.",
+      "login": "Se connecter",
+      "invalid": "Cette invitation n'est plus valable. Demandez-en une nouvelle à la personne qui vous a invité.",
+      "mismatch": "Cette invitation est destinée à {email}. Déconnectez-vous puis reconnectez-vous avec cette adresse.",
+      "signOut": "Se déconnecter"
+    },
+    "noOrganization": {
+      "title": "Aucune entreprise",
+      "body": "Votre compte n'est rattaché à aucune entreprise. Demandez une invitation à un administrateur."
+    },
+    "errors": {
+      "email": "Saisissez une adresse email valide, par exemple nom@entreprise.fr.",
+      "password": "Le mot de passe doit contenir au moins 10 caractères.",
+      "name": "Saisissez votre nom.",
+      "company": "Saisissez le nom de l'entreprise.",
+      "userExists": "Un compte existe déjà avec cette adresse. Connectez-vous.",
+      "signupClosed": "La création de compte est réservée aux personnes invitées.",
+      "rateLimited": "Trop de tentatives. Patientez une minute avant de réessayer."
+    },
+    "signOut": "Se déconnecter"
+  },
+  "roles": {
+    "admin": "Administrateur",
+    "recruiter": "Recruteur",
+    "member": "Membre",
+    "adminArticle": "administrateur",
+    "recruiterArticle": "recruteur",
+    "memberArticle": "membre",
+    "adminHint": "Tout gérer, y compris l'équipe, le site carrière et les données personnelles.",
+    "recruiterHint": "Gérer les offres et tous les candidats.",
+    "memberHint": "Voir les offres où il est assigné, commenter et évaluer."
+  },
+  "emails": {
+    "magicLink": {
+      "subject": "Votre lien de connexion à Open ATS",
+      "body": "Bonjour,\n\nVoici votre lien de connexion. Il est valable 15 minutes et ne peut servir qu'une fois :\n\n{url}\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez cet email."
+    },
+    "invitation": {
+      "subject": "Invitation à rejoindre {organization} sur Open ATS",
+      "body": "Bonjour,\n\n{inviter} vous invite à rejoindre l'espace recrutement de {organization}.\n\nPour accepter, ouvrez ce lien (valable {days} jours) :\n\n{url}"
+    },
+    "mention": {
+      "subject": "{author} vous a mentionné à propos de {candidate}",
+      "body": "Bonjour,\n\n{author} vous a mentionné dans une note sur {candidate} :\n\n« {excerpt} »\n\nVoir la fiche : {url}"
+    }
+  },
+  "defaults": {
+    "stages": {
+      "new": "Nouveau",
+      "screening": "Présélection",
+      "interview": "Entretien",
+      "offer": "Offre",
+      "hired": "Embauché",
+      "rejected": "Refusé"
+    }
+  }
+}

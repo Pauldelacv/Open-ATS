@@ -1,0 +1,162 @@
+{
+  "common": {
+    "appName": "Open ATS",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Changes saved",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "continue": "Continue",
+    "undo": "Undo",
+    "optional": "(optional)",
+    "required": "(required)",
+    "loading": "Loading",
+    "search": "Search",
+    "unknownError": "Something unexpected happened. Try again in a moment.",
+    "forbidden": "Your role does not allow this action.",
+    "notFound": "This item no longer exists or is not accessible.",
+    "copy": "Copy",
+    "copied": "Link copied",
+    "more": "More actions",
+    "yes": "Yes",
+    "no": "No",
+    "none": "None",
+    "language": "Language",
+    "languages": {
+      "fr": "Français",
+      "en": "English"
+    }
+  },
+  "ui": {
+    "dropzone": {
+      "prompt": "Drop your file here or",
+      "browse": "browse your files",
+      "replace": "Replace",
+      "remove": "Remove"
+    },
+    "richText": {
+      "toolbar": "Formatting",
+      "bold": "Bold",
+      "italic": "Italic",
+      "heading2": "Heading",
+      "heading3": "Subheading",
+      "bulletList": "Bulleted list",
+      "orderedList": "Numbered list",
+      "link": "Link",
+      "linkUrl": "Link address",
+      "applyLink": "Apply",
+      "removeLink": "Remove link"
+    },
+    "rating": {
+      "label": "Rating",
+      "value": "{value} out of 5",
+      "average": "{value} out of 5 on average"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Access your company's recruiting workspace.",
+      "email": "Email address",
+      "password": "Password",
+      "submit": "Sign in",
+      "magicLinkSubmit": "Email me a sign-in link",
+      "magicLinkHint": "No password needed: we send you a link valid for 15 minutes.",
+      "or": "or",
+      "usePassword": "Sign in with a password",
+      "useMagicLink": "Sign in with an email link",
+      "invalidCredentials": "Incorrect email address or password.",
+      "magicLinkSent": "If an account exists for {email}, a sign-in link has just been sent. It is valid for 15 minutes.",
+      "magicLinkSentTitle": "Check your inbox",
+      "magicLinkNoSmtp": "Email sending is not configured on this installation: the link is written to the server logs.",
+      "magicLinkError": "This sign-in link is no longer valid. Request a new one.",
+      "demoTitle": "Demo account",
+      "demoBody": "Email {email}, password {password}",
+      "demoFill": "Fill in",
+      "noAccount": "No account yet? Ask an administrator of your company for an invitation."
+    },
+    "setup": {
+      "title": "Create your recruiting workspace",
+      "subtitle": "You will be the administrator. You can invite your team afterwards.",
+      "orgTitle": "Create your company",
+      "orgSubtitle": "Your account is ready. All that is left is to create your company's workspace.",
+      "name": "Your name",
+      "email": "Work email address",
+      "password": "Password",
+      "passwordHint": "At least 10 characters.",
+      "company": "Company name",
+      "companyHint": "It will appear on your career site.",
+      "language": "Career site language",
+      "submit": "Create the workspace",
+      "closed": "This installation is already set up. Ask an administrator for an invitation.",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in"
+    },
+    "invite": {
+      "title": "Join {organization}",
+      "subtitle": "You are invited as {role}.",
+      "email": "Email address",
+      "name": "Your name",
+      "password": "Choose a password",
+      "submit": "Join the team",
+      "accept": "Accept the invitation",
+      "loginFirst": "An account already exists for {email}. Sign in to accept the invitation.",
+      "login": "Sign in",
+      "invalid": "This invitation is no longer valid. Ask the person who invited you for a new one.",
+      "mismatch": "This invitation is for {email}. Sign out, then sign in with that address.",
+      "signOut": "Sign out"
+    },
+    "noOrganization": {
+      "title": "No company",
+      "body": "Your account is not linked to any company. Ask an administrator for an invitation."
+    },
+    "errors": {
+      "email": "Enter a valid email address, for example name@company.com.",
+      "password": "The password must be at least 10 characters long.",
+      "name": "Enter your name.",
+      "company": "Enter the company name.",
+      "userExists": "An account already exists with this address. Sign in.",
+      "signupClosed": "Account creation is limited to invited people.",
+      "rateLimited": "Too many attempts. Wait a minute before trying again."
+    },
+    "signOut": "Sign out"
+  },
+  "roles": {
+    "admin": "Administrator",
+    "recruiter": "Recruiter",
+    "member": "Member",
+    "adminArticle": "an administrator",
+    "recruiterArticle": "a recruiter",
+    "memberArticle": "a member",
+    "adminHint": "Manage everything, including the team, the career site and personal data.",
+    "recruiterHint": "Manage jobs and all candidates.",
+    "memberHint": "See the jobs they are assigned to, comment and evaluate."
+  },
+  "emails": {
+    "magicLink": {
+      "subject": "Your Open ATS sign-in link",
+      "body": "Hello,\n\nHere is your sign-in link. It is valid for 15 minutes and can be used once:\n\n{url}\n\nIf you did not request it, you can ignore this email."
+    },
+    "invitation": {
+      "subject": "Invitation to join {organization} on Open ATS",
+      "body": "Hello,\n\n{inviter} invites you to join the recruiting workspace of {organization}.\n\nTo accept, open this link (valid for {days} days):\n\n{url}"
+    },
+    "mention": {
+      "subject": "{author} mentioned you about {candidate}",
+      "body": "Hello,\n\n{author} mentioned you in a note about {candidate}:\n\n“{excerpt}”\n\nOpen the profile: {url}"
+    }
+  },
+  "defaults": {
+    "stages": {
+      "new": "New",
+      "screening": "Screening",
+      "interview": "Interview",
+      "offer": "Offer",
+      "hired": "Hired",
+      "rejected": "Rejected"
+    }
+  }
+}
