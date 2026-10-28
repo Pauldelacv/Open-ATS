@@ -160,15 +160,13 @@ async function upsertDemoUsers() {
     await db
       .insert(user)
       .values({ id, name: u.name, email: u.email, emailVerified: true, locale: "fr" });
-    await db
-      .insert(account)
-      .values({
-        id: `acc_${shortId(16)}`,
-        accountId: id,
-        providerId: "credential",
-        userId: id,
-        password: hash,
-      });
+    await db.insert(account).values({
+      id: `acc_${shortId(16)}`,
+      accountId: id,
+      providerId: "credential",
+      userId: id,
+      password: hash,
+    });
     ids[u.key] = id;
   }
   return ids;
@@ -646,17 +644,15 @@ export async function seedDemo(): Promise<{ created: boolean }> {
         createdAt: noteAt,
       });
       if (n.mention) {
-        await db
-          .insert(notifications)
-          .values({
-            organizationId: orgId,
-            userId: users[n.mention]!,
-            actorId: users[n.author],
-            noteId: note!.id,
-            candidateId,
-            applicationId,
-            createdAt: noteAt,
-          });
+        await db.insert(notifications).values({
+          organizationId: orgId,
+          userId: users[n.mention]!,
+          actorId: users[n.author],
+          noteId: note!.id,
+          candidateId,
+          applicationId,
+          createdAt: noteAt,
+        });
       }
     }
 
