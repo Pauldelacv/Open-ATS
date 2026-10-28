@@ -76,7 +76,9 @@
       "demoTitle": "Compte de démonstration",
       "demoBody": "Email {email}, mot de passe {password}",
       "demoFill": "Remplir",
-      "noAccount": "Pas encore de compte ? Demandez une invitation à un administrateur de votre entreprise."
+      "noAccount": "Pas encore de compte ? Demandez une invitation à un administrateur de votre entreprise.",
+      "firstSetup": "Nouvelle installation ?",
+      "firstSetupLink": "Créer votre espace recrutement"
     },
     "setup": {
       "title": "Créer votre espace recrutement",
@@ -342,7 +344,7 @@
       "allDepartments": "Tous les services",
       "allLocations": "Tous les lieux",
       "allContracts": "Tous les contrats",
-      "allRemote": "Avec ou sans télétravail",
+      "allRemote": "Sur site ou à distance",
       "clear": "Effacer les filtres",
       "noResults": "Aucune offre ne correspond à ces filtres.",
       "results": "{count, plural, =0 {Aucune offre} one {# offre} other {# offres}}"

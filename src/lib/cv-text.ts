@@ -1,4 +1,3 @@
-import "server-only";
 import type { CvKind } from "@/lib/validation/application";
 
 const MAX_TEXT = 200_000;

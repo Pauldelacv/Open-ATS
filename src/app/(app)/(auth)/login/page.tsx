@@ -39,9 +39,9 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
       <p className="px-1 text-13 text-ink-muted">
         {setupOpen ? (
           <>
-            {t("setup.title")}.{" "}
+            {t("login.firstSetup")}{" "}
             <Link href="/setup" className="font-medium text-cobalt hover:underline">
-              {t("setup.submit")}
+              {t("login.firstSetupLink")}
             </Link>
           </>
         ) : (

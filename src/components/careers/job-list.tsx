@@ -3,7 +3,7 @@
 import { MapPin, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { Select } from "@/components/ui/input";
 import { cn } from "@/lib/cn";
 import type { ContractType, RemotePolicy } from "@/lib/db/schema";
@@ -17,6 +17,12 @@ export type PublicJobRow = {
   remote: RemotePolicy;
   contract: ContractType;
 };
+
+function subscribeToWidth(callback: () => void) {
+  const query = window.matchMedia("(min-width: 768px)");
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
 
 type Filters = { department: string; location: string; contract: string; remote: string };
 const EMPTY: Filters = { department: "", location: "", contract: "", remote: "" };
@@ -51,12 +57,24 @@ export function CareersJobList({ orgSlug, jobs }: { orgSlug: string; jobs: Publi
 
   const label = (key: keyof Filters, value: string) =>
     key === "contract" ? tj(`contract.${value as ContractType}`) : key === "remote" ? tj(`remote.${value as RemotePolicy}`) : value;
+  // On wide screens the empty choice shows the filter name, like a compact filter bar.
   const allLabel = {
     department: t("filters.allDepartments"),
     location: t("filters.allLocations"),
     contract: t("filters.allContracts"),
     remote: t("filters.allRemote"),
   };
+  const shortLabel = {
+    department: t("filters.department"),
+    location: t("filters.location"),
+    contract: t("filters.contract"),
+    remote: t("filters.remote"),
+  };
+  const wide = useSyncExternalStore(
+    subscribeToWidth,
+    () => window.matchMedia("(min-width: 768px)").matches,
+    () => true,
+  );
 
   return (
     <div>
@@ -82,18 +100,17 @@ export function CareersJobList({ orgSlug, jobs }: { orgSlug: string; jobs: Publi
             id="career-filters"
             role="group"
             aria-label={t("filters.label")}
-            className={cn("mt-3 grid gap-3 sm:grid-cols-2 md:mt-0 md:flex md:flex-wrap md:items-center", open ? "grid" : "hidden md:flex")}
+            className={cn("mt-3 grid gap-3 sm:grid-cols-2 md:mt-0 md:flex md:items-center", open ? "grid" : "hidden md:flex")}
           >
             {available.map((key) => (
-              <label key={key} className="flex flex-col gap-1 md:block">
+              <label key={key} className="flex flex-col gap-1 md:block md:min-w-0 md:flex-1">
                 <span className="text-13 font-medium md:sr-only">{t(`filters.${key}`)}</span>
                 <Select
                   size="lg"
                   value={filters[key]}
                   onChange={(e) => setFilters((f) => ({ ...f, [key]: e.target.value }))}
-                  className="md:w-56"
                 >
-                  <option value="">{allLabel[key]}</option>
+                  <option value="">{wide ? shortLabel[key] : allLabel[key]}</option>
                   {options[key].map((value) => (
                     <option key={value} value={value}>
                       {label(key, value)}
@@ -124,12 +141,12 @@ export function CareersJobList({ orgSlug, jobs }: { orgSlug: string; jobs: Publi
             <li key={job.id}>
               <Link
                 href={`/careers/${orgSlug}/jobs/${job.slug}`}
-                className="group flex flex-col gap-1 py-4 focus-visible:outline-offset-[-2px] md:flex-row md:items-baseline md:justify-between md:gap-6 md:px-2"
+                className="group flex flex-col gap-1 py-4 focus-visible:outline-offset-[-2px] md:px-2"
               >
                 <span className="text-16 font-semibold text-ink group-hover:text-brand-link group-hover:underline group-hover:underline-offset-2">
                   {job.title}
                 </span>
-                <span className="flex flex-wrap items-center gap-x-4 gap-y-1 text-14 text-ink-muted md:justify-end">
+                <span className="flex flex-wrap items-center gap-x-4 gap-y-1 text-14 text-ink-muted">
                   {job.department ? <span>{job.department}</span> : null}
                   {job.location ? (
                     <span className="inline-flex items-center gap-1">

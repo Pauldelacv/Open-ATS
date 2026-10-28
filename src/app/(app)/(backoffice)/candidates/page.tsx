@@ -106,17 +106,19 @@ export default async function PoolPage({ searchParams }: PageProps<"/candidates"
                         </p>
                       ) : null}
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-13 md:w-96 md:justify-end">
+                    <div className="flex flex-col gap-1 text-13 md:w-80 md:shrink-0 md:items-end md:text-right">
                       {row.latest ? (
-                        <span className="flex min-w-0 items-center gap-2">
+                        <span className="flex max-w-full items-center gap-2">
                           <span className="truncate text-ink">{row.latest.jobTitle}</span>
                           <Badge tone={row.latest.stageKind === "rejected" ? "danger" : row.latest.stageKind === "hired" ? "success" : "neutral"}>
                             {row.latest.stageName}
                           </Badge>
                         </span>
                       ) : null}
-                      {row.applicationCount > 1 ? <span className="text-ink-muted">{t("applications", { count: row.applicationCount })}</span> : null}
-                      <span className="text-ink-muted tabular-nums">{formatRelative(row.lastActivityAt, locale, now)}</span>
+                      <span className="flex gap-3 text-ink-muted tabular-nums">
+                        {row.applicationCount > 1 ? <span>{t("applications", { count: row.applicationCount })}</span> : null}
+                        <span>{formatRelative(row.lastActivityAt, locale, now)}</span>
+                      </span>
                     </div>
                   </div>
                 </li>

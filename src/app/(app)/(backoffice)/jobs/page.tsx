@@ -102,7 +102,7 @@ export default async function JobsPage({ searchParams }: PageProps<"/jobs">) {
                 <div className="flex items-center gap-4 text-13 sm:justify-end">
                   {job.newCount > 0 ? <Mark className="text-12 font-medium">{t("list.new", { count: job.newCount })}</Mark> : null}
                   <span className="text-ink tabular-nums sm:w-28 sm:text-right">{t("list.candidates", { count: job.activeCount })}</span>
-                  <span className="text-ink-muted tabular-nums sm:w-32 sm:text-right">
+                  <span className="whitespace-nowrap text-ink-muted tabular-nums sm:w-40 sm:text-right">
                     {status === "published" && job.publishedAt
                       ? t("list.published", { date: formatRelative(job.publishedAt, locale, now) })
                       : t("list.updated", { date: formatRelative(job.updatedAt, locale, now) })}

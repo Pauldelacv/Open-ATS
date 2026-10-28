@@ -76,7 +76,9 @@
       "demoTitle": "Demo account",
       "demoBody": "Email {email}, password {password}",
       "demoFill": "Fill in",
-      "noAccount": "No account yet? Ask an administrator of your company for an invitation."
+      "noAccount": "No account yet? Ask an administrator of your company for an invitation.",
+      "firstSetup": "New installation?",
+      "firstSetupLink": "Create your recruiting workspace"
     },
     "setup": {
       "title": "Create your recruiting workspace",
@@ -342,7 +344,7 @@
       "allDepartments": "All departments",
       "allLocations": "All locations",
       "allContracts": "All contracts",
-      "allRemote": "With or without remote work",
+      "allRemote": "On site or remote",
       "clear": "Clear filters",
       "noResults": "No job matches these filters.",
       "results": "{count, plural, =0 {No jobs} one {# job} other {# jobs}}"
