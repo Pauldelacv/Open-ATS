@@ -52,17 +52,19 @@ export function Fieldset({
   error,
   children,
   className,
+  legendClassName,
 }: {
   legend: ReactNode;
   hint?: ReactNode;
   error?: ReactNode;
   children: ReactNode;
   className?: string;
+  legendClassName?: string;
 }) {
   const id = useId();
   return (
     <fieldset className={cn("flex flex-col gap-2", className)} aria-describedby={error ? `${id}-error` : undefined}>
-      <legend className="mb-1.5 text-13 font-medium text-ink">{legend}</legend>
+      <legend className={cn("mb-1.5 text-13 font-medium text-ink", legendClassName)}>{legend}</legend>
       {hint ? <p className="-mt-1 text-13 text-ink-muted">{hint}</p> : null}
       {children}
       {error ? (

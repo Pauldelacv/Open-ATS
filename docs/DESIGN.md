@@ -169,7 +169,7 @@ Each component is shown in every state on `/design`.
 | **Icon button** | Square 28 / 32 px, always with `aria-label` and tooltip. |
 | **Input / Textarea / Select** | 32 px high (40 px on the career site), `line-strong` border, 4 px radius, paper fill. Error: danger border + message below that says what to fix. Disabled: stone fill. |
 | **Checkbox / Radio** | 16 px, ink border, cobalt when checked. Label clickable. |
-| **Field** | Label (13 px, 500) above, optional hint below, error replaces hint. Required fields are marked « (obligatoire) » on the career site; optional ones « (facultatif) » in the back office. |
+| **Field** | Label (13 px, 500) above, optional hint below, error replaces hint. Optional fields are marked « (facultatif) » everywhere; forms whose fields are mostly required say so once at the top instead of repeating it on every label. |
 | **Badge** | Status of a job or an application: text + tint background, 12 px. Draft = stone, Published = success tint, Archived = stone with muted text, Hired = success, Rejected = danger, Pending = warning. |
 | **Tag** | Free labels on candidates: paper, `line` border, 12 px, removable with a 16 px button. |
 | **Mark** | The highlighter: `highlighter` background behind text, 2 px horizontal padding, no radius beyond 2 px. Used for search hits, mentions of you and the « Nouveau » count. |
