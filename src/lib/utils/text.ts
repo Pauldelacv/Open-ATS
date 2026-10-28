@@ -1,12 +1,12 @@
 /** Lower-case, accent-free version of a string, used for search and slugs. */
 export function fold(input: string): string {
   return input
+    .toLowerCase()
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
     .replace(/œ/g, "oe")
     .replace(/æ/g, "ae")
-    .replace(/ß/g, "ss")
-    .toLowerCase();
+    .replace(/ß/g, "ss");
 }
 
 export function slugify(input: string, maxLength = 60): string {

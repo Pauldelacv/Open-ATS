@@ -29,6 +29,8 @@ export async function refreshSearchText(tx: Tx | typeof db, candidateId: string)
     candidate.firstName,
     candidate.lastName,
     candidate.email,
+    // Also index the parts of the address, so that « lefort » or « example » find it.
+    candidate.email?.replace(/[@.+_-]+/g, " "),
     candidate.phone,
     candidate.linkUrl,
     ...tagRows.map((t) => t.name),

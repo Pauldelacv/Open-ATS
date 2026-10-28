@@ -14,7 +14,8 @@ const optionalText = (max: number) =>
     .transform((v) => (v ? v : null));
 
 const optionalAmount = z
-  .union([z.string(), z.number(), z.null(), z.undefined()])
+  .union([z.string(), z.number(), z.null()])
+  .optional()
   .transform((v, ctx) => {
     if (v === null || v === undefined || v === "") return null;
     const n = typeof v === "number" ? v : Number(String(v).replace(/[\s  ]/g, "").replace(",", "."));

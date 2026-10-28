@@ -57,7 +57,8 @@ export async function submitPublicApplication(input: {
   cv: IncomingCv;
   consentText: string;
 }) {
-  const { organizationId: orgId, jobId, data } = input;
+  const { organizationId: orgId, jobId } = input;
+  const data = { ...input.data, email: input.data.email.trim().toLowerCase() };
   const kind = cvKind(input.cv);
   if (!kind || !cvSignatureMatches(kind, input.cv.data)) throw new CvRejectedError();
 
