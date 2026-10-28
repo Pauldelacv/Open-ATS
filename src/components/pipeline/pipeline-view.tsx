@@ -1,8 +1,12 @@
 "use client";
 
 import {
-  closestCorners,
+  closestCenter,
   DndContext,
+  getFirstCollision,
+  pointerWithin,
+  rectIntersection,
+  type CollisionDetection,
   DragOverlay,
   KeyboardSensor,
   PointerSensor,
@@ -100,6 +104,8 @@ export function PipelineView({
   const [tagName, setTagName] = useState("");
   const [tagOpen, setTagOpen] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
+  // Bumped after actions taken outside the panel (reject, email) so that it reloads.
+  const [panelVersion, setPanelVersion] = useState(0);
 
   // Server data changes (router.refresh, stage edits): resynchronise local state.
   const [source, setSource] = useState({ stages, initialCards });
@@ -148,6 +154,29 @@ export function PipelineView({
     const key = String(id);
     if (key.startsWith("column:")) return key.slice("column:".length);
     return Object.keys(columns).find((stageId) => columns[stageId]!.includes(key));
+  };
+
+  /**
+   * Pointer position first, then rectangle overlap (keyboard moves have no pointer). When the
+   * target is a column, aim at its closest card so that empty and full columns behave alike.
+   */
+  const collisionDetection: CollisionDetection = (args) => {
+    const pointer = pointerWithin(args);
+    const hits = pointer.length > 0 ? pointer : rectIntersection(args);
+    const first = getFirstCollision(hits, "id");
+    if (first == null) return [];
+    const key = String(first);
+    if (key.startsWith("column:")) {
+      const items = columns[key.slice("column:".length)] ?? [];
+      if (items.length > 0) {
+        const inner = closestCenter({
+          ...args,
+          droppableContainers: args.droppableContainers.filter((c) => items.includes(String(c.id))),
+        });
+        if (inner[0]) return [inner[0]];
+      }
+    }
+    return [{ id: first }];
   };
 
   const sensors = useSensors(
@@ -310,6 +339,7 @@ export function PipelineView({
       return next;
     });
     setSelected(new Set());
+    setPanelVersion((v) => v + 1);
     router.refresh();
   };
 
@@ -404,7 +434,7 @@ export function PipelineView({
         ) : (
           <DndContext
             sensors={sensors}
-            collisionDetection={closestCorners}
+            collisionDetection={collisionDetection}
             onDragStart={onDragStart}
             onDragOver={onDragOver}
             onDragEnd={onDragEnd}
@@ -529,7 +559,7 @@ export function PipelineView({
 
       {openId ? (
         <CandidatePanel
-          key={openId}
+          key={`${openId}-${panelVersion}`}
           applicationId={openId}
           orderedIds={orderedIds}
           stages={stages}
@@ -600,6 +630,7 @@ export function PipelineView({
           recruiterName={recruiterName}
           onSent={() => {
             setSelected(new Set());
+            setPanelVersion((v) => v + 1);
             router.refresh();
           }}
         />
