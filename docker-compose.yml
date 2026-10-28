@@ -21,6 +21,7 @@ services:
       SEED_DEMO: ${SEED_DEMO:-false}
       ALLOW_SIGNUP: ${ALLOW_SIGNUP:-false}
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Paris}
+      RETENTION_JOB: ${RETENTION_JOB:-true}
       MAIL_FROM: ${MAIL_FROM:-Open ATS <no-reply@localhost>}
       SMTP_URL: ${SMTP_URL:-}
       SMTP_HOST: ${SMTP_HOST:-}
