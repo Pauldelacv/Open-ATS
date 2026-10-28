@@ -536,6 +536,60 @@
       "changePassword": "Change password",
       "passwordChanged": "Password changed",
       "wrongPassword": "The current password is incorrect."
+    },
+    "emails": {
+      "title": "Emails",
+      "description": "Templates used to write to candidates, and the sending journal.",
+      "smtpMissing": "Email sending is not configured",
+      "smtpMissingBody": "Emails are written to the journal below and to the server logs instead of being sent. Set SMTP_URL or SMTP_HOST to send them.",
+      "smtpOk": "Emails are sent over SMTP from {from}.",
+      "templates": "Templates",
+      "create": "Create a template",
+      "edit": "Edit the template",
+      "createTitle": "New template",
+      "editTitle": "Edit the template",
+      "name": "Template name",
+      "kind": "Use",
+      "kinds": {
+        "confirmation": "Application received",
+        "rejection": "Rejection",
+        "interview": "Interview",
+        "other": "Other"
+      },
+      "kindHint": "Rejection templates are offered when rejecting. The acknowledgement is sent automatically after an application.",
+      "save": "Save the template",
+      "saved": "Template saved",
+      "delete": "Delete the template",
+      "deleted": "Template deleted",
+      "deleteTitle": "Delete the template “{name}”?",
+      "deleteBody": "Emails already sent stay in the journal.",
+      "none": "No templates",
+      "noneBody": "Create a template to write to candidates faster.",
+      "sampleFirstName": "Marion",
+      "sampleLastName": "Lefort",
+      "sampleJob": "Full-stack developer",
+      "journal": "Sending journal",
+      "journalHint": "The last 100 emails. Sign-in links never appear here.",
+      "journalEmpty": "No emails yet.",
+      "status": {
+        "sent": "Sent",
+        "logged": "Logged",
+        "failed": "Failed"
+      },
+      "category": {
+        "candidate": "Candidate",
+        "team": "Team"
+      },
+      "to": "Recipient",
+      "subject": "Subject",
+      "date": "Date",
+      "show": "Show the message",
+      "by": "by {name}",
+      "errors": {
+        "name": "Enter a template name.",
+        "subject": "Enter a subject.",
+        "body": "Enter the message."
+      }
     }
   },
   "pipeline": {

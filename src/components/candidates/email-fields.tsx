@@ -5,14 +5,29 @@ import { useRef } from "react";
 import { Field } from "@/components/ui/field";
 import { Input, Select, Textarea } from "@/components/ui/input";
 import type { EmailTemplateKind } from "@/lib/db/schema";
+import { loose } from "@/i18n/loose";
 import { renderTemplate, unknownVariables } from "@/lib/services/template-render";
 
-export type TemplateOption = { id: string; name: string; kind: EmailTemplateKind; subject: string; body: string };
-export type Recipient = { applicationId: string; firstName: string; lastName: string; jobTitle: string; email: string | null };
+export type TemplateOption = {
+  id: string;
+  name: string;
+  kind: EmailTemplateKind;
+  subject: string;
+  body: string;
+};
+export type Recipient = {
+  applicationId: string;
+  firstName: string;
+  lastName: string;
+  jobTitle: string;
+  email: string | null;
+};
 export type EmailDraft = { templateId: string | null; subject: string; body: string };
 
 export function draftFromTemplate(template: TemplateOption | undefined): EmailDraft {
-  return template ? { templateId: template.id, subject: template.subject, body: template.body } : { templateId: null, subject: "", body: "" };
+  return template
+    ? { templateId: template.id, subject: template.subject, body: template.body }
+    : { templateId: null, subject: "", body: "" };
 }
 
 /** Template picker, subject, body with variable shortcuts and a live preview. */
@@ -25,7 +40,9 @@ export function EmailFields({
   recruiterName,
   errors,
   locale,
+  hideTemplatePicker,
 }: {
+  hideTemplatePicker?: boolean;
   draft: EmailDraft;
   onChange: (draft: EmailDraft) => void;
   templates: TemplateOption[];
@@ -54,7 +71,13 @@ export function EmailFields({
   };
 
   const values = preview
-    ? { firstName: preview.firstName, lastName: preview.lastName, job: preview.jobTitle, company: companyName, recruiter: recruiterName }
+    ? {
+        firstName: preview.firstName,
+        lastName: preview.lastName,
+        job: preview.jobTitle,
+        company: companyName,
+        recruiter: recruiterName,
+      }
     : {};
   const unknown = unknownVariables(`${draft.subject} ${draft.body}`);
   const names = locale.startsWith("fr")
@@ -63,24 +86,37 @@ export function EmailFields({
 
   return (
     <div className="flex flex-col gap-4">
-      <Field label={t("template")}>
-        <Select
-          value={draft.templateId ?? ""}
-          onChange={(e) => onChange(draftFromTemplate(templates.find((tpl) => tpl.id === e.target.value)))}
-        >
-          <option value="">{t("noTemplate")}</option>
-          {templates.map((tpl) => (
-            <option key={tpl.id} value={tpl.id}>
-              {tpl.name}
-            </option>
-          ))}
-        </Select>
+      {hideTemplatePicker ? null : (
+        <Field label={t("template")}>
+          <Select
+            value={draft.templateId ?? ""}
+            onChange={(e) =>
+              onChange(draftFromTemplate(templates.find((tpl) => tpl.id === e.target.value)))
+            }
+          >
+            <option value="">{t("noTemplate")}</option>
+            {templates.map((tpl) => (
+              <option key={tpl.id} value={tpl.id}>
+                {tpl.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      )}
+      <Field label={t("subject")} error={errors?.subject ? loose(tAll)(errors.subject) : undefined}>
+        <Input
+          value={draft.subject}
+          onChange={(e) => onChange({ ...draft, subject: e.target.value })}
+          maxLength={300}
+        />
       </Field>
-      <Field label={t("subject")} error={errors?.subject ? tAll(errors.subject as "emailComposer.errors.subject") : undefined}>
-        <Input value={draft.subject} onChange={(e) => onChange({ ...draft, subject: e.target.value })} maxLength={300} />
-      </Field>
-      <Field label={t("body")} error={errors?.body ? tAll(errors.body as "emailComposer.errors.body") : undefined}>
-        <Textarea ref={body} rows={9} value={draft.body} onChange={(e) => onChange({ ...draft, body: e.target.value })} />
+      <Field label={t("body")} error={errors?.body ? loose(tAll)(errors.body) : undefined}>
+        <Textarea
+          ref={body}
+          rows={9}
+          value={draft.body}
+          onChange={(e) => onChange({ ...draft, body: e.target.value })}
+        />
       </Field>
       <div className="-mt-2 flex flex-wrap items-center gap-1.5">
         <span className="mr-1 text-12 text-ink-muted">{t("variables")}</span>
@@ -96,7 +132,9 @@ export function EmailFields({
           </button>
         ))}
       </div>
-      {unknown.length > 0 ? <p className="text-13 text-warning">{t("unknown", { names: unknown.join(", ") })}</p> : null}
+      {unknown.length > 0 ? (
+        <p className="text-13 text-warning">{t("unknown", { names: unknown.join(", ") })}</p>
+      ) : null}
       {preview && (draft.subject || draft.body) ? (
         <div className="rounded-md border border-line bg-stone">
           <p className="border-b border-line px-3 py-2 text-12 text-ink-muted">
@@ -104,7 +142,9 @@ export function EmailFields({
           </p>
           <div className="px-3 py-2.5">
             <p className="text-14 font-medium">{renderTemplate(draft.subject, values)}</p>
-            <p className="mt-2 text-14 whitespace-pre-line text-ink">{renderTemplate(draft.body, values)}</p>
+            <p className="mt-2 text-14 whitespace-pre-line text-ink">
+              {renderTemplate(draft.body, values)}
+            </p>
           </div>
         </div>
       ) : null}

@@ -536,6 +536,60 @@
       "changePassword": "Changer le mot de passe",
       "passwordChanged": "Mot de passe changé",
       "wrongPassword": "Le mot de passe actuel est incorrect."
+    },
+    "emails": {
+      "title": "Emails",
+      "description": "Modèles utilisés pour écrire aux candidats, et journal des envois.",
+      "smtpMissing": "L'envoi d'emails n'est pas configuré",
+      "smtpMissingBody": "Les emails sont écrits dans le journal ci-dessous et dans les journaux du serveur au lieu d'être envoyés. Renseignez SMTP_URL ou SMTP_HOST pour les envoyer.",
+      "smtpOk": "Les emails partent par SMTP depuis {from}.",
+      "templates": "Modèles",
+      "create": "Créer un modèle",
+      "edit": "Modifier le modèle",
+      "createTitle": "Nouveau modèle",
+      "editTitle": "Modifier le modèle",
+      "name": "Nom du modèle",
+      "kind": "Usage",
+      "kinds": {
+        "confirmation": "Accusé de réception",
+        "rejection": "Refus",
+        "interview": "Entretien",
+        "other": "Autre"
+      },
+      "kindHint": "Les modèles de refus sont proposés lors d'un refus. L'accusé de réception part automatiquement après une candidature.",
+      "save": "Enregistrer le modèle",
+      "saved": "Modèle enregistré",
+      "delete": "Supprimer le modèle",
+      "deleted": "Modèle supprimé",
+      "deleteTitle": "Supprimer le modèle « {name} » ?",
+      "deleteBody": "Les emails déjà envoyés restent dans le journal.",
+      "none": "Aucun modèle",
+      "noneBody": "Créez un modèle pour écrire plus vite aux candidats.",
+      "sampleFirstName": "Marion",
+      "sampleLastName": "Lefort",
+      "sampleJob": "Développeur full-stack",
+      "journal": "Journal des envois",
+      "journalHint": "Les 100 derniers emails. Les liens de connexion n'y figurent jamais.",
+      "journalEmpty": "Aucun email pour l'instant.",
+      "status": {
+        "sent": "Envoyé",
+        "logged": "Journalisé",
+        "failed": "Échec"
+      },
+      "category": {
+        "candidate": "Candidat",
+        "team": "Équipe"
+      },
+      "to": "Destinataire",
+      "subject": "Objet",
+      "date": "Date",
+      "show": "Voir le message",
+      "by": "par {name}",
+      "errors": {
+        "name": "Saisissez un nom de modèle.",
+        "subject": "Saisissez un objet.",
+        "body": "Saisissez le message."
+      }
     }
   },
   "pipeline": {

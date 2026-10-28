@@ -11,6 +11,7 @@ import { db } from "@/lib/db";
 import { user, type Role } from "@/lib/db/schema";
 import { LOCALE_COOKIE } from "@/i18n/config";
 import { sanitizeRichText } from "@/lib/sanitize";
+import { deleteTemplate, saveTemplate } from "@/lib/services/emails";
 import { SlugTakenError, updateOrganization } from "@/lib/services/organizations";
 import { AlreadyMemberError, changeRole, inviteMember, LastAdminError, removeMember, revokeInvitation } from "@/lib/services/team";
 import { emailSchema, nameSchema, passwordSchema } from "@/lib/validation/auth";
@@ -109,3 +110,37 @@ export async function changePasswordAction(input: { currentPassword: string; new
   }
 }
 
+
+const templateSchema = z.object({
+  name: z.string().trim().min(1, "settings.emails.errors.name").max(80),
+  kind: z.enum(["confirmation", "rejection", "interview", "other"]),
+  subject: z.string().trim().min(1, "settings.emails.errors.subject").max(300),
+  body: z.string().trim().min(1, "settings.emails.errors.body").max(20_000),
+});
+
+export async function saveTemplateAction(
+  id: string | null,
+  input: { name: string; kind: string; subject: string; body: string },
+): Promise<ActionResult<{ id: string }>> {
+  const ctx = await requireContext();
+  const parsed = templateSchema.safeParse(input);
+  if (!parsed.success) return fail("form", fieldErrorsFrom(parsed.error.issues));
+  try {
+    const template = await saveTemplate(ctx, id, parsed.data);
+    revalidatePath("/settings/emails");
+    return ok({ id: template.id });
+  } catch (error) {
+    return failFrom(error);
+  }
+}
+
+export async function deleteTemplateAction(id: string): Promise<ActionResult> {
+  const ctx = await requireContext();
+  try {
+    await deleteTemplate(ctx, id);
+    revalidatePath("/settings/emails");
+    return ok();
+  } catch (error) {
+    return failFrom(error);
+  }
+}
