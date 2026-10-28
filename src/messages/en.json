@@ -493,7 +493,12 @@
         "color": "Enter a colour in #RRGGBB format, for example #2447D6.",
         "image": "The image must be a PNG, JPG, WEBP or SVG file within the allowed size.",
         "tooLong": "This text is too long."
-      }
+      },
+      "demoTitle": "Demo data",
+      "demoBody": "This company and its candidates are fictional. Delete them when you no longer need them. Also set SEED_DEMO to false, otherwise the demo is created again at the next start.",
+      "demoDelete": "Delete the demo",
+      "demoConfirmTitle": "Delete the demo?",
+      "demoConfirmBody": "The fictional company, its jobs, its candidates and the demo accounts will be deleted."
     },
     "team": {
       "title": "Team",

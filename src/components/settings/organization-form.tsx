@@ -4,7 +4,8 @@ import { ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRef, useState, useTransition } from "react";
-import { saveOrganizationAction } from "@/app/(app)/(backoffice)/settings/actions";
+import { deleteDemoAction, saveOrganizationAction } from "@/app/(app)/(backoffice)/settings/actions";
+import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Radio } from "@/components/ui/checkbox";
 import { Field, Fieldset } from "@/components/ui/field";
@@ -33,7 +34,9 @@ export function OrganizationForm({
   logoUrl,
   coverUrl,
   appUrl,
+  isDemo,
 }: {
+  isDemo: boolean;
   initial: Value;
   logoUrl: string | null;
   coverUrl: string | null;
@@ -46,6 +49,8 @@ export function OrganizationForm({
   const [value, setValue] = useState(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, start] = useTransition();
+  const [demoOpen, setDemoOpen] = useState(false);
+  const [deletingDemo, startDelete] = useTransition();
   const set = <K extends keyof Value>(key: K, v: Value[K]) => {
     setValue((prev) => ({ ...prev, [key]: v }));
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: "" }));
@@ -195,6 +200,39 @@ export function OrganizationForm({
           {tx("common.save")}
         </Button>
       </div>
+
+      {isDemo ? (
+        <SettingsSection title={t("demoTitle")}>
+          <p className="text-14">{t("demoBody")}</p>
+          <Button variant="danger" className="self-start" onClick={() => setDemoOpen(true)}>
+            {t("demoDelete")}
+          </Button>
+          <Dialog open={demoOpen} onOpenChange={setDemoOpen}>
+            <DialogContent width="sm" title={t("demoConfirmTitle")} closeLabel={tx("common.close")}>
+              <DialogBody>
+                <p className="text-14">{t("demoConfirmBody")}</p>
+              </DialogBody>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="ghost">{tx("common.cancel")}</Button>
+                </DialogClose>
+                <Button
+                  variant="danger"
+                  loading={deletingDemo}
+                  onClick={() =>
+                    startDelete(async () => {
+                      const result = await deleteDemoAction();
+                      if (result && !result.ok) toast({ message: tx(result.error), tone: "danger" });
+                    })
+                  }
+                >
+                  {t("demoDelete")}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </SettingsSection>
+      ) : null}
     </form>
   );
 }

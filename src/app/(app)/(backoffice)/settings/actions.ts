@@ -2,18 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies, headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { APIError } from "better-auth/api";
 import { fail, failFrom, fieldErrorsFrom, ok, type ActionResult } from "@/lib/actions";
 import { getAuth } from "@/lib/auth";
-import { requireContext } from "@/lib/context";
+import { ORG_COOKIE, requireContext } from "@/lib/context";
 import { db } from "@/lib/db";
 import { user, type Role } from "@/lib/db/schema";
 import { LOCALE_COOKIE } from "@/i18n/config";
 import { sanitizeRichText } from "@/lib/sanitize";
 import { deleteTemplate, saveTemplate } from "@/lib/services/emails";
 import { runRetentionForOrganization } from "@/lib/services/gdpr";
-import { SlugTakenError, updateOrganization } from "@/lib/services/organizations";
+import { deleteDemoOrganization, SlugTakenError, updateOrganization } from "@/lib/services/organizations";
 import { AlreadyMemberError, changeRole, inviteMember, LastAdminError, removeMember, revokeInvitation } from "@/lib/services/team";
 import { emailSchema, nameSchema, passwordSchema } from "@/lib/validation/auth";
 import { organizationSchema, type OrganizationInput } from "@/lib/validation/organization";
@@ -170,4 +171,15 @@ export async function runRetentionAction(): Promise<ActionResult<{ count: number
   } catch (error) {
     return failFrom(error);
   }
+}
+
+export async function deleteDemoAction(): Promise<ActionResult> {
+  const ctx = await requireContext();
+  try {
+    await deleteDemoOrganization(ctx);
+  } catch (error) {
+    return failFrom(error);
+  }
+  (await cookies()).delete(ORG_COOKIE);
+  redirect("/");
 }

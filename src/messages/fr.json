@@ -493,7 +493,12 @@
         "color": "Saisissez une couleur au format #RRGGBB, par exemple #2447D6.",
         "image": "L'image doit être un fichier PNG, JPG, WEBP ou SVG de taille autorisée.",
         "tooLong": "Ce texte est trop long."
-      }
+      },
+      "demoTitle": "Données de démonstration",
+      "demoBody": "Cette entreprise et ses candidats sont fictifs. Supprimez-les quand vous n'en avez plus besoin. Passez aussi SEED_DEMO à false, sinon la démo sera recréée au prochain démarrage.",
+      "demoDelete": "Supprimer la démo",
+      "demoConfirmTitle": "Supprimer la démo ?",
+      "demoConfirmBody": "L'entreprise fictive, ses offres, ses candidats et les comptes de démonstration seront supprimés."
     },
     "team": {
       "title": "Équipe",

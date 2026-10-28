@@ -1,6 +1,7 @@
 import { and, count, eq, ne } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db";
-import { emailTemplates, memberships, organizations, type Locale } from "@/lib/db/schema";
+import { emailTemplates, files, memberships, organizations, user, type Locale } from "@/lib/db/schema";
+import { storage } from "@/lib/storage";
 import { env } from "@/lib/env";
 import { assertCan } from "@/lib/permissions";
 import { defaultTemplates } from "./default-templates";
@@ -123,4 +124,26 @@ export async function homeDestination(): Promise<{ kind: "setup" } | { kind: "ca
   if (real.length === 1) return { kind: "careers", slug: real[0]!.slug };
   if (rows.length === 0) return { kind: "setup" };
   return { kind: "login" };
+}
+
+export class NotDemoError extends Error {
+  constructor() {
+    super("Only the demo organisation can be deleted this way");
+    this.name = "NotDemoError";
+  }
+}
+
+/** Removes the demo organisation, its files and the demo accounts that belong nowhere else. */
+export async function deleteDemoOrganization(ctx: Ctx) {
+  assertCan(ctx.role, "settings:organization");
+  const [org] = await db.select().from(organizations).where(eq(organizations.id, ctx.orgId));
+  if (!org?.isDemo) throw new NotDemoError();
+  const keys = (await db.select({ key: files.storageKey }).from(files).where(eq(files.organizationId, org.id))).map((f) => f.key);
+  for (const key of [...keys, org.logoKey, org.coverKey]) if (key) await storage().delete(key).catch(() => {});
+  const members = await db.select({ userId: memberships.userId }).from(memberships).where(eq(memberships.organizationId, org.id));
+  await db.delete(organizations).where(eq(organizations.id, org.id));
+  for (const { userId } of members) {
+    const [other] = await db.select({ id: memberships.id }).from(memberships).where(eq(memberships.userId, userId)).limit(1);
+    if (!other && userId.startsWith("demo_")) await db.delete(user).where(eq(user.id, userId));
+  }
 }

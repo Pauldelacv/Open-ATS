@@ -20,6 +20,7 @@ export default async function OrganizationSettingsPage() {
   return (
     <OrganizationForm
       appUrl={env().APP_URL}
+      isDemo={org.isDemo}
       logoUrl={org.logoKey ? mediaUrl(org.logoKey) : null}
       coverUrl={org.coverKey ? mediaUrl(org.coverKey) : null}
       initial={{

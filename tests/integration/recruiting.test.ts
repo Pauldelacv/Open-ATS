@@ -283,3 +283,22 @@ describe("GDPR", () => {
     expect(row!.email).toBeNull();
   });
 });
+
+describe("demo organisation", () => {
+  it("can be deleted with its demo accounts, and only if it is the demo", async () => {
+    const { deleteDemoOrganization, NotDemoError } = await import("@/lib/services/organizations");
+    const { organizations, memberships, user } = await import("@/lib/db/schema");
+    const real = await createTenant("Real");
+    await expect(deleteDemoOrganization(real)).rejects.toBeInstanceOf(NotDemoError);
+    const demoUser = `demo_admin_${Date.now()}`;
+    await db.insert(user).values({ id: demoUser, name: "Demo", email: `${demoUser}@open-ats.example` });
+    const [org] = await db.insert(organizations).values({ name: "Démo", slug: `demo-${Date.now()}`, isDemo: true }).returning();
+    await db.insert(memberships).values({ organizationId: org!.id, userId: demoUser, role: "admin" });
+    const job = await publishedJob({ orgId: org!.id, userId: demoUser, role: "admin" });
+    await apply({ orgId: org!.id, userId: demoUser, role: "admin" }, job.id, { firstName: "Fictif", lastName: "Candidat", email: "fictif@demo.test" });
+    await deleteDemoOrganization({ orgId: org!.id, userId: demoUser, role: "admin" });
+    expect(await db.select().from(organizations).where(eq(organizations.id, org!.id))).toHaveLength(0);
+    expect(await db.select().from(candidates).where(eq(candidates.organizationId, org!.id))).toHaveLength(0);
+    expect(await db.select().from(user).where(eq(user.id, demoUser))).toHaveLength(0);
+  });
+});
