@@ -530,6 +530,7 @@
     },
     "profile": {
       "title": "Profile",
+      "details": "Your details",
       "description": "Your personal information and preferences.",
       "name": "Name",
       "email": "Email address",

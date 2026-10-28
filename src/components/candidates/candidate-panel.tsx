@@ -263,6 +263,16 @@ export function CandidatePanel({
     });
 
   const name = detail ? `${detail.candidate.firstName} ${detail.candidate.lastName}` : "";
+  const shortcutsButton = (
+    <IconButton
+      label={t("shortcuts.open")}
+      hint="?"
+      onClick={() => setHelp(true)}
+      className="hidden md:inline-flex"
+    >
+      <Keyboard />
+    </IconButton>
+  );
 
   return (
     <aside
@@ -275,48 +285,54 @@ export function CandidatePanel({
         mode === "page" && "h-full rounded-md border border-line",
       )}
     >
-      <header className="shrink-0 border-b border-line px-4 pt-3 pb-3 md:px-5">
-        <div className="flex items-center gap-1">
-          {mode === "panel" ? (
-            <>
-              <IconButton
-                label={t("close")}
-                hint={<Kbd className="h-4 border-paper/30 bg-transparent text-paper">Esc</Kbd>}
-                onClick={onClose}
-              >
-                <X />
-              </IconButton>
-              <IconButton
-                label={t("previous")}
-                hint="K"
-                disabled={!prevId}
-                onClick={() => prevId && onNavigate(prevId)}
-              >
-                <ChevronUp />
-              </IconButton>
-              <IconButton
-                label={t("next")}
-                hint="J"
-                disabled={!nextId}
-                onClick={() => nextId && onNavigate(nextId)}
-              >
-                <ChevronDown />
-              </IconButton>
-              {index >= 0 ? (
-                <span className="ml-1 text-12 text-ink-muted tabular-nums">
-                  {t("position", { index: index + 1, total: orderedIds.length })}
-                </span>
-              ) : null}
-            </>
-          ) : null}
-          <span className="flex-1" />
-          <IconButton label={t("shortcuts.open")} hint="?" onClick={() => setHelp(true)}>
-            <Keyboard />
-          </IconButton>
-        </div>
+      <header
+        className={cn(
+          "shrink-0 border-b border-line px-4 pb-3 md:px-5",
+          mode === "panel" ? "pt-3" : "pt-4",
+        )}
+      >
+        {mode === "panel" ? (
+          <div className="flex items-center gap-1">
+            <IconButton
+              label={t("close")}
+              hint={<Kbd className="h-4 border-paper/30 bg-transparent text-paper">Esc</Kbd>}
+              onClick={onClose}
+            >
+              <X />
+            </IconButton>
+            <IconButton
+              label={t("previous")}
+              hint="K"
+              disabled={!prevId}
+              onClick={() => prevId && onNavigate(prevId)}
+            >
+              <ChevronUp />
+            </IconButton>
+            <IconButton
+              label={t("next")}
+              hint="J"
+              disabled={!nextId}
+              onClick={() => nextId && onNavigate(nextId)}
+            >
+              <ChevronDown />
+            </IconButton>
+            {index >= 0 ? (
+              <span className="ml-1 text-12 text-ink-muted tabular-nums">
+                {t("position", { index: index + 1, total: orderedIds.length })}
+              </span>
+            ) : null}
+            <span className="flex-1" />
+            {shortcutsButton}
+          </div>
+        ) : null}
 
         {detail ? (
-          <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div
+            className={cn(
+              "flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between",
+              mode === "panel" && "mt-2",
+            )}
+          >
             <div className="min-w-0">
               <h2 className="truncate text-20 font-semibold">{name}</h2>
               <p className="mt-0.5 flex flex-wrap gap-x-3 text-13 text-ink-muted">
@@ -398,6 +414,7 @@ export function CandidatePanel({
                   ) : null}
                 </DropdownMenuContent>
               </DropdownMenu>
+              {mode === "page" ? shortcutsButton : null}
             </div>
           </div>
         ) : error ? null : (

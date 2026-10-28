@@ -1,4 +1,6 @@
+import { ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { BrandBar, CareersContainer, CareersFooter } from "@/components/careers/chrome";
 import { getCareerOrganization } from "@/lib/careers";
@@ -17,6 +19,7 @@ export default async function PrivacyPage({ params }: PageProps<"/careers/[org]/
   const { org: slug } = await params;
   const org = (await getCareerOrganization(slug))!;
   const t = await getTranslations({ locale: org.locale, namespace: "careers.privacy" });
+  const tc = await getTranslations({ locale: org.locale, namespace: "careers" });
   const sections: Array<[string, string]> = [
     [t("controllerTitle"), t("controller", { company: org.name })],
     [t("dataTitle"), t("data")],
@@ -27,8 +30,15 @@ export default async function PrivacyPage({ params }: PageProps<"/careers/[org]/
     <>
       <BrandBar org={org} />
       <main className="flex-1">
-        <CareersContainer className="pt-8 md:pt-14">
-          <div className="max-w-[680px]">
+        <CareersContainer className="pt-5 md:pt-10">
+          <Link
+            href={`/careers/${org.slug}`}
+            className="inline-flex items-center gap-1 rounded-sm text-14 text-ink-muted hover:text-ink"
+          >
+            <ChevronLeft className="size-4" aria-hidden="true" />
+            {tc("job.back")}
+          </Link>
+          <div className="mt-4 max-w-[680px]">
             <h1 className="font-heading text-32 text-ink md:text-48">{t("title")}</h1>
             <p className="mt-4 text-16 text-ink-muted">{t("intro", { company: org.name })}</p>
             {sections.map(([title, body]) => (

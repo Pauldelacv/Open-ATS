@@ -127,36 +127,38 @@ export function TeamManager({
                 </p>
                 <p className="truncate text-13 text-ink-muted">{m.email}</p>
               </div>
-              <Select
-                aria-label={t("role", { name: m.name })}
-                value={m.role}
-                disabled={pending}
-                className="w-full sm:w-44"
-                onChange={(e) =>
-                  run(
-                    () => changeRoleAction(m.membershipId, e.target.value as Role),
-                    t("roleChanged"),
-                  )
-                }
-              >
-                {roles.map((r) => (
-                  <option key={r} value={r}>
-                    {tr(r)}
-                  </option>
-                ))}
-              </Select>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button aria-label={tx("common.more")} variant="ghost" className="w-8 px-0">
-                    <MoreHorizontal aria-hidden="true" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem tone="danger" onSelect={() => setRemoving(m)}>
-                    {t("remove")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex w-full items-center gap-2 sm:w-auto">
+                <Select
+                  aria-label={t("role", { name: m.name })}
+                  value={m.role}
+                  disabled={pending}
+                  className="min-w-0 flex-1 sm:w-44 sm:flex-none"
+                  onChange={(e) =>
+                    run(
+                      () => changeRoleAction(m.membershipId, e.target.value as Role),
+                      t("roleChanged"),
+                    )
+                  }
+                >
+                  {roles.map((r) => (
+                    <option key={r} value={r}>
+                      {tr(r)}
+                    </option>
+                  ))}
+                </Select>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button aria-label={tx("common.more")} variant="ghost" className="w-8 px-0">
+                      <MoreHorizontal aria-hidden="true" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem tone="danger" onSelect={() => setRemoving(m)}>
+                      {t("remove")}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </li>
           ))}
         </ul>
@@ -205,7 +207,7 @@ export function TeamManager({
         <h3 id="roles-title" className="text-14 font-semibold">
           {t("roles")}
         </h3>
-        <dl className="mt-2 grid gap-2 sm:grid-cols-3">
+        <dl className="mt-2 grid gap-x-6 gap-y-3 sm:grid-cols-3">
           {roles.map((r) => (
             <div key={r}>
               <dt className="text-13 font-medium">{tr(r)}</dt>
