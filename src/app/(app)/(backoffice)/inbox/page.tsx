@@ -1,0 +1,79 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
+import { PageContainer, PageHeader } from "@/components/app/page-header";
+import { Avatar } from "@/components/ui/avatar";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Mark } from "@/components/ui/mark";
+import { requireContext } from "@/lib/context";
+import { formatRelative } from "@/lib/format";
+import { noteSegments } from "@/lib/mentions";
+import { listTeamDirectory } from "@/lib/services/candidates";
+import { listMentions, markMentionsRead } from "@/lib/services/notifications";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("inbox");
+  return { title: t("title") };
+}
+
+export const dynamic = "force-dynamic";
+
+export default async function InboxPage() {
+  const ctx = await requireContext();
+  const t = await getTranslations("inbox");
+  const locale = await getLocale();
+  const [mentions, team] = await Promise.all([listMentions(ctx), listTeamDirectory(ctx)]);
+  const names = new Map(team.map((m) => [m.id, m.name]));
+  // The list keeps showing what was unread on this visit; next time it is read.
+  await markMentionsRead(ctx);
+  const now = new Date();
+
+  return (
+    <PageContainer>
+      <PageHeader title={t("title")} description={t("description")} />
+      <div className="mt-5 overflow-hidden rounded-md border border-line bg-paper">
+        {mentions.length === 0 ? (
+          <EmptyState title={t("empty")} description={t("emptyBody", { name: ctx.user.name.split(" ")[0] ?? "" })} />
+        ) : (
+          <ul className="divide-y divide-line">
+            {mentions.map((m) => {
+              const href = m.applicationId && m.jobId ? `/jobs/${m.jobId}?a=${m.applicationId}` : `/candidates/${m.candidateId}`;
+              return (
+                <li key={m.id} className="relative flex gap-3 px-4 py-3 hover:bg-stone">
+                  {m.readAt === null ? <span aria-hidden="true" className="absolute inset-y-2 left-0 w-[3px] rounded-r-xs bg-highlighter" /> : null}
+                  <Avatar name={m.authorName ?? "?"} size={32} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-14">
+                      <span className="font-medium">{m.authorName}</span>{" "}
+                      <Link href={href} className="text-ink after:absolute after:inset-0 after:content-[''] hover:underline">
+                        {t("about", { candidate: `${m.firstName} ${m.lastName}` })}
+                      </Link>
+                      {m.jobTitle ? <span className="text-ink-muted"> {t("on", { job: m.jobTitle })}</span> : null}
+                      {m.readAt === null ? <span className="sr-only"> ({t("unread")})</span> : null}
+                    </p>
+                    {m.body ? (
+                      <p className="mt-1 line-clamp-3 text-14 text-ink-muted">
+                        {noteSegments(m.body).map((s, i) =>
+                          s.type === "text" ? (
+                            <span key={i}>{s.text}</span>
+                          ) : s.userId === ctx.userId ? (
+                            <Mark key={i}>@{names.get(s.userId) ?? "?"}</Mark>
+                          ) : (
+                            <span key={i} className="font-medium text-ink">
+                              @{names.get(s.userId) ?? "?"}
+                            </span>
+                          ),
+                        )}
+                      </p>
+                    ) : null}
+                  </div>
+                  <time className="shrink-0 text-12 text-ink-muted tabular-nums">{formatRelative(m.createdAt, locale, now)}</time>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </PageContainer>
+  );
+}
