@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRef, useState, useTransition } from "react";
 import { saveOrganizationAction } from "@/app/(app)/(backoffice)/settings/actions";
-import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Radio } from "@/components/ui/checkbox";
 import { Field, Fieldset } from "@/components/ui/field";
