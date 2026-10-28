@@ -14,3 +14,4 @@ export const instrumentSerif = localFont({
   weight: "400",
   display: "swap",
 });
+

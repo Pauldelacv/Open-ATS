@@ -87,11 +87,6 @@ export default async function CareersHome({ params }: PageProps<"/careers/[org]"
                 {org.descriptionHtml ? (
                   <div className="rich-text mt-3" dangerouslySetInnerHTML={{ __html: org.descriptionHtml }} />
                 ) : null}
-                {org.websiteUrl ? (
-                  <a href={org.websiteUrl} target="_blank" rel="noopener" className="mt-4 inline-block text-16 font-medium text-brand-link underline underline-offset-2">
-                    {t("website")}
-                  </a>
-                ) : null}
               </aside>
             ) : null}
           </div>

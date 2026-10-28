@@ -227,3 +227,13 @@
   height: 0;
   pointer-events: none;
 }
+
+/* Back-office preview of the career site heading font (loaded only when used). */
+@font-face {
+  font-family: "Instrument Serif Preview";
+  src: url("/fonts/InstrumentSerif-Regular-latin.woff2") format("woff2");
+  font-display: swap;
+}
+.font-serif-preview {
+  font-family: "Instrument Serif Preview", ui-serif, Georgia, serif;
+}
