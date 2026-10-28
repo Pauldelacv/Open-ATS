@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { addTagAction, moveApplicationsAction, undoMoveAction } from "@/app/(app)/(backoffice)/jobs/[jobId]/actions";
+import { CandidatePanel } from "@/components/candidates/candidate-panel";
 import { EmailComposer } from "@/components/candidates/email-composer";
 import type { Recipient, TemplateOption } from "@/components/candidates/email-fields";
 import { RejectDialog } from "@/components/candidates/reject-dialog";
@@ -516,6 +517,46 @@ export function PipelineView({
         ) : null}
       </div>
 
+      {openId ? (
+        <CandidatePanel
+          key={openId}
+          applicationId={openId}
+          orderedIds={orderedIds}
+          stages={stages}
+          onNavigate={(id) => open(id)}
+          onClose={() => open(null)}
+          onChanged={onPanelChange}
+          onMoved={(id, stageId) => {
+            setColumns((prev) => {
+              const next: Columns = Object.fromEntries(Object.entries(prev).map(([s, list]) => [s, list.filter((x) => x !== id)]));
+              next[stageId] = [id, ...next[stageId]!];
+              return next;
+            });
+            setCards((prev) => {
+              const next = new Map(prev);
+              const card = next.get(id);
+              if (card) next.set(id, { ...card, stageId, rejected: stageById.get(stageId)?.kind === "rejected" });
+              return next;
+            });
+          }}
+          onViewed={(id) =>
+            setCards((prev) => {
+              const card = prev.get(id);
+              if (!card?.isNew) return prev;
+              const next = new Map(prev);
+              next.set(id, { ...card, isNew: false });
+              return next;
+            })
+          }
+          onReject={(id) => setRejectIds([id])}
+          onEmail={(id) => setEmailIds([id])}
+          templates={templates}
+          companyName={companyName}
+          recruiterName={recruiterName}
+          permissions={permissions}
+          meId={meId}
+        />
+      ) : null}
 
       {rejectIds ? (
         <RejectDialog
