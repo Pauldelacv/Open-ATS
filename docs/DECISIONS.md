@@ -5,22 +5,22 @@ what was chosen and why, so it can be revisited.
 
 ## Stack and versions (checked on 2026-10-28)
 
-| Library | Version | Note |
-|---|---|---|
-| Next.js | 16.4 | App Router, Turbopack builds, `proxy.ts` instead of middleware, async request APIs. |
-| React | 19.3 | |
-| TypeScript | 6.0 | TypeScript 7 (native compiler) is out, but `typescript-eslint` supports `<6.1` only. |
-| Better Auth | 1.7 | Email + password, `magicLink` plugin, Drizzle adapter, `nextCookies`. |
-| Drizzle ORM / Kit | 0.45 / 0.31 | 1.0 is still a release candidate; the stable line is used. |
-| postgres (postgres.js) | 3.4 | Driver used by Drizzle and by the migrator. |
-| Tailwind CSS | 4.3 | CSS-first `@theme`; default palette disabled. |
-| next-intl | 4.14 | Used without i18n routing. |
-| dnd-kit | core 6.3 / sortable 10 | `@dnd-kit/react` is still 0.x; the stable packages have a keyboard sensor. |
-| TipTap | 3.32 | `immediatelyRender: false` for SSR. |
-| Zod | 4.6 | Shared schemas between client and server. |
-| Vitest | 5.0 | Unit and database integration tests. |
-| Playwright | 1.63 | Pinned to the version of the browsers installed in the build environment. |
-| Radix UI | 1.x (`radix-ui`) | Behaviour primitives only, styled from scratch. |
+| Library                | Version                | Note                                                                                 |
+| ---------------------- | ---------------------- | ------------------------------------------------------------------------------------ |
+| Next.js                | 16.4                   | App Router, Turbopack builds, `proxy.ts` instead of middleware, async request APIs.  |
+| React                  | 19.3                   |                                                                                      |
+| TypeScript             | 6.0                    | TypeScript 7 (native compiler) is out, but `typescript-eslint` supports `<6.1` only. |
+| Better Auth            | 1.7                    | Email + password, `magicLink` plugin, Drizzle adapter, `nextCookies`.                |
+| Drizzle ORM / Kit      | 0.45 / 0.31            | 1.0 is still a release candidate; the stable line is used.                           |
+| postgres (postgres.js) | 3.4                    | Driver used by Drizzle and by the migrator.                                          |
+| Tailwind CSS           | 4.3                    | CSS-first `@theme`; default palette disabled.                                        |
+| next-intl              | 4.14                   | Used without i18n routing.                                                           |
+| dnd-kit                | core 6.3 / sortable 10 | `@dnd-kit/react` is still 0.x; the stable packages have a keyboard sensor.           |
+| TipTap                 | 3.32                   | `immediatelyRender: false` for SSR.                                                  |
+| Zod                    | 4.6                    | Shared schemas between client and server.                                            |
+| Vitest                 | 5.0                    | Unit and database integration tests.                                                 |
+| Playwright             | 1.63                   | Pinned to the version of the browsers installed in the build environment.            |
+| Radix UI               | 1.x (`radix-ui`)       | Behaviour primitives only, styled from scratch.                                      |
 
 ## Architecture
 
@@ -91,6 +91,64 @@ what was chosen and why, so it can be revisited.
   without SMTP they only appear in the server log.
 - Templates accept French and English variable names (`{{prénom}}` / `{{first_name}}`, …).
 
+## Later decisions
+
+- **Selection checkbox on kanban cards** appears on hover, on keyboard focus, or as soon as one
+  card is selected. A permanent checkbox on 40 cards was the noisiest element of the board.
+- **Highlighter rule**: one kind of thing per screen. On the board, new applications get a 3 px
+  yellow edge and the column header says « N nouveaux » once; the yellow is not repeated on
+  badges or counters of the same screen.
+- **Rejected column** is collapsed by default and opens on demand: rejected applications stay
+  reachable without taking a full column of the board.
+- **Members' permissions**: read, comment and evaluate on assigned jobs only; no move, reject,
+  email, export or delete. Enforced in services, not only hidden in the interface.
+- **Demo deletion**: an admin can delete the demo organisation, its candidates and the demo
+  accounts from the company settings. The seed recreates the demo at the next start while
+  `SEED_DEMO=true`, and the settings page says so; turning the variable off is the user's call.
+- **Screenshots for reviews are taken from a production build** (`next build && next start`).
+  The dev server compiles routes on first visit and added noise (layout shifts, slow fonts).
+- **Lighthouse (mobile, production build)**: career home 100 / 100 / 100 / 100, job page
+  98 / 100 / 100 / 100 (performance / accessibility / best practices / SEO) for an indexable
+  organisation. The demo organisation is `noindex` on purpose, so its SEO score is lower.
+- **`npm audit`** reports a moderate advisory in `esbuild`, pulled by `drizzle-kit` (development
+  only, used to generate migrations). It is not shipped in the Docker image; left as is until
+  `drizzle-kit` updates it.
+- **Prettier** formats the whole code base and `npm run format:check` runs in CI.
+
 ## Design reviews
 
-(Filled in screen by screen.)
+Each screen was captured at 1440 px and 390 px and read against `DESIGN.md` §7. Findings that
+changed the design document itself are marked « DESIGN.md ».
+
+### During the build
+
+- **Design system (`/design`)**: focused fields turn the border cobalt with a 1 px outline, a
+  2 px frame that stays visible next to the 1 px borders around it (DESIGN.md). The rating
+  input is a row of 24 px numbered circles, readable at a glance and matching the 1–5 keys
+  (DESIGN.md).
+- **Forms**: most fields are required, so optional ones are marked « (facultatif) » and long
+  forms start with one sentence saying the rest is required (DESIGN.md).
+- **Pipeline**: the highlighter is reserved for one kind of thing per screen (rule above) so it
+  keeps its meaning (DESIGN.md). The card checkbox shows on hover, focus or while a selection
+  exists (DESIGN.md).
+- **Career site**: the consent sentence produced « que Atelier … » with some company names;
+  rewritten as « J'accepte que mes données soient utilisées par {company} … ».
+- **Candidate panel**: the CV is drawn with pdf.js on a paper sheet rather than embedded, so
+  every page shows the same way in every browser, including iPad Safari.
+
+### Final pass
+
+| Screen              | Finding                                                                                                               | Change                                                                                                   |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Job list            | Conforms. Dense rows, counts in tabular figures, « N nouveaux » once per row.                                         | None                                                                                                     |
+| Job editor          | Conforms. Optional fields marked, actions in a sticky footer.                                                         | None                                                                                                     |
+| Pipeline            | Conforms at 1440. At 390 the header actions wrap on two lines; acceptable since the board targets tablet and desktop. | None                                                                                                     |
+| Candidate panel     | Conforms.                                                                                                             | None                                                                                                     |
+| Candidate page      | The shortcuts button sat alone on an empty first row above the name.                                                  | Moved into the action row; hidden on phones, where there is no keyboard.                                 |
+| Candidate page, 390 | The tab list overflowed the card.                                                                                     | Tabs scroll horizontally; the underline is now an inset line so nothing is clipped.                      |
+| Team settings       | The three role descriptions ran into each other. At 390 the « … » menu fell on its own line.                          | Wider column gap; role select and menu share one row.                                                    |
+| Profile settings    | Page title and first section were both « Profil ».                                                                    | Section renamed « Vos informations ».                                                                    |
+| Career site, 390    | « 5 postes ouverts » and « 5 offres » said the same thing one line apart.                                             | The result count appears only once a filter is active.                                                   |
+| Privacy page        | No way back to the offers except the logo.                                                                            | « Toutes les offres » link, as on the job page.                                                          |
+| 404                 | « Erreur 404 » small label above the title: an eyebrow label, close to what §6 forbids.                               | Removed (the decorative element removed before validation).                                              |
+| `/design`           | Kanban cards were not shown.                                                                                          | New section with every card state: rest, new, rated, selection mode, selected, open, rejected, dragging. |

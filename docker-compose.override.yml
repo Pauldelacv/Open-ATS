@@ -1,0 +1,8 @@
+# Local try-out layer, loaded automatically by `docker compose up`.
+# Coolify passes its compose file explicitly and does not load this file.
+services:
+  app:
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      SEED_DEMO: ${SEED_DEMO:-true}
