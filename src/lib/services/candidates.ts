@@ -14,7 +14,7 @@ import {
   pipelineStages,
   user,
 } from "@/lib/db/schema";
-import { appUrl } from "@/lib/env";
+import { appUrl, imapConfigured } from "@/lib/env";
 import { serverTranslator } from "@/i18n/server";
 import { deliver, textToHtml } from "@/lib/mail";
 import { mentionedIds, plainNote } from "@/lib/mentions";
@@ -75,7 +75,13 @@ export async function listCvFiles(ctx: Ctx, candidateId: string) {
       applicationId: files.applicationId,
     })
     .from(files)
-    .where(and(eq(files.candidateId, candidateId), eq(files.organizationId, ctx.orgId)))
+    .where(
+      and(
+        eq(files.candidateId, candidateId),
+        eq(files.organizationId, ctx.orgId),
+        eq(files.kind, "cv"),
+      ),
+    )
     .orderBy(desc(files.createdAt));
 }
 
@@ -216,6 +222,8 @@ export async function getApplicationDetail(ctx: Ctx, applicationId: string) {
     emails,
     otherApplications: otherApplications.filter((a) => a.id !== applicationId),
     team,
+    // Candidates' replies come back into Open ATS only when the shared mailbox is configured.
+    repliesEnabled: imapConfigured(),
   };
 }
 

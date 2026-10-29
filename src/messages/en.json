@@ -151,6 +151,10 @@
     "mention": {
       "subject": "{author} mentioned you about {candidate}",
       "body": "Hello,\n\n{author} mentioned you in a note about {candidate}:\n\n“{excerpt}”\n\nOpen the profile: {url}"
+    },
+    "reply": {
+      "subject": "{candidate} replied",
+      "body": "{candidate} replied:\n\n{excerpt}\n\nRead the conversation: {url}"
     }
   },
   "defaults": {
@@ -167,7 +171,7 @@
     "main": "Main navigation",
     "jobs": "Jobs",
     "candidates": "Talent pool",
-    "inbox": "Mentions",
+    "inbox": "Notifications",
     "settings": "Settings",
     "search": "Search",
     "openMenu": "Open menu",
@@ -175,7 +179,7 @@
     "profile": "Profile and preferences",
     "account": "Account",
     "switchOrganization": "Switch company",
-    "unread": "{count, plural, one {# unread mention} other {# unread mentions}}"
+    "unread": "{count, plural, one {# unread notification} other {# unread notifications}}"
   },
   "palette": {
     "title": "Command palette",
@@ -606,6 +610,16 @@
         "name": "Enter a template name.",
         "subject": "Enter a subject.",
         "body": "Enter the message."
+      },
+      "mailbox": {
+        "off": "Candidates' replies",
+        "offBody": "Replies reach the inbox of the person who sent the email. To read them in the candidate profile, set up a shared mailbox with the IMAP variables (see docs/DEPLOY.md).",
+        "on": "Candidates' replies arrive in {address}. Last check {when}, {count, plural, =0 {no reply filed} one {# reply filed} other {# replies filed}} so far.",
+        "onPending": "Candidates' replies arrive in {address}. First check in a moment.",
+        "error": "The {address} mailbox could not be read",
+        "errorBody": "Error: {error}. Check IMAP_HOST, IMAP_PORT, IMAP_USER and IMAP_PASSWORD.",
+        "check": "Check now",
+        "checked": "{count, plural, =0 {Mailbox checked, no new reply} one {Mailbox checked, # reply filed} other {Mailbox checked, # replies filed}}"
       }
     },
     "privacy": {
@@ -725,7 +739,8 @@
       "submit": "Add the candidate",
       "added": "Candidate added",
       "exists": "This candidate has already applied for this job."
-    }
+    },
+    "unreadReplies": "{count, plural, one {# reply} other {# replies}}"
   },
   "reject": {
     "title": "{count, plural, one {Reject the candidate} other {Reject # candidates}}",
@@ -802,7 +817,8 @@
       "application": "Application",
       "notes": "Notes",
       "evaluations": "Evaluations",
-      "activity": "History"
+      "activity": "History",
+      "conversation": "Emails"
     },
     "application": {
       "applied": "Application",
@@ -871,7 +887,8 @@
         "tag_removed": "{actor} removed the tag {tag}",
         "cv_added": "CV added",
         "exported": "{actor} exported the data",
-        "anonymized": "Data anonymised"
+        "anonymized": "Data anonymised",
+        "email_received": "Email received: {subject}"
       },
       "system": "Open ATS",
       "emailLogged": "logged",
@@ -900,7 +917,30 @@
       "palette": "Search a candidate or a job",
       "select": "Select the card (pipeline)"
     },
-    "rated": "Rating saved: {value} out of 5"
+    "rated": "Rating saved: {value} out of 5",
+    "conversation": {
+      "empty": "No emails with {name} yet.",
+      "emptyHint": "Emails sent from Open ATS and {name}'s replies will show here.",
+      "unread": "Unread",
+      "unreadCount": "{count, plural, one {# unread reply} other {# unread replies}}",
+      "you": "You",
+      "to": "to {email}",
+      "logged": "logged, not sent",
+      "failed": "sending failed",
+      "showQuoted": "Show quoted text",
+      "hideQuoted": "Hide quoted text",
+      "attachments": "Attachments",
+      "reply": "Reply",
+      "replySubject": "Subject",
+      "replyBody": "Message",
+      "sendReply": "Send reply",
+      "replySent": "Reply sent",
+      "replyLogged": "Reply logged (SMTP not configured)",
+      "repliesOff": "Candidates' replies reach the inbox of the person who sent the email. To read them here, set up a shared mailbox (IMAP variables).",
+      "automatic": "Automatic email",
+      "unfold": "Show the whole message",
+      "fold": "Collapse"
+    }
   },
   "gdpr": {
     "anonymousFirstName": "Anonymised",
@@ -951,14 +991,16 @@
     "choose": "Application shown"
   },
   "inbox": {
-    "title": "Mentions",
-    "description": "Notes in which a colleague mentioned you.",
-    "empty": "No mentions",
-    "emptyBody": "When a colleague writes @{name} in a note, it appears here and you receive an email.",
+    "title": "Notifications",
+    "description": "Mentions in notes and candidates' replies.",
+    "empty": "No notifications",
+    "emptyBody": "When a colleague writes @{name} in a note, or a candidate replies to one of your emails, it shows here and you receive an email.",
     "unread": "Unread",
     "about": "about {candidate}",
     "on": "for {job}",
-    "open": "Open the profile"
+    "open": "Open the profile",
+    "mention": "{author} mentioned you about {candidate}",
+    "reply": "{candidate} replied"
   },
   "distribution": {
     "title": "Distribution",

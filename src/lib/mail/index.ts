@@ -8,7 +8,16 @@ export type OutgoingMail = {
   html?: string;
   replyTo?: string;
   fromName?: string;
+  /** Message-ID without brackets; replies quote it, which is how they are matched. */
+  messageId?: string;
+  /** Message-ID of the message answered, to keep the thread in the recipient's client. */
+  inReplyTo?: string;
 };
+
+/** A Message-ID of ours: the row id at the public host name. */
+export function messageIdFor(id: string): string {
+  return `${id}@${new URL(env().APP_URL).hostname}`;
+}
 
 export type DeliveryResult = { status: "sent" | "logged" | "failed"; error?: string };
 
@@ -62,6 +71,9 @@ export async function deliver(mail: OutgoingMail): Promise<DeliveryResult> {
       text: mail.text,
       html: mail.html,
       replyTo: mail.replyTo,
+      messageId: mail.messageId ? `<${mail.messageId}>` : undefined,
+      inReplyTo: mail.inReplyTo ? `<${mail.inReplyTo}>` : undefined,
+      references: mail.inReplyTo ? [`<${mail.inReplyTo}>`] : undefined,
     });
     return { status: "sent" };
   } catch (error) {

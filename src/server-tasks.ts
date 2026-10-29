@@ -29,6 +29,11 @@ export async function startServerTasks() {
     }
   }
 
+  if (e.NODE_ENV !== "test") {
+    const { scheduleMailbox } = await import("@/lib/mail/imap");
+    scheduleMailbox();
+  }
+
   if (e.RETENTION_JOB && e.NODE_ENV !== "test") {
     const { scheduleRetention } = await import("@/lib/services/gdpr-schedule");
     scheduleRetention();

@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  AtSign,
+  Bell,
   Briefcase,
   ExternalLink,
   LogOut,
@@ -35,7 +35,7 @@ import { useCommandPalette } from "./command-palette-context";
 export type SidebarProps = {
   organization: { name: string; slug: string; logoUrl: string | null };
   user: { name: string; email: string };
-  unreadMentions: number;
+  unreadNotifications: number;
   canSeeSettings: boolean;
 };
 
@@ -99,7 +99,7 @@ function SidebarContent({
   const items: NavItem[] = [
     { href: "/jobs", label: t("jobs"), icon: Briefcase },
     { href: "/candidates", label: t("candidates"), icon: Users },
-    { href: "/inbox", label: t("inbox"), icon: AtSign, badge: props.unreadMentions },
+    { href: "/inbox", label: t("inbox"), icon: Bell, badge: props.unreadNotifications },
     {
       href: props.canSeeSettings ? "/settings" : "/settings/profile",
       label: t("settings"),

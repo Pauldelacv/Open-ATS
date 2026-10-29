@@ -51,6 +51,12 @@ export function CardBody({ card }: { card: BoardCard }) {
           <span>{t("evaluations", { count: card.evaluationCount })}</span>
         ) : null}
         {!card.hasCv ? <span>{t("noCv")}</span> : null}
+        {card.unreadReplies > 0 ? (
+          <span className="inline-flex items-center gap-1 font-medium text-cobalt">
+            <span aria-hidden="true" className="size-1.5 rounded-full bg-cobalt" />
+            {t("unreadReplies", { count: card.unreadReplies })}
+          </span>
+        ) : null}
       </span>
       {card.tags.length > 0 ? (
         <span className="mt-2 flex flex-wrap gap-1">

@@ -3,13 +3,13 @@ import { CommandPaletteProvider } from "@/components/app/command-palette-context
 import { CommandPalette } from "@/components/app/command-palette";
 import { requireContext } from "@/lib/context";
 import { can } from "@/lib/permissions";
-import { unreadMentionCount } from "@/lib/services/notifications";
+import { unreadNotificationCount } from "@/lib/services/notifications";
 import { getOrganization } from "@/lib/services/organizations";
 import { mediaUrl } from "@/lib/media";
 
 export default async function BackOfficeLayout({ children }: { children: React.ReactNode }) {
   const ctx = await requireContext();
-  const [org, unread] = await Promise.all([getOrganization(ctx), unreadMentionCount(ctx)]);
+  const [org, unread] = await Promise.all([getOrganization(ctx), unreadNotificationCount(ctx)]);
   return (
     <CommandPaletteProvider>
       <div className="flex min-h-dvh flex-col md:flex-row">
@@ -20,7 +20,7 @@ export default async function BackOfficeLayout({ children }: { children: React.R
             logoUrl: org.logoKey ? mediaUrl(org.logoKey) : null,
           }}
           user={{ name: ctx.user.name, email: ctx.user.email }}
-          unreadMentions={unread}
+          unreadNotifications={unread}
           canSeeSettings={can(ctx.role, "settings:organization")}
         />
         <div className="min-w-0 flex-1">{children}</div>

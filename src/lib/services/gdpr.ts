@@ -218,14 +218,18 @@ export async function exportCandidate(ctx: Ctx, candidateId: string) {
       .where(eq(candidateTags.candidateId, candidateId)),
     db
       .select({
+        direction: emailMessages.direction,
+        from: emailMessages.fromEmail,
         to: emailMessages.toEmail,
         subject: emailMessages.subject,
-        body: emailMessages.body,
+        body: sql<string>`coalesce(${emailMessages.fullBody}, ${emailMessages.body})`,
         status: emailMessages.status,
         createdAt: emailMessages.createdAt,
       })
       .from(emailMessages)
-      .where(eq(emailMessages.candidateId, candidateId))
+      .where(
+        and(eq(emailMessages.candidateId, candidateId), eq(emailMessages.category, "candidate")),
+      )
       .orderBy(asc(emailMessages.createdAt)),
     db
       .select({ type: activities.type, data: activities.data, createdAt: activities.createdAt })

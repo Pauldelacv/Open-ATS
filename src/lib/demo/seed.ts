@@ -23,6 +23,7 @@ import {
   user,
   type ApplicationAnswer,
 } from "@/lib/db/schema";
+import { messageIdFor } from "@/lib/mail";
 import { storage } from "@/lib/storage";
 import { defaultChannelRows } from "@/lib/services/default-channels";
 import { defaultEmailTemplates } from "@/lib/services/organizations";
@@ -33,7 +34,15 @@ import { renderTemplate } from "@/lib/services/template-render";
 import { shortId, slugify } from "@/lib/utils/text";
 import { renderCvPdf } from "./cv";
 import { DEMO_ORG_SLUG, DEMO_PASSWORD } from "./constants";
-import { demoCompany, demoJobs, demoPeople, demoProfiles, demoTags, demoUsers } from "./data";
+import {
+  demoCompany,
+  demoJobs,
+  demoPeople,
+  demoProfiles,
+  demoReplies,
+  demoTags,
+  demoUsers,
+} from "./data";
 
 const DAY = 24 * 3600 * 1000;
 
@@ -557,18 +566,70 @@ export async function seedDemo(): Promise<{ created: boolean }> {
       });
     }
     if (entry.stage === "interview" || entry.stage === "offer" || entry.stage === "hired") {
+      const reply = demoReplies[entry.person];
+      const interviewEmailId = crypto.randomUUID();
+      const interviewMessageId = messageIdFor(interviewEmailId);
+      const interviewSubject = renderTemplate(interview.subject, values);
+      const sender = users[reply?.sender ?? "recruiter"]!;
       await db.insert(emailMessages).values({
+        id: interviewEmailId,
+        messageId: interviewMessageId,
         organizationId: orgId,
         candidateId,
         applicationId,
         templateId: interview.id,
         toEmail: email,
-        subject: renderTemplate(interview.subject, values),
+        subject: interviewSubject,
         body: renderTemplate(interview.body, values),
         status: "logged",
-        sentById: users.recruiter,
+        sentById: sender,
         createdAt: stageMovedAt,
       });
+      if (reply) {
+        const receivedAt = new Date(
+          Math.min(stageMovedAt.getTime() + 20 * 3600_000, now - 2 * 3600_000),
+        );
+        const [received] = await db
+          .insert(emailMessages)
+          .values({
+            organizationId: orgId,
+            category: "candidate",
+            direction: "inbound",
+            candidateId,
+            applicationId,
+            toEmail: "recrutement@maison-pivert.example",
+            fromEmail: email,
+            fromName: `${firstName} ${lastName}`,
+            subject: `Re: ${interviewSubject}`,
+            body: reply.body,
+            status: "received",
+            messageId: `${shortId(12)}@candidat.example`,
+            inReplyTo: interviewMessageId,
+            readAt: reply.read ? new Date(receivedAt.getTime() + 3600_000) : null,
+            createdAt: receivedAt,
+          })
+          .returning({ id: emailMessages.id });
+        history.push({
+          organizationId: orgId,
+          candidateId,
+          applicationId,
+          jobId: job.id,
+          type: "email_received",
+          data: { subject: `Re: ${interviewSubject}` },
+          createdAt: receivedAt,
+        });
+        if (!reply.read) {
+          await db.insert(notifications).values({
+            organizationId: orgId,
+            userId: sender,
+            type: "reply",
+            emailMessageId: received!.id,
+            candidateId,
+            applicationId,
+            createdAt: receivedAt,
+          });
+        }
+      }
       history.push({
         organizationId: orgId,
         candidateId,
@@ -576,7 +637,7 @@ export async function seedDemo(): Promise<{ created: boolean }> {
         jobId: job.id,
         actorId: users.recruiter,
         type: "email_sent",
-        data: { subject: renderTemplate(interview.subject, values), status: "logged" },
+        data: { subject: interviewSubject, status: "logged" },
         createdAt: stageMovedAt,
       });
       // Evaluations: the recruiter and the hiring manager have given theirs; the demo admin not always.

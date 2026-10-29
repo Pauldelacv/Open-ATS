@@ -15,6 +15,13 @@
       "when": 1793255081600,
       "tag": "0001_distribution",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793255850632,
+      "tag": "0002_candidate_replies",
+      "breakpoints": true
     }
   ]
 }

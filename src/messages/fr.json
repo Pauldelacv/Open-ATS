@@ -151,6 +151,10 @@
     "mention": {
       "subject": "{author} vous a mentionné à propos de {candidate}",
       "body": "Bonjour,\n\n{author} vous a mentionné dans une note sur {candidate} :\n\n« {excerpt} »\n\nVoir la fiche : {url}"
+    },
+    "reply": {
+      "subject": "{candidate} a répondu",
+      "body": "{candidate} a répondu :\n\n{excerpt}\n\nLire la conversation : {url}"
     }
   },
   "defaults": {
@@ -167,7 +171,7 @@
     "main": "Navigation principale",
     "jobs": "Offres",
     "candidates": "Vivier",
-    "inbox": "Mentions",
+    "inbox": "Notifications",
     "settings": "Paramètres",
     "search": "Rechercher",
     "openMenu": "Ouvrir le menu",
@@ -175,7 +179,7 @@
     "profile": "Profil et préférences",
     "account": "Compte",
     "switchOrganization": "Changer d'entreprise",
-    "unread": "{count, plural, one {# mention non lue} other {# mentions non lues}}"
+    "unread": "{count, plural, one {# notification non lue} other {# notifications non lues}}"
   },
   "palette": {
     "title": "Palette de commandes",
@@ -606,6 +610,16 @@
         "name": "Saisissez un nom de modèle.",
         "subject": "Saisissez un objet.",
         "body": "Saisissez le message."
+      },
+      "mailbox": {
+        "off": "Réponses des candidats",
+        "offBody": "Les réponses arrivent dans la boîte de la personne qui a envoyé l'email. Pour les lire dans la fiche du candidat, configurez une boîte partagée avec les variables IMAP (voir docs/DEPLOY.md).",
+        "on": "Les réponses des candidats arrivent dans {address}. Dernière vérification {when}, {count, plural, =0 {aucune réponse classée} one {# réponse classée} other {# réponses classées}} au total.",
+        "onPending": "Les réponses des candidats arrivent dans {address}. Première vérification dans quelques instants.",
+        "error": "La boîte {address} n'a pas pu être lue",
+        "errorBody": "Erreur : {error}. Vérifiez IMAP_HOST, IMAP_PORT, IMAP_USER et IMAP_PASSWORD.",
+        "check": "Vérifier maintenant",
+        "checked": "{count, plural, =0 {Boîte vérifiée, aucune nouvelle réponse} one {Boîte vérifiée, # réponse classée} other {Boîte vérifiée, # réponses classées}}"
       }
     },
     "privacy": {
@@ -725,7 +739,8 @@
       "submit": "Ajouter le candidat",
       "added": "Candidat ajouté",
       "exists": "Ce candidat a déjà postulé à cette offre."
-    }
+    },
+    "unreadReplies": "{count, plural, one {# réponse} other {# réponses}}"
   },
   "reject": {
     "title": "{count, plural, one {Refuser le candidat} other {Refuser # candidats}}",
@@ -802,7 +817,8 @@
       "application": "Candidature",
       "notes": "Notes",
       "evaluations": "Évaluations",
-      "activity": "Historique"
+      "activity": "Historique",
+      "conversation": "Échanges"
     },
     "application": {
       "applied": "Candidature",
@@ -871,7 +887,8 @@
         "tag_removed": "{actor} a retiré le tag {tag}",
         "cv_added": "CV ajouté",
         "exported": "{actor} a exporté les données",
-        "anonymized": "Données anonymisées"
+        "anonymized": "Données anonymisées",
+        "email_received": "Email reçu : {subject}"
       },
       "system": "Open ATS",
       "emailLogged": "journalisé",
@@ -900,7 +917,30 @@
       "palette": "Rechercher un candidat ou une offre",
       "select": "Sélectionner la carte (pipeline)"
     },
-    "rated": "Note enregistrée : {value} sur 5"
+    "rated": "Note enregistrée : {value} sur 5",
+    "conversation": {
+      "empty": "Aucun échange avec {name} pour l'instant.",
+      "emptyHint": "Les emails envoyés depuis Open ATS et les réponses de {name} s'afficheront ici.",
+      "unread": "Non lu",
+      "unreadCount": "{count, plural, one {# réponse non lue} other {# réponses non lues}}",
+      "you": "Vous",
+      "to": "à {email}",
+      "logged": "journalisé, non envoyé",
+      "failed": "échec de l'envoi",
+      "showQuoted": "Afficher le texte cité",
+      "hideQuoted": "Masquer le texte cité",
+      "attachments": "Pièces jointes",
+      "reply": "Répondre",
+      "replySubject": "Objet",
+      "replyBody": "Message",
+      "sendReply": "Envoyer la réponse",
+      "replySent": "Réponse envoyée",
+      "replyLogged": "Réponse journalisée (SMTP non configuré)",
+      "repliesOff": "Les réponses des candidats arrivent dans la boîte de la personne qui a envoyé l'email. Pour les lire ici, configurez une boîte partagée (variables IMAP).",
+      "automatic": "Envoi automatique",
+      "unfold": "Afficher tout le message",
+      "fold": "Réduire"
+    }
   },
   "gdpr": {
     "anonymousFirstName": "Candidat",
@@ -951,14 +991,16 @@
     "choose": "Candidature affichée"
   },
   "inbox": {
-    "title": "Mentions",
-    "description": "Les notes où un collègue vous a mentionné.",
-    "empty": "Aucune mention",
-    "emptyBody": "Quand un collègue écrit @{name} dans une note, elle apparaît ici et vous recevez un email.",
+    "title": "Notifications",
+    "description": "Les mentions dans les notes et les réponses des candidats.",
+    "empty": "Aucune notification",
+    "emptyBody": "Quand un collègue écrit @{name} dans une note, ou qu'un candidat répond à un de vos emails, cela apparaît ici et vous recevez un email.",
     "unread": "Non lue",
     "about": "à propos de {candidate}",
     "on": "pour {job}",
-    "open": "Ouvrir la fiche"
+    "open": "Ouvrir la fiche",
+    "mention": "{author} vous a mentionné à propos de {candidate}",
+    "reply": "{candidate} a répondu"
   },
   "distribution": {
     "title": "Diffusion",

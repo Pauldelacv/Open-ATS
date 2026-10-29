@@ -30,8 +30,19 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      # Test mail server for the mailbox reader (IMAP) and outgoing mail (SMTP).
+      greenmail:
+        image: greenmail/standalone:2.1.5
+        env:
+          GREENMAIL_OPTS: >-
+            -Dgreenmail.setup.test.smtp -Dgreenmail.setup.test.imap
+            -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled
+        ports:
+          - 3025:3025
+          - 3143:3143
     env:
       TEST_DATABASE_URL: postgres://openats:openats@localhost:5432/openats_test
+      TEST_IMAP_HOST: 127.0.0.1
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

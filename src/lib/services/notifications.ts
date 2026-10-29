@@ -1,9 +1,17 @@
 import { and, count, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { applications, candidates, jobs, notes, notifications, user } from "@/lib/db/schema";
+import {
+  applications,
+  candidates,
+  emailMessages,
+  jobs,
+  notes,
+  notifications,
+  user,
+} from "@/lib/db/schema";
 import type { Ctx } from "./types";
 
-export async function unreadMentionCount(ctx: Ctx): Promise<number> {
+export async function unreadNotificationCount(ctx: Ctx): Promise<number> {
   const [row] = await db
     .select({ total: count() })
     .from(notifications)
@@ -17,10 +25,12 @@ export async function unreadMentionCount(ctx: Ctx): Promise<number> {
   return row?.total ?? 0;
 }
 
-export async function listMentions(ctx: Ctx, limit = 50) {
+/** Mentions in notes, candidates' replies, and the other events addressed to the viewer. */
+export async function listNotifications(ctx: Ctx, limit = 50) {
   return db
     .select({
       id: notifications.id,
+      type: notifications.type,
       readAt: notifications.readAt,
       createdAt: notifications.createdAt,
       candidateId: notifications.candidateId,
@@ -29,12 +39,14 @@ export async function listMentions(ctx: Ctx, limit = 50) {
       jobTitle: jobs.title,
       firstName: candidates.firstName,
       lastName: candidates.lastName,
-      body: notes.body,
+      noteBody: notes.body,
+      replyBody: emailMessages.body,
       authorName: user.name,
     })
     .from(notifications)
     .innerJoin(candidates, eq(candidates.id, notifications.candidateId))
     .leftJoin(notes, eq(notes.id, notifications.noteId))
+    .leftJoin(emailMessages, eq(emailMessages.id, notifications.emailMessageId))
     .leftJoin(applications, eq(applications.id, notifications.applicationId))
     .leftJoin(jobs, eq(jobs.id, applications.jobId))
     .leftJoin(user, eq(user.id, notifications.actorId))
@@ -43,7 +55,9 @@ export async function listMentions(ctx: Ctx, limit = 50) {
     .limit(limit);
 }
 
-export async function markMentionsRead(ctx: Ctx, ids?: string[]) {
+export type NotificationRow = Awaited<ReturnType<typeof listNotifications>>[number];
+
+export async function markNotificationsRead(ctx: Ctx, ids?: string[]) {
   await db
     .update(notifications)
     .set({ readAt: new Date() })

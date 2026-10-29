@@ -4,6 +4,7 @@ import {
   applications,
   candidates,
   candidateTags,
+  emailMessages,
   evaluations,
   files,
   pipelineStages,
@@ -29,6 +30,8 @@ export type BoardCard = {
   /** Average rating, only when the viewer has given their own evaluation. */
   averageRating: number | null;
   hasCv: boolean;
+  /** Received emails of the candidate nobody has opened yet. */
+  unreadReplies: number;
 };
 
 export async function getBoard(ctx: Ctx, jobId: string) {
@@ -55,7 +58,8 @@ export async function getBoard(ctx: Ctx, jobId: string) {
       average: sql<
         number | null
       >`(select avg(e.rating)::float from ${evaluations} e where e.application_id = "applications"."id")`,
-      hasCv: sql<boolean>`exists(select 1 from ${files} f where f.candidate_id = "applications"."candidate_id")`,
+      hasCv: sql<boolean>`exists(select 1 from ${files} f where f.candidate_id = "applications"."candidate_id" and f.kind = 'cv')`,
+      unreadReplies: sql<number>`(select count(*)::int from ${emailMessages} m where m.candidate_id = "applications"."candidate_id" and m.direction = 'inbound' and m.read_at is null)`,
     })
     .from(applications)
     .innerJoin(candidates, eq(candidates.id, applications.candidateId))
@@ -94,6 +98,7 @@ export async function getBoard(ctx: Ctx, jobId: string) {
     evaluationCount: r.evaluationCount,
     averageRating: r.mine > 0 ? r.average : null,
     hasCv: r.hasCv,
+    unreadReplies: r.unreadReplies,
   }));
   return { job, stages, cards };
 }

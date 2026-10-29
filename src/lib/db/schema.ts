@@ -1,5 +1,7 @@
 import { relations, sql, type SQL } from "drizzle-orm";
 import {
+  type AnyPgColumn,
+  bigint,
   boolean,
   customType,
   doublePrecision,
@@ -369,6 +371,10 @@ export const files = pgTable(
       .references(() => candidates.id, { onDelete: "cascade" }),
     applicationId: uuid().references(() => applications.id, { onDelete: "set null" }),
     kind: text().$type<FileKind>().notNull().default("cv"),
+    // Attachment of a candidate's email reply.
+    emailMessageId: uuid().references((): AnyPgColumn => emailMessages.id, {
+      onDelete: "cascade",
+    }),
     storageKey: text().notNull(),
     fileName: text().notNull(),
     mimeType: text().notNull(),
@@ -469,6 +475,7 @@ export type ActivityType =
   | "note_added"
   | "evaluated"
   | "email_sent"
+  | "email_received"
   | "tag_added"
   | "tag_removed"
   | "cv_added"
@@ -500,8 +507,9 @@ export const activities = pgTable(
 /* -------------------------------------------------------------------------- */
 
 export type EmailTemplateKind = "confirmation" | "rejection" | "interview" | "other";
-export type EmailStatus = "sent" | "logged" | "failed";
+export type EmailStatus = "sent" | "logged" | "failed" | "received";
 export type EmailCategory = "candidate" | "team";
+export type EmailDirection = "outbound" | "inbound";
 
 export const emailTemplates = pgTable(
   "email_templates",
@@ -527,22 +535,46 @@ export const emailMessages = pgTable(
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
     category: text().$type<EmailCategory>().notNull().default("candidate"),
+    direction: text().$type<EmailDirection>().notNull().default("outbound"),
     candidateId: uuid().references(() => candidates.id, { onDelete: "cascade" }),
     applicationId: uuid().references(() => applications.id, { onDelete: "set null" }),
     templateId: uuid().references(() => emailTemplates.id, { onDelete: "set null" }),
     toEmail: text().notNull(),
+    // Received messages: the sender, and the full text when `body` has the quote removed.
+    fromEmail: text(),
+    fromName: text(),
     subject: text().notNull(),
     body: text().notNull(),
+    fullBody: text(),
     status: text().$type<EmailStatus>().notNull(),
     error: text(),
+    // RFC 5322 Message-ID without angle brackets, and the one it answers.
+    messageId: text(),
+    inReplyTo: text(),
+    readAt: timestamp({ withTimezone: true }),
     sentById: text().references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index("email_messages_org_idx").on(t.organizationId, t.createdAt),
     index("email_messages_candidate_idx").on(t.candidateId),
+    uniqueIndex("email_messages_org_message_id_uq").on(t.organizationId, t.messageId),
   ],
 );
+
+/** Progress of the IMAP reader: last UID read in the mailbox (global, one mailbox). */
+export const mailboxState = pgTable("mailbox_state", {
+  id: text().primaryKey(),
+  uidValidity: bigint({ mode: "number" }),
+  lastUid: integer().notNull().default(0),
+  lastCheckAt: timestamp({ withTimezone: true }),
+  lastSuccessAt: timestamp({ withTimezone: true }),
+  lastError: text(),
+  imported: integer().notNull().default(0),
+  unmatched: integer().notNull().default(0),
+});
+
+export type NotificationType = "mention" | "reply";
 
 export const notifications = pgTable(
   "notifications",
@@ -555,8 +587,9 @@ export const notifications = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     actorId: text().references(() => user.id, { onDelete: "set null" }),
-    type: text().$type<"mention">().notNull().default("mention"),
+    type: text().$type<NotificationType>().notNull().default("mention"),
     noteId: uuid().references(() => notes.id, { onDelete: "cascade" }),
+    emailMessageId: uuid().references(() => emailMessages.id, { onDelete: "cascade" }),
     candidateId: uuid()
       .notNull()
       .references(() => candidates.id, { onDelete: "cascade" }),

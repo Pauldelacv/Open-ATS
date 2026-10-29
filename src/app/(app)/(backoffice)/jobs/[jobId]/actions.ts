@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { fail, failFrom, ok, type ActionResult } from "@/lib/actions";
 import { requireContext } from "@/lib/context";
-import { sendCandidateEmails } from "@/lib/services/emails";
+import { markConversationRead, sendCandidateEmails } from "@/lib/services/emails";
 import { moveApplications, restorePositions } from "@/lib/services/pipeline";
 import { rejectApplications, rejectionReasons } from "@/lib/services/rejections";
 import { addNote, deleteNote, saveEvaluation } from "@/lib/services/candidates";
@@ -87,10 +87,17 @@ export async function rejectAction(
 
 export async function sendEmailAction(
   applicationIds: string[],
-  input: { subject: string; body: string; templateId?: string | null },
+  input: {
+    subject: string;
+    body: string;
+    templateId?: string | null;
+    replyToMessageId?: string | null;
+  },
 ): Promise<ActionResult<{ statuses: string[] }>> {
   const ctx = await requireContext();
-  const parsed = emailSchema.safeParse(input);
+  const parsed = emailSchema
+    .extend({ replyToMessageId: z.string().uuid().nullable().optional() })
+    .safeParse(input);
   if (!parsed.success)
     return fail("form", {
       [String(parsed.error.issues[0]?.path[0])]: parsed.error.issues[0]!.message,
@@ -179,6 +186,16 @@ export async function saveEvaluationAction(input: {
   if (!parsed.success) return fail("panel.evaluations.ratingRequired");
   try {
     await saveEvaluation(ctx, parsed.data);
+    return ok();
+  } catch (error) {
+    return failFrom(error);
+  }
+}
+
+export async function markConversationReadAction(candidateId: string): Promise<ActionResult> {
+  const ctx = await requireContext();
+  try {
+    await markConversationRead(ctx, z.string().uuid().parse(candidateId));
     return ok();
   } catch (error) {
     return failFrom(error);

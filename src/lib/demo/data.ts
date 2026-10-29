@@ -343,3 +343,25 @@ export const demoTags = [
   "Disponible rapidement",
   "Portfolio solide",
 ];
+
+/** Replies of a few candidates to the interview email, by person index. */
+export const demoReplies: Record<
+  number,
+  { body: string; read: boolean; sender: "admin" | "recruiter" }
+> = {
+  0: {
+    sender: "recruiter",
+    read: true,
+    body: "Bonjour Hugo,\n\nMerci pour votre message. Je suis disponible mardi ou jeudi après-midi pour échanger.\n\nBien à vous,\nMarion Lefort",
+  },
+  16: {
+    sender: "admin",
+    read: false,
+    body: "Bonjour,\n\nAvec plaisir. Je peux me libérer lundi matin ou mercredi à partir de 14 h.\n\nBonne journée,\nMaxime Perrin",
+  },
+  13: {
+    sender: "recruiter",
+    read: false,
+    body: "Bonjour,\n\nMerci pour votre retour. Je vous envoie ce soir les photos de mes dernières réalisations, dont une table en noyer massif.\n\nPierre Blanchard",
+  },
+};

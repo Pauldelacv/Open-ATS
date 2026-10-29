@@ -60,9 +60,10 @@ import {
   EvaluationsSection,
   NotesSection,
 } from "./panel-sections";
+import { ConversationSection } from "./conversation";
 import { ShortcutsDialog } from "./shortcuts-dialog";
 
-type Tab = "application" | "notes" | "evaluations" | "activity";
+type Tab = "application" | "conversation" | "notes" | "evaluations" | "activity";
 let rememberedTab: Tab = "application";
 
 type Permissions = {
@@ -552,6 +553,26 @@ export function CandidatePanel({
               <Tabs value={tab} onValueChange={changeTab}>
                 <TabsList>
                   <TabsTrigger value="application">{t("tabs.application")}</TabsTrigger>
+                  <TabsTrigger value="conversation">
+                    {t("tabs.conversation")}
+                    {detail.emails.length > 0 ? (
+                      <span className="font-normal text-ink-muted tabular-nums">
+                        {detail.emails.length}
+                      </span>
+                    ) : null}
+                    {detail.emails.some((m) => m.direction === "inbound" && !m.readAt) ? (
+                      <>
+                        <span aria-hidden="true" className="size-1.5 rounded-full bg-cobalt" />
+                        <span className="sr-only">
+                          {tx("panel.conversation.unreadCount", {
+                            count: detail.emails.filter(
+                              (m) => m.direction === "inbound" && !m.readAt,
+                            ).length,
+                          })}
+                        </span>
+                      </>
+                    ) : null}
+                  </TabsTrigger>
                   <TabsTrigger value="notes">
                     {t("tabs.notes")}
                     {detail.notes.length > 0 ? (
@@ -565,6 +586,17 @@ export function CandidatePanel({
                 </TabsList>
                 <TabsContent value="application" className="pt-4">
                   <ApplicationSection detail={detail} />
+                </TabsContent>
+                <TabsContent value="conversation" className="pt-4">
+                  <ConversationSection
+                    detail={detail}
+                    canEmail={permissions.email}
+                    onRead={() => onChanged?.()}
+                    onSent={() => {
+                      void load();
+                      onChanged?.();
+                    }}
+                  />
                 </TabsContent>
                 <TabsContent value="notes" className="pt-4">
                   <NotesSection

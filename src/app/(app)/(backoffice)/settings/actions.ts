@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { APIError } from "better-auth/api";
 import { fail, failFrom, fieldErrorsFrom, ok, type ActionResult } from "@/lib/actions";
 import { getAuth } from "@/lib/auth";
+import { can } from "@/lib/permissions";
 import { ORG_COOKIE, requireContext } from "@/lib/context";
 import { db } from "@/lib/db";
 import { user, type Role } from "@/lib/db/schema";
@@ -271,6 +272,19 @@ export async function deleteChannelAction(id: string): Promise<ActionResult> {
     await deleteChannel(ctx, z.string().uuid().parse(id));
     revalidatePath("/settings/distribution");
     return ok();
+  } catch (error) {
+    return failFrom(error);
+  }
+}
+
+export async function checkMailboxAction(): Promise<ActionResult<{ stored: number }>> {
+  const ctx = await requireContext();
+  if (!can(ctx.role, "templates:manage")) return fail("common.forbidden");
+  try {
+    const { pollMailbox } = await import("@/lib/mail/imap");
+    const result = await pollMailbox();
+    revalidatePath("/settings/emails");
+    return ok({ stored: result.stored });
   } catch (error) {
     return failFrom(error);
   }
