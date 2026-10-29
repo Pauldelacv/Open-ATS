@@ -70,6 +70,7 @@ export async function apply(
   jobId: string,
   person: Partial<ApplicationData> & { firstName: string; lastName: string; email: string },
   cvText?: string,
+  options: { source?: string } = {},
 ) {
   const data = await sampleCv(cvText);
   return submitPublicApplication({
@@ -86,5 +87,6 @@ export async function apply(
     } as ApplicationData,
     cv: { name: "cv.pdf", type: "application/pdf", size: data.length, data },
     consentText: "consent",
+    source: options.source,
   });
 }

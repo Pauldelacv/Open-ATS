@@ -41,7 +41,14 @@ export function ApplicationSection({ detail }: { detail: Detail }) {
         </div>
         <div>
           <dt className="text-12 text-ink-muted">{t("source")}</dt>
-          <dd>{t(`sources.${application.source}`)}</dd>
+          <dd>
+            {application.channelName
+              ? t("viaChannel", {
+                  source: t(`sources.${application.source}`),
+                  channel: application.channelName,
+                })
+              : t(`sources.${application.source}`)}
+          </dd>
         </div>
         {candidate.phone ? (
           <div>

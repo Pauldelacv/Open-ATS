@@ -10,6 +10,8 @@ type FieldProps = {
   hint?: ReactNode;
   error?: ReactNode;
   className?: string;
+  /** Extra classes for the label, e.g. `sr-only` when a placeholder makes it redundant. */
+  labelClassName?: string;
   size?: "md" | "lg";
   children: ReactElement<{ id?: string; "aria-describedby"?: string; "aria-invalid"?: boolean }>;
 };
@@ -21,6 +23,7 @@ export function Field({
   hint,
   error,
   className,
+  labelClassName,
   size = "md",
   children,
 }: FieldProps) {
@@ -34,7 +37,11 @@ export function Field({
     <div className={cn("flex flex-col gap-1.5", className)}>
       <label
         htmlFor={id}
-        className={cn("font-medium text-ink", size === "lg" ? "text-14" : "text-13")}
+        className={cn(
+          "font-medium text-ink",
+          size === "lg" ? "text-14" : "text-13",
+          labelClassName,
+        )}
       >
         {label}
         {qualifier ? <span className="font-normal text-ink-muted"> {qualifier}</span> : null}

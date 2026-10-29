@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { JobActions } from "@/components/jobs/job-actions";
-import { JobHeader } from "@/components/jobs/job-header";
+import { JobPageTop } from "@/components/jobs/job-header";
 import { PipelineView } from "@/components/pipeline/pipeline-view";
 import { requireContext } from "@/lib/context";
 import { appUrl } from "@/lib/env";
@@ -39,19 +38,7 @@ export default async function JobPipelinePage({
 
   return (
     <div className="flex h-[calc(100dvh-3rem)] flex-col md:h-dvh">
-      <div className="shrink-0 border-b border-line px-4 py-4 md:px-6">
-        <JobHeader
-          job={board.job}
-          actions={
-            <JobActions
-              job={{ id: board.job.id, title: board.job.title, status: board.job.status }}
-              publicUrl={publicUrl}
-              canManage={can(ctx.role, "job:manage")}
-              stages={can(ctx.role, "pipeline:edit-stages") ? stages : undefined}
-            />
-          }
-        />
-      </div>
+      <JobPageTop ctx={ctx} job={board.job} publicUrl={publicUrl} stages={stages} />
       <PipelineView
         job={{ id: board.job.id, title: board.job.title, status: board.job.status }}
         stages={stages}

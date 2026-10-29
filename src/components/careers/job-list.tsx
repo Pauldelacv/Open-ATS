@@ -30,7 +30,16 @@ const EMPTY: Filters = { department: "", location: "", contract: "", remote: "" 
 const distinct = (values: Array<string | null>) =>
   [...new Set(values.filter((v): v is string => Boolean(v)))].sort((a, b) => a.localeCompare(b));
 
-export function CareersJobList({ orgSlug, jobs }: { orgSlug: string; jobs: PublicJobRow[] }) {
+export function CareersJobList({
+  orgSlug,
+  jobs,
+  source,
+}: {
+  orgSlug: string;
+  jobs: PublicJobRow[];
+  /** Kept on job links so that the application credits the tracked link. */
+  source?: string | null;
+}) {
   const t = useTranslations("careers");
   const tj = useTranslations("jobs");
   const [filters, setFilters] = useState<Filters>(EMPTY);
@@ -162,7 +171,7 @@ export function CareersJobList({ orgSlug, jobs }: { orgSlug: string; jobs: Publi
           {visible.map((job) => (
             <li key={job.id}>
               <Link
-                href={`/careers/${orgSlug}/jobs/${job.slug}`}
+                href={`/careers/${orgSlug}/jobs/${job.slug}${source ? `?src=${source}` : ""}`}
                 className="group flex flex-col gap-1 py-4 focus-visible:outline-offset-[-2px] md:px-2"
               >
                 <span className="text-16 font-semibold text-ink group-hover:text-brand-link group-hover:underline group-hover:underline-offset-2">

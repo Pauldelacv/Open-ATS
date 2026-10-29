@@ -28,7 +28,9 @@
     "languages": {
       "fr": "Français",
       "en": "English"
-    }
+    },
+    "textCopied": "Texte copié",
+    "copyLink": "Copier le lien"
   },
   "ui": {
     "dropzone": {
@@ -327,6 +329,12 @@
       "salaryRange": "Le maximum doit être supérieur ou égal au minimum.",
       "questionLabel": "Saisissez la question.",
       "options": "Proposez au moins deux choix, un par ligne."
+    },
+    "nav": {
+      "label": "Sections de l'offre",
+      "pipeline": "Candidats",
+      "distribution": "Diffusion",
+      "rules": "Règles automatiques"
     }
   },
   "careers": {
@@ -450,7 +458,8 @@
       "team": "Équipe",
       "emails": "Emails",
       "privacy": "Données personnelles",
-      "profile": "Profil"
+      "profile": "Profil",
+      "distribution": "Diffusion"
     },
     "organization": {
       "title": "Entreprise et site carrière",
@@ -624,6 +633,34 @@
         "months": "Saisissez une durée entre 1 et 120 mois.",
         "email": "Saisissez une adresse email valide."
       }
+    },
+    "distribution": {
+      "title": "Diffusion",
+      "description": "Les canaux où vous publiez vos offres, et les flux pour les agrégateurs.",
+      "channels": "Canaux",
+      "channelsDescription": "Chaque canal a son lien de suivi sur la page Diffusion de chaque offre.",
+      "name": "Nom",
+      "slug": "Nom court",
+      "slugHint": "Utilisé dans les liens : ?src={slug}",
+      "applications": "Candidatures",
+      "add": "Ajouter un canal",
+      "addPlaceholder": "Par exemple : Jobteaser",
+      "added": "Canal ajouté",
+      "rename": "Renommer",
+      "renamed": "Canal renommé",
+      "delete": "Supprimer le canal",
+      "deleteTitle": "Supprimer le canal {name} ?",
+      "deleteBody": "Les candidatures déjà reçues gardent le nom du canal. Les liens déjà publiés compteront comme des visites directes.",
+      "deleted": "Canal supprimé",
+      "copyFeed": "Copier l'adresse du flux",
+      "feedCopied": "Adresse du flux copiée",
+      "nameError": "Donnez au canal un nom d'au moins une lettre ou un chiffre.",
+      "empty": "Aucun canal",
+      "emptyBody": "Ajoutez les sites où vous publiez vos offres pour savoir d'où viennent les candidatures.",
+      "feed": "Flux XML",
+      "feedDescription": "Donnez cette adresse aux agrégateurs d'offres. Pour savoir quelles candidatures viennent d'un agrégateur, donnez-lui l'adresse du flux de son canal (menu de chaque canal).",
+      "feedUrl": "Flux général",
+      "channelActions": "Actions pour le canal {name}"
     }
   },
   "pipeline": {
@@ -787,7 +824,8 @@
       "otherApplications": "Autres candidatures",
       "contact": "Coordonnées",
       "phone": "Téléphone",
-      "link": "Profil"
+      "link": "Profil",
+      "viaChannel": "{source}, lien {channel}"
     },
     "notes": {
       "placeholder": "Ajouter une note. Tapez @ pour mentionner un collègue.",
@@ -921,5 +959,32 @@
     "about": "à propos de {candidate}",
     "on": "pour {job}",
     "open": "Ouvrir la fiche"
+  },
+  "distribution": {
+    "title": "Diffusion",
+    "notPublished": "Cette offre n'est pas publiée",
+    "notPublishedBody": "Les liens mènent à une page introuvable tant que l'offre n'est pas publiée.",
+    "links": "Liens de suivi",
+    "linksDescription": "Publiez un lien différent sur chaque site : chaque candidature indiquera d'où elle vient.",
+    "direct": "Site carrière",
+    "directHint": "Lien sans suivi",
+    "manual": "Ajouts manuels",
+    "removed": "{name} (canal supprimé)",
+    "applications": "{count, plural, =0 {0 candidature} one {# candidature} other {# candidatures}}",
+    "channel": "Canal",
+    "link": "Lien",
+    "count": "Candidatures",
+    "manageChannels": "Gérer les canaux",
+    "ad": "Texte de l'annonce",
+    "adDescription": "À coller dans le formulaire d'un site d'emploi. Le lien de candidature est celui du site carrière.",
+    "copyText": "Copier le texte",
+    "shareLinkedIn": "Partager sur LinkedIn",
+    "shareEmail": "Envoyer par email",
+    "feeds": "Flux XML",
+    "feedsDescription": "Les agrégateurs d'offres lisent ce flux et reprennent vos offres publiées.",
+    "inFeeds": "Inclure cette offre dans les flux XML",
+    "inFeedsOn": "Offre incluse dans les flux",
+    "inFeedsOff": "Offre retirée des flux",
+    "feedSettings": "Adresses des flux dans les paramètres"
   }
 }

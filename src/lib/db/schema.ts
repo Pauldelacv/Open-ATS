@@ -184,6 +184,8 @@ export const jobs = pgTable(
     salaryCurrency: text().notNull().default("EUR"),
     salaryPeriod: text().$type<SalaryPeriod>().notNull().default("year"),
     status: text().$type<JobStatus>().notNull().default("draft"),
+    // Listed in the organisation's XML feeds for job aggregators.
+    inFeeds: boolean().notNull().default(true),
     publishedAt: timestamp({ withTimezone: true }),
     archivedAt: timestamp({ withTimezone: true }),
     createdById: text().references(() => user.id, { onDelete: "set null" }),
@@ -251,6 +253,27 @@ export const pipelineStages = pgTable(
 );
 
 /* -------------------------------------------------------------------------- */
+/* Distribution                                                               */
+/* -------------------------------------------------------------------------- */
+
+/** Places where a job is published (job boards, social networks, referral…). */
+export const distributionChannels = pgTable(
+  "distribution_channels",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    // Short name used in tracked links: ?src=<slug>.
+    slug: text().notNull(),
+    position: integer().notNull().default(0),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("distribution_channels_org_slug_uq").on(t.organizationId, t.slug)],
+);
+
+/* -------------------------------------------------------------------------- */
 /* Candidates and applications                                                */
 /* -------------------------------------------------------------------------- */
 
@@ -309,6 +332,9 @@ export const applications = pgTable(
       .references(() => pipelineStages.id, { onDelete: "restrict" }),
     position: doublePrecision().notNull().default(0),
     source: text().$type<ApplicationSource>().notNull().default("career_site"),
+    // Channel of the tracked link the candidate came from; the name is kept if it is deleted.
+    channelId: uuid().references(() => distributionChannels.id, { onDelete: "set null" }),
+    channelName: text(),
     message: text(),
     answers: jsonb().$type<ApplicationAnswer[]>().notNull().default([]),
     consentAt: timestamp({ withTimezone: true }),
@@ -325,6 +351,7 @@ export const applications = pgTable(
     index("applications_org_idx").on(t.organizationId),
     index("applications_stage_idx").on(t.stageId),
     index("applications_candidate_idx").on(t.candidateId),
+    index("applications_channel_idx").on(t.channelId),
   ],
 );
 
@@ -641,4 +668,5 @@ export const tenantTables = {
   emailTemplates,
   emailMessages,
   notifications,
+  distributionChannels,
 };

@@ -12,6 +12,9 @@ export default async function SettingsLayout({ children }: { children: React.Rea
       ? [{ href: "/settings/organization", label: t("nav.organization") }]
       : []),
     ...(can(ctx.role, "settings:team") ? [{ href: "/settings/team", label: t("nav.team") }] : []),
+    ...(can(ctx.role, "job:manage")
+      ? [{ href: "/settings/distribution", label: t("nav.distribution") }]
+      : []),
     ...(can(ctx.role, "templates:manage")
       ? [{ href: "/settings/emails", label: t("nav.emails") }]
       : []),

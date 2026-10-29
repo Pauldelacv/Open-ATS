@@ -12,6 +12,12 @@ import { db } from "@/lib/db";
 import { user, type Role } from "@/lib/db/schema";
 import { LOCALE_COOKIE } from "@/i18n/config";
 import { sanitizeRichText } from "@/lib/sanitize";
+import {
+  ChannelNameError,
+  createChannel,
+  deleteChannel,
+  renameChannel,
+} from "@/lib/services/distribution";
 import { deleteTemplate, saveTemplate } from "@/lib/services/emails";
 import { runRetentionForOrganization } from "@/lib/services/gdpr";
 import {
@@ -225,4 +231,47 @@ export async function deleteDemoAction(): Promise<ActionResult> {
   }
   (await cookies()).delete(ORG_COOKIE);
   redirect("/");
+}
+
+/* ------------------------------- Distribution ------------------------------ */
+
+const channelName = z.string().trim().min(1).max(60);
+
+export async function createChannelAction(name: string): Promise<ActionResult> {
+  const ctx = await requireContext();
+  const parsed = channelName.safeParse(name);
+  if (!parsed.success) return fail("settings.distribution.nameError");
+  try {
+    await createChannel(ctx, parsed.data);
+    revalidatePath("/settings/distribution");
+    return ok();
+  } catch (error) {
+    if (error instanceof ChannelNameError) return fail("settings.distribution.nameError");
+    return failFrom(error);
+  }
+}
+
+export async function renameChannelAction(id: string, name: string): Promise<ActionResult> {
+  const ctx = await requireContext();
+  const parsed = channelName.safeParse(name);
+  if (!parsed.success) return fail("settings.distribution.nameError");
+  try {
+    await renameChannel(ctx, z.string().uuid().parse(id), parsed.data);
+    revalidatePath("/settings/distribution");
+    return ok();
+  } catch (error) {
+    if (error instanceof ChannelNameError) return fail("settings.distribution.nameError");
+    return failFrom(error);
+  }
+}
+
+export async function deleteChannelAction(id: string): Promise<ActionResult> {
+  const ctx = await requireContext();
+  try {
+    await deleteChannel(ctx, z.string().uuid().parse(id));
+    revalidatePath("/settings/distribution");
+    return ok();
+  } catch (error) {
+    return failFrom(error);
+  }
 }

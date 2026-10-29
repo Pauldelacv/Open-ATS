@@ -186,6 +186,7 @@ export async function getApplicationDetail(ctx: Ctx, applicationId: string) {
       stageName: stage?.name ?? "",
       stageKind: stage?.kind ?? "active",
       source: application.source,
+      channelName: application.channelName,
       message: application.message,
       answers: application.answers,
       consentAt: application.consentAt,

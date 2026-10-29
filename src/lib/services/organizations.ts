@@ -1,6 +1,7 @@
 import { and, count, eq, ne } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db";
 import {
+  distributionChannels,
   emailTemplates,
   files,
   memberships,
@@ -11,6 +12,7 @@ import {
 import { storage } from "@/lib/storage";
 import { env } from "@/lib/env";
 import { assertCan } from "@/lib/permissions";
+import { defaultChannelRows } from "./default-channels";
 import { defaultTemplates } from "./default-templates";
 import { shortId, slugify } from "@/lib/utils/text";
 import type { Ctx } from "./types";
@@ -65,6 +67,7 @@ export async function createOrganization(
     if (!org) throw new Error("Organisation not created");
     await t.insert(memberships).values({ organizationId: org.id, userId, role: "admin" });
     await t.insert(emailTemplates).values(defaultEmailTemplates(org.id, input.locale));
+    await t.insert(distributionChannels).values(defaultChannelRows(org.id, input.locale));
     return org;
   };
   return tx ? run(tx) : db.transaction(run);

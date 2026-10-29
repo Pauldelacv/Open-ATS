@@ -18,6 +18,7 @@ import {
   type PublicQuestion,
 } from "@/lib/validation/application";
 import { logActivity } from "./activity";
+import { channelForSource } from "./distribution";
 import { sendConfirmationEmail } from "./emails";
 import { refreshSearchText } from "./search-index";
 
@@ -80,8 +81,11 @@ export async function submitPublicApplication(input: {
   data: ApplicationData;
   cv: IncomingCv;
   consentText: string;
+  /** Short name of the tracked link the candidate came from (`?src=`). */
+  source?: string | null;
 }) {
   const { organizationId: orgId, jobId } = input;
+  const channel = await channelForSource(orgId, input.source);
   const data = { ...input.data, email: input.data.email.trim().toLowerCase() };
   const kind = cvKind(input.cv);
   if (!kind || !cvSignatureMatches(kind, input.cv.data)) throw new CvRejectedError();
@@ -133,7 +137,7 @@ export async function submitPublicApplication(input: {
       .returning({ id: candidates.id });
 
     const [existing] = await tx
-      .select({ id: applications.id })
+      .select({ id: applications.id, channelName: applications.channelName })
       .from(applications)
       .where(and(eq(applications.jobId, jobId), eq(applications.candidateId, candidate!.id)));
 
@@ -146,6 +150,10 @@ export async function submitPublicApplication(input: {
           consentAt: now,
           consentText: input.consentText,
           viewedAt: null,
+          // The first channel that brought the candidate keeps the credit.
+          ...(channel && !existing.channelName
+            ? { channelId: channel.id, channelName: channel.name }
+            : {}),
         })
         .where(eq(applications.id, existing.id));
       return { candidateId: candidate!.id, applicationId: existing.id, reapplied: true };
@@ -165,6 +173,8 @@ export async function submitPublicApplication(input: {
         stageId: firstStage.id,
         position: (top?.value ?? 1) - 1,
         source: "career_site",
+        channelId: channel?.id ?? null,
+        channelName: channel?.name ?? null,
         message: data.message || null,
         answers,
         consentAt: now,

@@ -28,7 +28,9 @@
     "languages": {
       "fr": "Français",
       "en": "English"
-    }
+    },
+    "textCopied": "Text copied",
+    "copyLink": "Copy link"
   },
   "ui": {
     "dropzone": {
@@ -327,6 +329,12 @@
       "salaryRange": "The maximum must be greater than or equal to the minimum.",
       "questionLabel": "Enter the question.",
       "options": "Offer at least two choices, one per line."
+    },
+    "nav": {
+      "label": "Job sections",
+      "pipeline": "Candidates",
+      "distribution": "Distribution",
+      "rules": "Automatic rules"
     }
   },
   "careers": {
@@ -450,7 +458,8 @@
       "team": "Team",
       "emails": "Emails",
       "privacy": "Personal data",
-      "profile": "Profile"
+      "profile": "Profile",
+      "distribution": "Distribution"
     },
     "organization": {
       "title": "Company and career site",
@@ -624,6 +633,34 @@
         "months": "Enter a period between 1 and 120 months.",
         "email": "Enter a valid email address."
       }
+    },
+    "distribution": {
+      "title": "Distribution",
+      "description": "Channels where you post your jobs, and feeds for aggregators.",
+      "channels": "Channels",
+      "channelsDescription": "Each channel has its tracked link on every job's Distribution page.",
+      "name": "Name",
+      "slug": "Short name",
+      "slugHint": "Used in links: ?src={slug}",
+      "applications": "Applications",
+      "add": "Add a channel",
+      "addPlaceholder": "For example: Jobteaser",
+      "added": "Channel added",
+      "rename": "Rename",
+      "renamed": "Channel renamed",
+      "delete": "Delete channel",
+      "deleteTitle": "Delete the {name} channel?",
+      "deleteBody": "Applications already received keep the channel name. Links already posted will count as direct visits.",
+      "deleted": "Channel deleted",
+      "copyFeed": "Copy feed address",
+      "feedCopied": "Feed address copied",
+      "nameError": "Give the channel a name with at least one letter or digit.",
+      "empty": "No channels",
+      "emptyBody": "Add the sites where you post jobs to know where applications come from.",
+      "feed": "XML feed",
+      "feedDescription": "Give this address to job aggregators. To know which applications come from an aggregator, give it its channel's feed address (menu of each channel).",
+      "feedUrl": "General feed",
+      "channelActions": "Actions for the {name} channel"
     }
   },
   "pipeline": {
@@ -787,7 +824,8 @@
       "otherApplications": "Other applications",
       "contact": "Contact",
       "phone": "Phone",
-      "link": "Profile"
+      "link": "Profile",
+      "viaChannel": "{source}, {channel} link"
     },
     "notes": {
       "placeholder": "Add a note. Type @ to mention a colleague.",
@@ -921,5 +959,32 @@
     "about": "about {candidate}",
     "on": "for {job}",
     "open": "Open the profile"
+  },
+  "distribution": {
+    "title": "Distribution",
+    "notPublished": "This job is not published",
+    "notPublishedBody": "Links lead to a missing page until the job is published.",
+    "links": "Tracked links",
+    "linksDescription": "Post a different link on each site: every application will say where it came from.",
+    "direct": "Career site",
+    "directHint": "Link without tracking",
+    "manual": "Added manually",
+    "removed": "{name} (deleted channel)",
+    "applications": "{count, plural, one {# application} other {# applications}}",
+    "channel": "Channel",
+    "link": "Link",
+    "count": "Applications",
+    "manageChannels": "Manage channels",
+    "ad": "Ad text",
+    "adDescription": "To paste into a job board's form. The apply link is the career site's.",
+    "copyText": "Copy text",
+    "shareLinkedIn": "Share on LinkedIn",
+    "shareEmail": "Send by email",
+    "feeds": "XML feeds",
+    "feedsDescription": "Job aggregators read this feed and list your published jobs.",
+    "inFeeds": "Include this job in XML feeds",
+    "inFeedsOn": "Job included in feeds",
+    "inFeedsOff": "Job removed from feeds",
+    "feedSettings": "Feed addresses in settings"
   }
 }

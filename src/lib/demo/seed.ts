@@ -8,6 +8,7 @@ import {
   candidates,
   candidateTags,
   emailMessages,
+  distributionChannels,
   emailTemplates,
   evaluations,
   jobMembers,
@@ -23,6 +24,7 @@ import {
   type ApplicationAnswer,
 } from "@/lib/db/schema";
 import { storage } from "@/lib/storage";
+import { defaultChannelRows } from "@/lib/services/default-channels";
 import { defaultEmailTemplates } from "@/lib/services/organizations";
 import { defaultStages } from "@/lib/services/jobs";
 import { storeCv } from "@/lib/services/public-application";
@@ -221,6 +223,18 @@ export async function seedDemo(): Promise<{ created: boolean }> {
   const rejection = templates.find((t) => t.kind === "rejection")!;
   const interview = templates.find((t) => t.kind === "interview")!;
 
+  const channelRows = await db
+    .insert(distributionChannels)
+    .values(defaultChannelRows(orgId, "fr"))
+    .returning();
+  const channelBySlug = new Map(channelRows.map((c) => [c.slug, c]));
+  // Where career-site applicants came from, without touching the random sequence.
+  const channelFor = (person: number) =>
+    channelBySlug.get(
+      ["linkedin", "indeed", "", "welcome-to-the-jungle", "linkedin", "cooptation"][person % 6] ??
+        "",
+    ) ?? null;
+
   const tagRows = await db
     .insert(tags)
     .values(demoTags.map((name) => ({ organizationId: orgId, name })))
@@ -396,6 +410,8 @@ export async function seedDemo(): Promise<{ created: boolean }> {
         stageId: job.stages[entry.stage],
         position: entry.daysAgo + order++ / 1000,
         source: entry.person % 7 === 3 ? "manual" : "career_site",
+        channelId: entry.person % 7 === 3 ? null : (channelFor(entry.person)?.id ?? null),
+        channelName: entry.person % 7 === 3 ? null : (channelFor(entry.person)?.name ?? null),
         message:
           random() > 0.45
             ? pick([
