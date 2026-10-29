@@ -22,6 +22,13 @@
       "when": 1793255850632,
       "tag": "0002_candidate_replies",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793257120934,
+      "tag": "0003_interviews",
+      "breakpoints": true
     }
   ]
 }

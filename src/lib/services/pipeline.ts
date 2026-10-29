@@ -13,6 +13,7 @@ import {
 import { assertCan, NotFoundError } from "@/lib/permissions";
 import { getAccessibleJob } from "./access";
 import { logActivity } from "./activity";
+import { nextInterviews } from "./interviews";
 import type { Ctx } from "./types";
 
 export type BoardCard = {
@@ -32,6 +33,8 @@ export type BoardCard = {
   hasCv: boolean;
   /** Received emails of the candidate nobody has opened yet. */
   unreadReplies: number;
+  /** Next planned interview. */
+  nextInterviewAt: string | null;
 };
 
 export async function getBoard(ctx: Ctx, jobId: string) {
@@ -84,6 +87,10 @@ export async function getBoard(ctx: Ctx, jobId: string) {
   for (const t of tagRows)
     tagsByCandidate.set(t.candidateId, [...(tagsByCandidate.get(t.candidateId) ?? []), t.name]);
 
+  const upcoming = await nextInterviews(
+    ctx,
+    rows.map((r) => r.id),
+  );
   const cards: BoardCard[] = rows.map((r) => ({
     id: r.id,
     candidateId: r.candidateId,
@@ -99,6 +106,7 @@ export async function getBoard(ctx: Ctx, jobId: string) {
     averageRating: r.mine > 0 ? r.average : null,
     hasCv: r.hasCv,
     unreadReplies: r.unreadReplies,
+    nextInterviewAt: upcoming.get(r.id)?.toISOString() ?? null,
   }));
   return { job, stages, cards };
 }

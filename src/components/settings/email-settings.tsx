@@ -48,7 +48,14 @@ type JournalEntry = {
   senderName: string | null;
 };
 
-const kinds: EmailTemplateKind[] = ["confirmation", "rejection", "interview", "other"];
+const kinds: EmailTemplateKind[] = [
+  "confirmation",
+  "interview",
+  "slots",
+  "booked",
+  "rejection",
+  "other",
+];
 const statusTone: Record<JournalEntry["status"], BadgeTone> = {
   sent: "success",
   logged: "warning",
@@ -401,6 +408,20 @@ function TemplateDialog({
                 ...(errors.body ? { body: errors.body } : {}),
               }}
               locale={locale}
+              extraVariables={
+                kind === "slots"
+                  ? [locale.startsWith("fr") ? "lien_creneaux" : "slots_link"]
+                  : kind === "booked"
+                    ? locale.startsWith("fr")
+                      ? ["date_entretien", "lieu_entretien"]
+                      : ["interview_date", "interview_location"]
+                    : []
+              }
+              extraValues={{
+                slotsLink: tx("interviews.dialog.previewLink"),
+                interviewDate: t("sampleInterviewDate"),
+                interviewLocation: t("sampleInterviewLocation"),
+              }}
             />
           </DialogBody>
           <DialogFooter>

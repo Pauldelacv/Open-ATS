@@ -752,6 +752,7 @@ function sampleCard(id: string, overrides: Partial<BoardCard>): BoardCard {
     averageRating: null,
     hasCv: true,
     unreadReplies: 0,
+    nextInterviewAt: null,
     ...overrides,
   };
 }

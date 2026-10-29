@@ -30,6 +30,18 @@ export const defaultTemplates: Record<Locale, DefaultTemplate[]> = {
       subject: "Échangeons sur le poste {{offre}}",
       body: "Bonjour {{prénom}},\n\nVotre candidature pour le poste {{offre}} a retenu notre attention et nous aimerions en parler avec vous.\n\nPouvez-vous nous indiquer vos disponibilités pour un premier échange de 30 minutes dans les prochains jours ?\n\n{{recruteur}}\n{{entreprise}}",
     },
+    {
+      name: "Choix du créneau d'entretien",
+      kind: "slots",
+      subject: "Entretien pour le poste {{offre}} : choisissez votre créneau",
+      body: "Bonjour {{prénom}},\n\nNous aimerions vous rencontrer pour parler du poste {{offre}}. Choisissez le créneau qui vous convient sur cette page :\n\n{{lien_creneaux}}\n\nVous recevrez aussitôt une invitation à ajouter à votre agenda. Si aucun créneau ne vous convient, répondez simplement à cet email.\n\n{{recruteur}}\n{{entreprise}}",
+    },
+    {
+      name: "Entretien confirmé",
+      kind: "booked",
+      subject: "Entretien confirmé : {{offre}}",
+      body: "Bonjour {{prénom}},\n\nVotre entretien pour le poste {{offre}} est confirmé :\n\n{{date_entretien}}\n{{lieu_entretien}}\n\nL'invitation jointe à ce message s'ajoute à votre agenda. En cas d'empêchement, répondez à cet email.\n\n{{recruteur}}\n{{entreprise}}",
+    },
   ],
   en: [
     {
@@ -55,6 +67,18 @@ export const defaultTemplates: Record<Locale, DefaultTemplate[]> = {
       kind: "interview",
       subject: "Let's talk about the {{job}} position",
       body: "Hello {{first_name}},\n\nYour application for the {{job}} position caught our attention and we would like to talk with you.\n\nCould you share your availability for a first 30-minute conversation in the coming days?\n\n{{recruiter}}\n{{company}}",
+    },
+    {
+      name: "Interview time slot",
+      kind: "slots",
+      subject: "Interview for {{job}}: choose your time",
+      body: "Hello {{first_name}},\n\nWe would like to meet you to talk about the {{job}} position. Choose the time that suits you on this page:\n\n{{slots_link}}\n\nYou will receive an invitation for your calendar straight away. If no time suits you, simply reply to this email.\n\n{{recruiter}}\n{{company}}",
+    },
+    {
+      name: "Interview confirmed",
+      kind: "booked",
+      subject: "Interview confirmed: {{job}}",
+      body: "Hello {{first_name}},\n\nYour interview for the {{job}} position is confirmed:\n\n{{interview_date}}\n{{interview_location}}\n\nThe invitation attached to this message adds it to your calendar. If something comes up, reply to this email.\n\n{{recruiter}}\n{{company}}",
     },
   ],
 };

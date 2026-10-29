@@ -12,6 +12,8 @@ export type OutgoingMail = {
   messageId?: string;
   /** Message-ID of the message answered, to keep the thread in the recipient's client. */
   inReplyTo?: string;
+  /** Calendar invitation, sent as the text/calendar alternative clients turn into an event. */
+  icalEvent?: { method: "REQUEST" | "CANCEL" | "PUBLISH"; content: string };
 };
 
 /** A Message-ID of ours: the row id at the public host name. */
@@ -57,6 +59,7 @@ export async function deliver(mail: OutgoingMail): Promise<DeliveryResult> {
           "[mail] SMTP not configured, email logged instead of sent",
           `  To: ${mail.to}`,
           `  Subject: ${mail.subject}`,
+          ...(mail.icalEvent ? [`  Calendar: ${mail.icalEvent.method} invitation attached`] : []),
           ...mail.text.split("\n").map((line) => `  | ${line}`),
         ].join("\n"),
       );
@@ -74,6 +77,7 @@ export async function deliver(mail: OutgoingMail): Promise<DeliveryResult> {
       messageId: mail.messageId ? `<${mail.messageId}>` : undefined,
       inReplyTo: mail.inReplyTo ? `<${mail.inReplyTo}>` : undefined,
       references: mail.inReplyTo ? [`<${mail.inReplyTo}>`] : undefined,
+      icalEvent: mail.icalEvent ? { ...mail.icalEvent, filename: "invitation.ics" } : undefined,
     });
     return { status: "sent" };
   } catch (error) {

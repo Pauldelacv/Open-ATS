@@ -12,10 +12,11 @@ import {
   type EmailTemplateKind,
 } from "@/lib/db/schema";
 import { replyMailbox } from "@/lib/env";
-import { deliver, messageIdFor, textToHtml } from "@/lib/mail";
+import { deliver, messageIdFor, textToHtml, type OutgoingMail } from "@/lib/mail";
 import { assertCan, NotFoundError } from "@/lib/permissions";
 import { candidateAccess } from "./access";
 import { logActivity } from "./activity";
+import { defaultTemplates } from "./default-templates";
 import { renderTemplate, type TemplateValues } from "./template-render";
 import type { Ctx } from "./types";
 
@@ -73,6 +74,28 @@ export async function deleteTemplate(ctx: Ctx, id: string) {
   await db
     .delete(emailTemplates)
     .where(and(eq(emailTemplates.id, id), eq(emailTemplates.organizationId, ctx.orgId)));
+}
+
+/** First template of a kind, created from the defaults when the organisation has none. */
+export async function ensureTemplate(orgId: string, kind: EmailTemplateKind) {
+  const [existing] = await db
+    .select()
+    .from(emailTemplates)
+    .where(and(eq(emailTemplates.organizationId, orgId), eq(emailTemplates.kind, kind)))
+    .orderBy(asc(emailTemplates.createdAt))
+    .limit(1);
+  if (existing) return existing;
+  const [org] = await db
+    .select({ locale: organizations.locale })
+    .from(organizations)
+    .where(eq(organizations.id, orgId));
+  const fallback = defaultTemplates[org?.locale ?? "fr"].find((t) => t.kind === kind);
+  if (!fallback) return null;
+  const [created] = await db
+    .insert(emailTemplates)
+    .values({ organizationId: orgId, ...fallback })
+    .returning();
+  return created ?? null;
 }
 
 /* ---------------------------------- Sending --------------------------------- */
@@ -143,8 +166,15 @@ export async function sendCandidateEmails(
     templateId?: string | null;
     /** Id of a received message this email answers (single recipient). */
     replyToMessageId?: string | null;
+    /** Values of the variables that depend on the email (slot link, interview date…). */
+    values?: TemplateValues;
+    icalEvent?: OutgoingMail["icalEvent"];
   },
-  options: { skipPermission?: boolean } = {},
+  options: {
+    skipPermission?: boolean;
+    /** Sent by Open ATS on someone's behalf (booking, rule): no sender, no actor. */
+    automatic?: boolean;
+  } = {},
 ) {
   if (!options.skipPermission) assertCan(ctx.role, "candidate:email");
   const list = await recipients(ctx, input.applicationIds);
@@ -167,7 +197,7 @@ export async function sendCandidateEmails(
       results.push({ applicationId: r.applicationId, status: "skipped" });
       continue;
     }
-    const values = valuesFor(r, org!.name, sender?.name ?? org!.name);
+    const values = { ...valuesFor(r, org!.name, sender?.name ?? org!.name), ...input.values };
     const subject = renderTemplate(input.subject, values);
     const body = renderTemplate(input.body, values);
     const id = crypto.randomUUID();
@@ -182,6 +212,7 @@ export async function sendCandidateEmails(
       replyTo: mailbox ?? sender?.email,
       messageId,
       inReplyTo: answered ?? undefined,
+      icalEvent: input.icalEvent,
     });
     await db.insert(emailMessages).values({
       id,
@@ -197,14 +228,14 @@ export async function sendCandidateEmails(
       body,
       status: result.status,
       error: result.error,
-      sentById: ctx.userId,
+      sentById: options.automatic ? null : ctx.userId,
     });
-    await logActivity(db, ctx, {
+    await logActivity(db, options.automatic ? { orgId: ctx.orgId } : ctx, {
       candidateId: r.candidateId,
       applicationId: r.applicationId,
       jobId: r.jobId,
       type: "email_sent",
-      data: { subject, status: result.status },
+      data: { subject, status: result.status, ...(options.automatic ? { automatic: true } : {}) },
     });
     results.push({ applicationId: r.applicationId, status: result.status });
   }

@@ -8,16 +8,24 @@ import { cn } from "@/lib/cn";
 export function JobNav({
   items,
   label,
+  active: activeIndex,
 }: {
   items: Array<{ href: string; label: string }>;
   label: string;
+  /** Index of the current item when the path alone does not tell (query strings). */
+  active?: number;
 }) {
   const pathname = usePathname();
   return (
     <nav aria-label={label} className="-mb-px [scrollbar-width:none] overflow-x-auto">
       <ul className="flex gap-5">
         {items.map((item, index) => {
-          const active = index === 0 ? pathname === item.href : pathname.startsWith(item.href);
+          const active =
+            activeIndex !== undefined
+              ? index === activeIndex
+              : index === 0
+                ? pathname === item.href
+                : pathname.startsWith(item.href);
           return (
             <li key={item.href} className="shrink-0">
               <Link

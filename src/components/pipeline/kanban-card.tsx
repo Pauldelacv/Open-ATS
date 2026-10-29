@@ -1,8 +1,9 @@
 "use client";
 
 import { useSortable } from "@dnd-kit/sortable";
+import { CalendarDays } from "lucide-react";
 import { CSS } from "@dnd-kit/utilities";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTimeZone, useTranslations } from "next-intl";
 import { memo, type KeyboardEvent, type MouseEvent } from "react";
 import { RatingDots } from "@/components/ui/rating";
 import { cn } from "@/lib/cn";
@@ -21,6 +22,7 @@ type CardProps = {
 
 export function CardBody({ card }: { card: BoardCard }) {
   const t = useTranslations("pipeline");
+  const timeZone = useTimeZone() ?? "Europe/Paris";
   const tr = useTranslations("ui.rating");
   const locale = useLocale();
   const name = `${card.firstName} ${card.lastName}`;
@@ -51,6 +53,21 @@ export function CardBody({ card }: { card: BoardCard }) {
           <span>{t("evaluations", { count: card.evaluationCount })}</span>
         ) : null}
         {!card.hasCv ? <span>{t("noCv")}</span> : null}
+        {card.nextInterviewAt ? (
+          <span className="inline-flex items-center gap-1 text-ink">
+            <CalendarDays className="size-3.5" aria-hidden="true" />
+            {t("nextInterview", {
+              date: new Intl.DateTimeFormat(locale, {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone,
+              }).format(new Date(card.nextInterviewAt)),
+            })}
+          </span>
+        ) : null}
         {card.unreadReplies > 0 ? (
           <span className="inline-flex items-center gap-1 font-medium text-cobalt">
             <span aria-hidden="true" className="size-1.5 rounded-full bg-cobalt" />

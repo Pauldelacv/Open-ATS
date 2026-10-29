@@ -55,6 +55,11 @@ const schema = z.object({
     (v) => v || undefined,
     z.coerce.number().int().min(10).default(60),
   ),
+  // Base of generated video call links (Jitsi rooms); "off" hides the button.
+  VIDEO_MEETING_BASE_URL: z.preprocess(
+    (v) => v || undefined,
+    z.string().default("https://meet.jit.si"),
+  ),
   // Address candidates reply to; the IMAP user when it is an address.
   MAIL_REPLY_TO: optional(z.string()),
   RETENTION_JOB: z
@@ -101,4 +106,10 @@ export function replyMailbox(): string | null {
   const e = env();
   if (e.MAIL_REPLY_TO) return e.MAIL_REPLY_TO;
   return e.IMAP_USER?.includes("@") ? e.IMAP_USER : null;
+}
+
+/** Base URL for generated video call rooms, or null when turned off. */
+export function videoMeetingBase(): string | null {
+  const base = env().VIDEO_MEETING_BASE_URL.trim().replace(/\/+$/, "");
+  return base === "off" || !/^https:\/\//.test(base) ? null : base;
 }

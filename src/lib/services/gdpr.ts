@@ -8,6 +8,8 @@ import {
   candidateTags,
   emailMessages,
   evaluations,
+  interviews,
+  slotProposals,
   files,
   jobs,
   notes,
@@ -66,6 +68,8 @@ export async function anonymizeCandidate(orgId: string, candidateId: string) {
     await tx.delete(candidateTags).where(eq(candidateTags.candidateId, candidateId));
     await tx.delete(emailMessages).where(eq(emailMessages.candidateId, candidateId));
     await tx.delete(activities).where(eq(activities.candidateId, candidateId));
+    await tx.delete(slotProposals).where(eq(slotProposals.candidateId, candidateId));
+    await tx.delete(interviews).where(eq(interviews.candidateId, candidateId));
     if (appIds.length) {
       await tx.delete(evaluations).where(inArray(evaluations.applicationId, appIds));
       await tx
@@ -238,6 +242,17 @@ export async function exportCandidate(ctx: Ctx, candidateId: string) {
       .orderBy(asc(activities.createdAt)),
   ]);
   const appIds = apps.map((a) => a.id);
+  const interviewRows = await db
+    .select({
+      startsAt: interviews.startsAt,
+      endsAt: interviews.endsAt,
+      locationKind: interviews.locationKind,
+      location: interviews.location,
+      status: interviews.status,
+    })
+    .from(interviews)
+    .where(eq(interviews.candidateId, candidateId))
+    .orderBy(asc(interviews.startsAt));
   const evaluationRows = appIds.length
     ? await db
         .select({
@@ -269,6 +284,7 @@ export async function exportCandidate(ctx: Ctx, candidateId: string) {
     })),
     notes: noteRows,
     emails: emailRows,
+    interviews: interviewRows,
     activity: activityRows,
     files: fileRows.map((f) => ({
       name: f.fileName,

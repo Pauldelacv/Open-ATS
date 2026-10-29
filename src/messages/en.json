@@ -179,7 +179,8 @@
     "profile": "Profile and preferences",
     "account": "Account",
     "switchOrganization": "Switch company",
-    "unread": "{count, plural, one {# unread notification} other {# unread notifications}}"
+    "unread": "{count, plural, one {# unread notification} other {# unread notifications}}",
+    "interviews": "Interviews"
   },
   "palette": {
     "title": "Command palette",
@@ -575,7 +576,9 @@
         "confirmation": "Application received",
         "rejection": "Rejection",
         "interview": "Interview",
-        "other": "Other"
+        "other": "Other",
+        "slots": "Time slot choice",
+        "booked": "Interview confirmed"
       },
       "kindHint": "Rejection templates are offered when rejecting. The acknowledgement is sent automatically after an application.",
       "save": "Save the template",
@@ -620,7 +623,9 @@
         "errorBody": "Error: {error}. Check IMAP_HOST, IMAP_PORT, IMAP_USER and IMAP_PASSWORD.",
         "check": "Check now",
         "checked": "{count, plural, =0 {Mailbox checked, no new reply} one {Mailbox checked, # reply filed} other {Mailbox checked, # replies filed}}"
-      }
+      },
+      "sampleInterviewDate": "Thursday 5 November 2026, 14:00 – 14:45 (Paris time)",
+      "sampleInterviewLocation": "Video call: https://meet.jit.si/example"
     },
     "privacy": {
       "title": "Personal data",
@@ -740,7 +745,8 @@
       "added": "Candidate added",
       "exists": "This candidate has already applied for this job."
     },
-    "unreadReplies": "{count, plural, one {# reply} other {# replies}}"
+    "unreadReplies": "{count, plural, one {# reply} other {# replies}}",
+    "nextInterview": "Interview {date}"
   },
   "reject": {
     "title": "{count, plural, one {Reject the candidate} other {Reject # candidates}}",
@@ -888,7 +894,10 @@
         "cv_added": "CV added",
         "exported": "{actor} exported the data",
         "anonymized": "Data anonymised",
-        "email_received": "Email received: {subject}"
+        "email_received": "Email received: {subject}",
+        "slots_proposed": "Interview time slots offered",
+        "interview_scheduled": "Interview planned",
+        "interview_cancelled": "Interview cancelled"
       },
       "system": "Open ATS",
       "emailLogged": "logged",
@@ -915,7 +924,8 @@
       "close": "Close the profile",
       "help": "Show this help",
       "palette": "Search a candidate or a job",
-      "select": "Select the card (pipeline)"
+      "select": "Select the card (pipeline)",
+      "schedule": "Plan an interview"
     },
     "rated": "Rating saved: {value} out of 5",
     "conversation": {
@@ -940,6 +950,9 @@
       "automatic": "Automatic email",
       "unfold": "Show the whole message",
       "fold": "Collapse"
+    },
+    "actions": {
+      "schedule": "Plan"
     }
   },
   "gdpr": {
@@ -992,7 +1005,7 @@
   },
   "inbox": {
     "title": "Notifications",
-    "description": "Mentions in notes and candidates' replies.",
+    "description": "Mentions in notes, candidates' replies and chosen interview times.",
     "empty": "No notifications",
     "emptyBody": "When a colleague writes @{name} in a note, or a candidate replies to one of your emails, it shows here and you receive an email.",
     "unread": "Unread",
@@ -1000,7 +1013,9 @@
     "on": "for {job}",
     "open": "Open the profile",
     "mention": "{author} mentioned you about {candidate}",
-    "reply": "{candidate} replied"
+    "reply": "{candidate} replied",
+    "booked": "{candidate} chose an interview time",
+    "bookedBody": "{date}"
   },
   "distribution": {
     "title": "Distribution",
@@ -1028,5 +1043,180 @@
     "inFeedsOn": "Job included in feeds",
     "inFeedsOff": "Job removed from feeds",
     "feedSettings": "Feed addresses in settings"
+  },
+  "interviews": {
+    "location": {
+      "video": "Video call",
+      "onsite": "On site",
+      "phone": "Phone"
+    },
+    "locationLine": {
+      "video": "Video call: {location}",
+      "videoNoLink": "Video call (the link will be sent to you)",
+      "onsite": "On site: {location}",
+      "onsiteNoAddress": "On site",
+      "phone": "By phone: {location}",
+      "phoneNoNumber": "By phone"
+    },
+    "zone": "{city} time",
+    "dateLine": "{date}, {start} – {end} ({zone})",
+    "inviteCandidate": "Interview with {company}: {job}",
+    "inviteTeam": "Interview: {candidate} ({job})",
+    "inviteTeamBody": "{location}\n\nCandidate profile: {url}",
+    "inviteCandidateBody": "{location}\n\nIf something comes up, reply to the confirmation email.",
+    "teamEmail": {
+      "subject": "Interview with {candidate}: {date}",
+      "body": "You take part in the interview with {candidate} for the {job} position.\n\n{when}\n{location}\n\nThe attached invitation adds it to your calendar. Candidate profile: {url}",
+      "cancelSubject": "Interview cancelled: {candidate}, {date}",
+      "cancelBody": "The interview with {candidate} for the {job} position planned {when} is cancelled.\n\nCandidate profile: {url}"
+    },
+    "cancelCandidate": {
+      "subject": "Interview cancelled: {job}",
+      "body": "Hello {firstName},\n\nWe have to cancel the interview planned {when} for the {job} position. We will get back to you shortly to find another time.\n\n{company}"
+    },
+    "booked": "{candidate} chose a time: {date}",
+    "page": {
+      "title": "Interviews",
+      "description": "Planned interviews, time slots waiting for an answer and feedback to give.",
+      "mine": "Mine",
+      "team": "Whole team",
+      "scope": "Show",
+      "upcoming": "Upcoming",
+      "pending": "Waiting for an answer",
+      "toEvaluate": "To evaluate",
+      "pendingRow": "Slots sent {date}, answer expected before {until}",
+      "evaluate": "Give your feedback",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "empty": "No interviews planned",
+      "emptyBody": "Plan an interview from a candidate's profile: offer time slots or set a date."
+    },
+    "panel": {
+      "title": "Interviews",
+      "upcoming": "Interview planned",
+      "past": "Past interview",
+      "cancelled": "Interview cancelled",
+      "with": "with {names}",
+      "proposal": "Time slots offered {date}",
+      "proposalBody": "{count, plural, =0 {No upcoming slot left} one {# slot still available} other {# slots still available}}, waiting for {name} to choose.",
+      "copyLink": "Copy the slots link",
+      "cancelProposal": "Cancel the offer",
+      "proposalCancelled": "Offer cancelled",
+      "cancel": "Cancel the interview",
+      "cancelTitle": "Cancel the interview of {date}?",
+      "cancelBody": "{name} and the participants receive a cancellation that removes the event from their calendar.",
+      "cancelled_toast": "Interview cancelled",
+      "join": "Open the video call"
+    },
+    "dialog": {
+      "title": "Plan an interview",
+      "description": "With {name}",
+      "modeSlots": "Offer time slots",
+      "modeDate": "Set a date",
+      "interviewers": "Participants",
+      "noCalendar": "no calendar linked",
+      "calendarError": "calendar unreadable",
+      "noCalendarHint": "Without a linked calendar, only working hours and interviews already planned in Open ATS are taken into account. Link a calendar in Settings, Profile.",
+      "duration": "Duration",
+      "minutes": "{count} min",
+      "place": "Place",
+      "video": "Video call",
+      "onsite": "On site",
+      "phone": "Phone",
+      "videoLink": "Video call link",
+      "videoLinkHint": "Leave empty to send it later.",
+      "generateLink": "Create a Jitsi link",
+      "address": "Address",
+      "phoneNumber": "Number to call or instructions",
+      "phoneHint": "For example: we will call you on {phone}.",
+      "period": "Period",
+      "from": "From",
+      "to": "To",
+      "slots": "Free slots",
+      "slotsHint": "Ticked slots will be offered. {count, plural, =0 {No slot ticked} one {# slot ticked} other {# slots ticked}}.",
+      "noSlots": "No free slot in this period for every participant. Widen the period or remove a participant.",
+      "loadingSlots": "Looking for free slots",
+      "zone": "{city} time",
+      "date": "Date",
+      "time": "Time",
+      "next": "Continue",
+      "back": "Back",
+      "message": "Message to the candidate",
+      "sendSlots": "Send the offer",
+      "schedule": "Plan the interview",
+      "slotsSent": "Time slots sent",
+      "scheduled": "Interview planned",
+      "noEmail": "This candidate has no email address.",
+      "errors": {
+        "interviewers": "Choose 1 to 6 participants from the team.",
+        "slots": "Tick at least one slot, 20 at most.",
+        "duration": "Choose a duration of 30, 45, 60 or 90 minutes.",
+        "past": "This time has passed or is too close. Choose a date in the future.",
+        "taken": "A participant already has an interview at that time. Choose another time.",
+        "closed": "This offer is no longer open.",
+        "link": "The video call link must start with https://.",
+        "hours": "Check the hours: at least one day, and an end time after the start time.",
+        "no-email": "This candidate has no email address.",
+        "missingLink": "Add '{{'slots_link'}}' to the message so that the candidate can choose."
+      },
+      "previewLink": "[personal link to the time slots]"
+    },
+    "calendar": {
+      "title": "My calendar",
+      "description": "To offer slots when you are free. Open ATS reads your calendar and never writes to it: interviews reach you as invitations.",
+      "icsUrl": "Secret calendar address (ICS)",
+      "icsHint": "Google Calendar: calendar settings, « Secret address in iCal format ». Outlook: Settings, Calendar, Shared calendars, « Publish a calendar », ICS link.",
+      "icsSaved": "Calendar linked, {count, plural, =0 {no event} one {# event} other {# events}} in the next 60 days, read {when}.",
+      "icsKeep": "A calendar is linked. Leave the field empty to keep it.",
+      "removeIcs": "Unlink the calendar",
+      "days": "Working days",
+      "hours": "Hours",
+      "start": "Start",
+      "end": "End",
+      "meetingUrl": "My video room",
+      "meetingUrlHint": "Offered by default when you plan a video interview.",
+      "save": "Save calendar",
+      "saved": "Calendar saved",
+      "errors": {
+        "url": "This address cannot be used: it must start with https:// and point to an online calendar.",
+        "unreachable": "The calendar could not be read at this address. Check that it is complete and still valid.",
+        "invalid": "This address does not return an ICS calendar. Copy the « iCal » or « ICS » link, not the web page.",
+        "secret": "The calendar address can no longer be read since the server key changed. Enter it again."
+      },
+      "weekdays": {
+        "1": "Mon",
+        "2": "Tue",
+        "3": "Wed",
+        "4": "Thu",
+        "5": "Fri",
+        "6": "Sat",
+        "7": "Sun"
+      }
+    },
+    "public": {
+      "title": "Choose your interview time",
+      "intro": "Interview for the {job} position at {company}, {minutes} minutes.",
+      "zone": "{city} time ({offset}).",
+      "pick": "Choose {slot}",
+      "chosen": "{slot}",
+      "confirm": "Confirm this time",
+      "confirming": "Confirming…",
+      "bookedTitle": "Your interview is confirmed",
+      "bookedBody": "A confirmation with the invitation has just been sent to your email address.",
+      "addToCalendar": "Add to my calendar",
+      "change": "Choose another time",
+      "changeHint": "You can change time until 24 hours before the interview.",
+      "keep": "Keep this time",
+      "closedTitle": "These times are no longer available",
+      "closedBody": "Reply to the email you received to agree on another time.",
+      "noneLeft": "All the times offered have passed or are taken. Reply to the email you received to agree on others.",
+      "errors": {
+        "taken": "This time was just taken. Choose another one.",
+        "closed": "This offer is no longer open. Reply to the email you received to agree on a time.",
+        "past": "This time is too close. Choose another one.",
+        "slots": "This time is no longer offered. Choose another one.",
+        "server": "The confirmation did not go through. Try again in a moment."
+      }
+    }
   }
 }

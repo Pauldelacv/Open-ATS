@@ -480,7 +480,10 @@ export type ActivityType =
   | "tag_removed"
   | "cv_added"
   | "exported"
-  | "anonymized";
+  | "anonymized"
+  | "slots_proposed"
+  | "interview_scheduled"
+  | "interview_cancelled";
 
 export const activities = pgTable(
   "activities",
@@ -503,10 +506,127 @@ export const activities = pgTable(
 );
 
 /* -------------------------------------------------------------------------- */
+/* Interviews                                                                 */
+/* -------------------------------------------------------------------------- */
+
+export type BusyInterval = { start: string; end: string };
+
+/** A person's availability: calendar feed (encrypted), working hours, own meeting room. */
+export const userCalendars = pgTable("user_calendars", {
+  userId: text()
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  icsUrlEncrypted: text(),
+  workingDays: integer()
+    .array()
+    .notNull()
+    .default(sql`'{1,2,3,4,5}'::integer[]`),
+  workStart: text().notNull().default("09:00"),
+  workEnd: text().notNull().default("18:00"),
+  meetingUrl: text(),
+  busy: jsonb().$type<BusyInterval[]>().notNull().default([]),
+  busyUntil: timestamp({ withTimezone: true }),
+  busyFetchedAt: timestamp({ withTimezone: true }),
+  busyError: text(),
+  ...timestamps,
+});
+
+export type LocationKind = "video" | "onsite" | "phone";
+export type InterviewStatus = "scheduled" | "cancelled";
+export type ProposalStatus = "open" | "booked" | "cancelled";
+
+export const slotProposals = pgTable(
+  "slot_proposals",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    applicationId: uuid()
+      .notNull()
+      .references(() => applications.id, { onDelete: "cascade" }),
+    candidateId: uuid()
+      .notNull()
+      .references(() => candidates.id, { onDelete: "cascade" }),
+    jobId: uuid()
+      .notNull()
+      .references(() => jobs.id, { onDelete: "cascade" }),
+    // The link sent to the candidate: looked up by hash, kept encrypted to copy it again.
+    tokenHash: text().notNull().unique(),
+    tokenEncrypted: text().notNull(),
+    durationMinutes: integer().notNull(),
+    slots: jsonb().$type<BusyInterval[]>().notNull(),
+    interviewerIds: text().array().notNull(),
+    locationKind: text().$type<LocationKind>().notNull(),
+    location: text(),
+    status: text().$type<ProposalStatus>().notNull().default("open"),
+    interviewId: uuid().references((): AnyPgColumn => interviews.id, { onDelete: "set null" }),
+    expiresAt: timestamp({ withTimezone: true }).notNull(),
+    createdById: text().references(() => user.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (t) => [index("slot_proposals_application_idx").on(t.applicationId)],
+);
+
+export const interviews = pgTable(
+  "interviews",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    applicationId: uuid()
+      .notNull()
+      .references(() => applications.id, { onDelete: "cascade" }),
+    candidateId: uuid()
+      .notNull()
+      .references(() => candidates.id, { onDelete: "cascade" }),
+    jobId: uuid()
+      .notNull()
+      .references(() => jobs.id, { onDelete: "cascade" }),
+    startsAt: timestamp({ withTimezone: true }).notNull(),
+    endsAt: timestamp({ withTimezone: true }).notNull(),
+    locationKind: text().$type<LocationKind>().notNull(),
+    location: text(),
+    status: text().$type<InterviewStatus>().notNull().default("scheduled"),
+    // iCalendar SEQUENCE: raised on every change so that calendars update the event.
+    sequence: integer().notNull().default(0),
+    proposalId: uuid().references((): AnyPgColumn => slotProposals.id, { onDelete: "set null" }),
+    createdById: text().references(() => user.id, { onDelete: "set null" }),
+    cancelledAt: timestamp({ withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [
+    index("interviews_org_start_idx").on(t.organizationId, t.startsAt),
+    index("interviews_application_idx").on(t.applicationId),
+  ],
+);
+
+export const interviewAttendees = pgTable(
+  "interview_attendees",
+  {
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    interviewId: uuid()
+      .notNull()
+      .references(() => interviews.id, { onDelete: "cascade" }),
+    userId: text()
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.interviewId, t.userId] }),
+    index("interview_attendees_user_idx").on(t.userId),
+  ],
+);
+
+/* -------------------------------------------------------------------------- */
 /* Emails and notifications                                                   */
 /* -------------------------------------------------------------------------- */
 
-export type EmailTemplateKind = "confirmation" | "rejection" | "interview" | "other";
+export type EmailTemplateKind =
+  "confirmation" | "rejection" | "interview" | "slots" | "booked" | "other";
 export type EmailStatus = "sent" | "logged" | "failed" | "received";
 export type EmailCategory = "candidate" | "team";
 export type EmailDirection = "outbound" | "inbound";
@@ -574,7 +694,7 @@ export const mailboxState = pgTable("mailbox_state", {
   unmatched: integer().notNull().default(0),
 });
 
-export type NotificationType = "mention" | "reply";
+export type NotificationType = "mention" | "reply" | "interview_booked";
 
 export const notifications = pgTable(
   "notifications",
@@ -590,6 +710,7 @@ export const notifications = pgTable(
     type: text().$type<NotificationType>().notNull().default("mention"),
     noteId: uuid().references(() => notes.id, { onDelete: "cascade" }),
     emailMessageId: uuid().references(() => emailMessages.id, { onDelete: "cascade" }),
+    interviewId: uuid().references(() => interviews.id, { onDelete: "cascade" }),
     candidateId: uuid()
       .notNull()
       .references(() => candidates.id, { onDelete: "cascade" }),
@@ -702,4 +823,7 @@ export const tenantTables = {
   emailMessages,
   notifications,
   distributionChannels,
+  slotProposals,
+  interviews,
+  interviewAttendees,
 };

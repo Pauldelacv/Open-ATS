@@ -3,6 +3,7 @@
 import {
   Bell,
   Briefcase,
+  CalendarDays,
   ExternalLink,
   LogOut,
   Menu,
@@ -99,6 +100,7 @@ function SidebarContent({
   const items: NavItem[] = [
     { href: "/jobs", label: t("jobs"), icon: Briefcase },
     { href: "/candidates", label: t("candidates"), icon: Users },
+    { href: "/interviews", label: t("interviews"), icon: CalendarDays },
     { href: "/inbox", label: t("inbox"), icon: Bell, badge: props.unreadNotifications },
     {
       href: props.canSeeSettings ? "/settings" : "/settings/profile",

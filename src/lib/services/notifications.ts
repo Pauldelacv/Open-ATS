@@ -4,6 +4,7 @@ import {
   applications,
   candidates,
   emailMessages,
+  interviews,
   jobs,
   notes,
   notifications,
@@ -41,12 +42,14 @@ export async function listNotifications(ctx: Ctx, limit = 50) {
       lastName: candidates.lastName,
       noteBody: notes.body,
       replyBody: emailMessages.body,
+      interviewStartsAt: interviews.startsAt,
       authorName: user.name,
     })
     .from(notifications)
     .innerJoin(candidates, eq(candidates.id, notifications.candidateId))
     .leftJoin(notes, eq(notes.id, notifications.noteId))
     .leftJoin(emailMessages, eq(emailMessages.id, notifications.emailMessageId))
+    .leftJoin(interviews, eq(interviews.id, notifications.interviewId))
     .leftJoin(applications, eq(applications.id, notifications.applicationId))
     .leftJoin(jobs, eq(jobs.id, applications.jobId))
     .leftJoin(user, eq(user.id, notifications.actorId))

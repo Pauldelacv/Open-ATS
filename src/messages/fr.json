@@ -179,7 +179,8 @@
     "profile": "Profil et préférences",
     "account": "Compte",
     "switchOrganization": "Changer d'entreprise",
-    "unread": "{count, plural, one {# notification non lue} other {# notifications non lues}}"
+    "unread": "{count, plural, one {# notification non lue} other {# notifications non lues}}",
+    "interviews": "Entretiens"
   },
   "palette": {
     "title": "Palette de commandes",
@@ -575,7 +576,9 @@
         "confirmation": "Accusé de réception",
         "rejection": "Refus",
         "interview": "Entretien",
-        "other": "Autre"
+        "other": "Autre",
+        "slots": "Choix du créneau",
+        "booked": "Entretien confirmé"
       },
       "kindHint": "Les modèles de refus sont proposés lors d'un refus. L'accusé de réception part automatiquement après une candidature.",
       "save": "Enregistrer le modèle",
@@ -620,7 +623,9 @@
         "errorBody": "Erreur : {error}. Vérifiez IMAP_HOST, IMAP_PORT, IMAP_USER et IMAP_PASSWORD.",
         "check": "Vérifier maintenant",
         "checked": "{count, plural, =0 {Boîte vérifiée, aucune nouvelle réponse} one {Boîte vérifiée, # réponse classée} other {Boîte vérifiée, # réponses classées}}"
-      }
+      },
+      "sampleInterviewDate": "jeudi 5 novembre 2026, 14:00 – 14:45 (heure de Paris)",
+      "sampleInterviewLocation": "Visio : https://meet.jit.si/exemple"
     },
     "privacy": {
       "title": "Données personnelles",
@@ -740,7 +745,8 @@
       "added": "Candidat ajouté",
       "exists": "Ce candidat a déjà postulé à cette offre."
     },
-    "unreadReplies": "{count, plural, one {# réponse} other {# réponses}}"
+    "unreadReplies": "{count, plural, one {# réponse} other {# réponses}}",
+    "nextInterview": "Entretien {date}"
   },
   "reject": {
     "title": "{count, plural, one {Refuser le candidat} other {Refuser # candidats}}",
@@ -888,7 +894,10 @@
         "cv_added": "CV ajouté",
         "exported": "{actor} a exporté les données",
         "anonymized": "Données anonymisées",
-        "email_received": "Email reçu : {subject}"
+        "email_received": "Email reçu : {subject}",
+        "slots_proposed": "Créneaux d'entretien proposés",
+        "interview_scheduled": "Entretien planifié",
+        "interview_cancelled": "Entretien annulé"
       },
       "system": "Open ATS",
       "emailLogged": "journalisé",
@@ -915,7 +924,8 @@
       "close": "Fermer la fiche",
       "help": "Afficher cette aide",
       "palette": "Rechercher un candidat ou une offre",
-      "select": "Sélectionner la carte (pipeline)"
+      "select": "Sélectionner la carte (pipeline)",
+      "schedule": "Planifier un entretien"
     },
     "rated": "Note enregistrée : {value} sur 5",
     "conversation": {
@@ -940,6 +950,9 @@
       "automatic": "Envoi automatique",
       "unfold": "Afficher tout le message",
       "fold": "Réduire"
+    },
+    "actions": {
+      "schedule": "Planifier"
     }
   },
   "gdpr": {
@@ -992,7 +1005,7 @@
   },
   "inbox": {
     "title": "Notifications",
-    "description": "Les mentions dans les notes et les réponses des candidats.",
+    "description": "Les mentions dans les notes, les réponses des candidats et les créneaux choisis.",
     "empty": "Aucune notification",
     "emptyBody": "Quand un collègue écrit @{name} dans une note, ou qu'un candidat répond à un de vos emails, cela apparaît ici et vous recevez un email.",
     "unread": "Non lue",
@@ -1000,7 +1013,9 @@
     "on": "pour {job}",
     "open": "Ouvrir la fiche",
     "mention": "{author} vous a mentionné à propos de {candidate}",
-    "reply": "{candidate} a répondu"
+    "reply": "{candidate} a répondu",
+    "booked": "{candidate} a choisi un créneau d'entretien",
+    "bookedBody": "{date}"
   },
   "distribution": {
     "title": "Diffusion",
@@ -1028,5 +1043,180 @@
     "inFeedsOn": "Offre incluse dans les flux",
     "inFeedsOff": "Offre retirée des flux",
     "feedSettings": "Adresses des flux dans les paramètres"
+  },
+  "interviews": {
+    "location": {
+      "video": "Visio",
+      "onsite": "Sur place",
+      "phone": "Téléphone"
+    },
+    "locationLine": {
+      "video": "Visio : {location}",
+      "videoNoLink": "Visio (le lien vous sera envoyé)",
+      "onsite": "Sur place : {location}",
+      "onsiteNoAddress": "Sur place",
+      "phone": "Par téléphone : {location}",
+      "phoneNoNumber": "Par téléphone"
+    },
+    "zone": "heure de {city}",
+    "dateLine": "{date}, {start} – {end} ({zone})",
+    "inviteCandidate": "Entretien avec {company} : {job}",
+    "inviteTeam": "Entretien : {candidate} ({job})",
+    "inviteTeamBody": "{location}\n\nFiche du candidat : {url}",
+    "inviteCandidateBody": "{location}\n\nEn cas d'empêchement, répondez à l'email de confirmation.",
+    "teamEmail": {
+      "subject": "Entretien avec {candidate} : {date}",
+      "body": "Vous participez à l'entretien avec {candidate} pour le poste {job}.\n\n{when}\n{location}\n\nL'invitation jointe s'ajoute à votre agenda. Fiche du candidat : {url}",
+      "cancelSubject": "Entretien annulé : {candidate}, {date}",
+      "cancelBody": "L'entretien avec {candidate} pour le poste {job} prévu {when} est annulé.\n\nFiche du candidat : {url}"
+    },
+    "cancelCandidate": {
+      "subject": "Entretien annulé : {job}",
+      "body": "Bonjour {firstName},\n\nNous devons annuler l'entretien prévu {when} pour le poste {job}. Nous revenons vers vous rapidement pour convenir d'un autre moment.\n\n{company}"
+    },
+    "booked": "{candidate} a choisi un créneau : {date}",
+    "page": {
+      "title": "Entretiens",
+      "description": "Les entretiens prévus, les créneaux en attente de réponse et les avis à donner.",
+      "mine": "Les miens",
+      "team": "Toute l'équipe",
+      "scope": "Afficher",
+      "upcoming": "À venir",
+      "pending": "En attente de réponse",
+      "toEvaluate": "À évaluer",
+      "pendingRow": "Créneaux envoyés {date}, réponse attendue avant le {until}",
+      "evaluate": "Donner votre avis",
+      "today": "Aujourd'hui",
+      "tomorrow": "Demain",
+      "empty": "Aucun entretien prévu",
+      "emptyBody": "Planifiez un entretien depuis la fiche d'un candidat : proposez des créneaux ou fixez une date."
+    },
+    "panel": {
+      "title": "Entretiens",
+      "upcoming": "Entretien prévu",
+      "past": "Entretien passé",
+      "cancelled": "Entretien annulé",
+      "with": "avec {names}",
+      "proposal": "Créneaux proposés {date}",
+      "proposalBody": "{count, plural, =0 {Plus aucun créneau à venir} one {# créneau encore disponible} other {# créneaux encore disponibles}}, en attente du choix de {name}.",
+      "copyLink": "Copier le lien des créneaux",
+      "cancelProposal": "Annuler la proposition",
+      "proposalCancelled": "Proposition annulée",
+      "cancel": "Annuler l'entretien",
+      "cancelTitle": "Annuler l'entretien du {date} ?",
+      "cancelBody": "{name} et les participants reçoivent une annulation qui retire l'événement de leur agenda.",
+      "cancelled_toast": "Entretien annulé",
+      "join": "Ouvrir la visio"
+    },
+    "dialog": {
+      "title": "Planifier un entretien",
+      "description": "Avec {name}",
+      "modeSlots": "Proposer des créneaux",
+      "modeDate": "Fixer une date",
+      "interviewers": "Participants",
+      "noCalendar": "agenda non relié",
+      "calendarError": "agenda illisible",
+      "noCalendarHint": "Sans agenda relié, seuls les horaires de travail et les entretiens déjà prévus dans Open ATS sont pris en compte. Reliez un agenda dans Paramètres, Profil.",
+      "duration": "Durée",
+      "minutes": "{count} min",
+      "place": "Lieu",
+      "video": "Visio",
+      "onsite": "Sur place",
+      "phone": "Téléphone",
+      "videoLink": "Lien de la visio",
+      "videoLinkHint": "Laissez vide pour l'envoyer plus tard.",
+      "generateLink": "Créer un lien Jitsi",
+      "address": "Adresse",
+      "phoneNumber": "Numéro à appeler ou consigne",
+      "phoneHint": "Par exemple : nous vous appellerons au {phone}.",
+      "period": "Période",
+      "from": "Du",
+      "to": "Au",
+      "slots": "Créneaux libres",
+      "slotsHint": "Les créneaux cochés seront proposés. {count, plural, =0 {Aucun créneau coché} one {# créneau coché} other {# créneaux cochés}}.",
+      "noSlots": "Aucun créneau libre sur cette période pour tous les participants. Élargissez la période ou retirez un participant.",
+      "loadingSlots": "Recherche des créneaux libres",
+      "zone": "Heures de {city}",
+      "date": "Date",
+      "time": "Heure",
+      "next": "Continuer",
+      "back": "Retour",
+      "message": "Message au candidat",
+      "sendSlots": "Envoyer la proposition",
+      "schedule": "Planifier l'entretien",
+      "slotsSent": "Créneaux envoyés",
+      "scheduled": "Entretien planifié",
+      "noEmail": "Ce candidat n'a pas d'adresse email.",
+      "errors": {
+        "interviewers": "Choisissez de 1 à 6 participants de l'équipe.",
+        "slots": "Cochez au moins un créneau, 20 au maximum.",
+        "duration": "Choisissez une durée de 30, 45, 60 ou 90 minutes.",
+        "past": "Ce moment est passé ou trop proche. Choisissez une date dans le futur.",
+        "taken": "Un participant a déjà un entretien à ce moment. Choisissez un autre horaire.",
+        "closed": "Cette proposition n'est plus ouverte.",
+        "link": "Le lien de la visio doit commencer par https://.",
+        "hours": "Vérifiez les horaires : au moins un jour, et une heure de fin après l'heure de début.",
+        "no-email": "Ce candidat n'a pas d'adresse email.",
+        "missingLink": "Ajoutez '{{'lien_creneaux'}}' au message pour que le candidat puisse choisir."
+      },
+      "previewLink": "[lien personnel vers les créneaux]"
+    },
+    "calendar": {
+      "title": "Mon agenda",
+      "description": "Pour proposer des créneaux où vous êtes libre. Open ATS lit votre agenda, il n'y écrit jamais : les entretiens vous arrivent en invitation.",
+      "icsUrl": "Adresse secrète de l'agenda (ICS)",
+      "icsHint": "Google Agenda : Paramètres de l'agenda, « Adresse secrète au format iCal ». Outlook : Paramètres, Calendrier, Calendriers partagés, « Publier un calendrier », lien ICS.",
+      "icsSaved": "Agenda relié, {count, plural, =0 {aucun événement} one {# événement} other {# événements}} dans les 60 prochains jours, lu {when}.",
+      "icsKeep": "Un agenda est relié. Laissez le champ vide pour le garder.",
+      "removeIcs": "Délier l'agenda",
+      "days": "Jours de travail",
+      "hours": "Horaires",
+      "start": "Début",
+      "end": "Fin",
+      "meetingUrl": "Ma salle de visio",
+      "meetingUrlHint": "Proposée par défaut quand vous planifiez un entretien en visio.",
+      "save": "Enregistrer l'agenda",
+      "saved": "Agenda enregistré",
+      "errors": {
+        "url": "Cette adresse n'est pas utilisable : elle doit commencer par https:// et pointer vers un agenda en ligne.",
+        "unreachable": "L'agenda n'a pas pu être lu à cette adresse. Vérifiez qu'elle est complète et toujours valable.",
+        "invalid": "Cette adresse ne renvoie pas un agenda ICS. Copiez le lien « iCal » ou « ICS », pas celui de la page web.",
+        "secret": "L'adresse de l'agenda ne peut plus être lue depuis le changement de clé du serveur. Saisissez-la de nouveau."
+      },
+      "weekdays": {
+        "1": "Lun",
+        "2": "Mar",
+        "3": "Mer",
+        "4": "Jeu",
+        "5": "Ven",
+        "6": "Sam",
+        "7": "Dim"
+      }
+    },
+    "public": {
+      "title": "Choisissez votre créneau",
+      "intro": "Entretien pour le poste {job} chez {company}, {minutes} minutes.",
+      "zone": "Heures de {city} ({offset}).",
+      "pick": "Choisir {slot}",
+      "chosen": "{slot}",
+      "confirm": "Confirmer ce créneau",
+      "confirming": "Confirmation…",
+      "bookedTitle": "Votre entretien est confirmé",
+      "bookedBody": "Une confirmation avec l'invitation vient de partir à votre adresse email.",
+      "addToCalendar": "Ajouter à mon agenda",
+      "change": "Choisir un autre créneau",
+      "changeHint": "Vous pouvez changer de créneau jusqu'à 24 heures avant l'entretien.",
+      "keep": "Garder ce créneau",
+      "closedTitle": "Ces créneaux ne sont plus disponibles",
+      "closedBody": "Répondez à l'email que vous avez reçu pour convenir d'un autre moment.",
+      "noneLeft": "Tous les créneaux proposés sont passés ou pris. Répondez à l'email reçu pour en convenir d'autres.",
+      "errors": {
+        "taken": "Ce créneau vient d'être pris. Choisissez-en un autre.",
+        "closed": "Cette proposition n'est plus ouverte. Répondez à l'email reçu pour convenir d'un moment.",
+        "past": "Ce créneau est trop proche. Choisissez-en un autre.",
+        "slots": "Ce créneau n'est plus proposé. Choisissez-en un autre.",
+        "server": "La confirmation n'a pas abouti. Réessayez dans un instant."
+      }
+    }
   }
 }

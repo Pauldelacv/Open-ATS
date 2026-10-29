@@ -10,6 +10,9 @@ import {
   emailMessages,
   distributionChannels,
   emailTemplates,
+  interviewAttendees,
+  interviews,
+  slotProposals,
   evaluations,
   jobMembers,
   jobQuestions,
@@ -23,7 +26,11 @@ import {
   user,
   type ApplicationAnswer,
 } from "@/lib/db/schema";
+import { authSecret } from "@/lib/auth/secret";
+import { timeZone } from "@/i18n/config";
 import { messageIdFor } from "@/lib/mail";
+import { addDays, weekdayOf, zonedDate, zonedToUtc } from "@/lib/time/zoned";
+import { encryptSecret, randomToken, sha256 } from "@/lib/utils/crypto";
 import { storage } from "@/lib/storage";
 import { defaultChannelRows } from "@/lib/services/default-channels";
 import { defaultEmailTemplates } from "@/lib/services/organizations";
@@ -346,6 +353,7 @@ export async function seedDemo(): Promise<{ created: boolean }> {
   }
 
   const candidateIds = new Map<number, string>();
+  const seeded = new Map<string, { applicationId: string; candidateId: string; jobId: string }>();
   let noteIndex = 0;
   let order = 0;
 
@@ -443,6 +451,7 @@ export async function seedDemo(): Promise<{ created: boolean }> {
       })
       .returning();
     const applicationId = app!.id;
+    seeded.set(`${entry.job}:${entry.person}`, { applicationId, candidateId, jobId: job.id });
 
     // CV
     const profileKey = entry.job === "logistics" ? "sales" : entry.job;
@@ -753,6 +762,117 @@ export async function seedDemo(): Promise<{ created: boolean }> {
       .set({ lastActivityAt: new Date(now - 715 * DAY) })
       .where(eq(candidates.id, old));
 
+  await seedInterviews(orgId, users, seeded);
+
   for (const id of candidateIds.values()) await refreshSearchText(db, id);
   return { created: true };
+}
+
+/** The next weekday `daysAhead` days from today (negative for the past), in the app's zone. */
+function demoWorkday(daysAhead: number) {
+  const zone = timeZone();
+  let day = addDays(zonedDate(new Date(), zone), daysAhead);
+  const step = daysAhead < 0 ? -1 : 1;
+  while (weekdayOf(day) > 5) day = addDays(day, step);
+  return day;
+}
+
+/** An interview ahead, one behind waiting for feedback, and time slots waiting for an answer. */
+async function seedInterviews(
+  orgId: string,
+  users: Record<string, string>,
+  seeded: Map<string, { applicationId: string; candidateId: string; jobId: string }>,
+) {
+  const zone = timeZone();
+  const plan = async (
+    key: string,
+    day: string,
+    time: string,
+    minutes: number,
+    location: { locationKind: "video" | "onsite" | "phone"; location: string | null },
+    attendees: string[],
+  ) => {
+    const target = seeded.get(key);
+    if (!target) return;
+    const startsAt = zonedToUtc(day, time, zone);
+    const [row] = await db
+      .insert(interviews)
+      .values({
+        organizationId: orgId,
+        ...target,
+        startsAt,
+        endsAt: new Date(startsAt.getTime() + minutes * 60_000),
+        ...location,
+        createdById: users.recruiter,
+      })
+      .returning({ id: interviews.id });
+    await db
+      .insert(interviewAttendees)
+      .values(attendees.map((userId) => ({ organizationId: orgId, interviewId: row!.id, userId })));
+    await db.insert(activities).values({
+      organizationId: orgId,
+      candidateId: target.candidateId,
+      applicationId: target.applicationId,
+      jobId: target.jobId,
+      actorId: users.recruiter,
+      type: "interview_scheduled",
+      data: { start: startsAt.toISOString() },
+      createdAt: new Date(Date.now() - 2 * DAY),
+    });
+  };
+  await plan(
+    "dev:0",
+    demoWorkday(3),
+    "14:00",
+    45,
+    { locationKind: "video", location: "https://meet.jit.si/maison-pivert-entretien-dev" },
+    [users.recruiter!, users.admin!],
+  );
+  await plan(
+    "dev:1",
+    demoWorkday(-4),
+    "10:00",
+    60,
+    { locationKind: "onsite", location: "12 rue de l'Atelier, 69007 Lyon" },
+    [users.admin!],
+  );
+
+  const theo = demoPeople.findIndex(([first, last]) => first === "Théo" && last === "Renaud");
+  const target = seeded.get(`dev:${theo}`);
+  if (!target) return;
+  const days = [demoWorkday(2), demoWorkday(3), demoWorkday(4)];
+  const slots = days.flatMap((day) =>
+    ["10:00", "15:30"].map((time) => {
+      const start = zonedToUtc(day, time, zone);
+      return {
+        start: start.toISOString(),
+        end: new Date(start.getTime() + 30 * 60_000).toISOString(),
+      };
+    }),
+  );
+  const token = randomToken(24);
+  await db.insert(slotProposals).values({
+    organizationId: orgId,
+    ...target,
+    tokenHash: sha256(token),
+    tokenEncrypted: encryptSecret(token, authSecret()),
+    durationMinutes: 30,
+    slots,
+    interviewerIds: [users.recruiter!],
+    locationKind: "phone",
+    location: null,
+    expiresAt: new Date(slots[slots.length - 1]!.start),
+    createdById: users.recruiter,
+    createdAt: new Date(Date.now() - 3 * 3600_000),
+  });
+  await db.insert(activities).values({
+    organizationId: orgId,
+    candidateId: target.candidateId,
+    applicationId: target.applicationId,
+    jobId: target.jobId,
+    actorId: users.recruiter,
+    type: "slots_proposed",
+    data: { count: slots.length },
+    createdAt: new Date(Date.now() - 3 * 3600_000),
+  });
 }

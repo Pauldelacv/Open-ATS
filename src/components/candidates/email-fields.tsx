@@ -6,7 +6,11 @@ import { Field } from "@/components/ui/field";
 import { Input, Select, Textarea } from "@/components/ui/input";
 import type { EmailTemplateKind } from "@/lib/db/schema";
 import { loose } from "@/i18n/loose";
-import { renderTemplate, unknownVariables } from "@/lib/services/template-render";
+import {
+  type TemplateValues,
+  renderTemplate,
+  unknownVariables,
+} from "@/lib/services/template-render";
 
 export type TemplateOption = {
   id: string;
@@ -41,8 +45,14 @@ export function EmailFields({
   errors,
   locale,
   hideTemplatePicker,
+  extraVariables = [],
+  extraValues,
 }: {
   hideTemplatePicker?: boolean;
+  /** Variables of this kind of email, offered after the usual ones (slot link, date…). */
+  extraVariables?: string[];
+  /** Their values in the preview. */
+  extraValues?: TemplateValues;
   draft: EmailDraft;
   onChange: (draft: EmailDraft) => void;
   templates: TemplateOption[];
@@ -77,12 +87,14 @@ export function EmailFields({
         job: preview.jobTitle,
         company: companyName,
         recruiter: recruiterName,
+        ...extraValues,
       }
     : {};
   const unknown = unknownVariables(`${draft.subject} ${draft.body}`);
   const names = locale.startsWith("fr")
     ? ["prénom", "nom", "offre", "entreprise", "recruteur"]
     : ["first_name", "last_name", "job", "company", "recruiter"];
+  names.push(...extraVariables);
 
   return (
     <div className="flex flex-col gap-4">

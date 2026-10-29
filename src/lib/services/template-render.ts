@@ -5,6 +5,9 @@ export const templateVariables = [
   { key: "job", names: ["offre", "poste", "job"] },
   { key: "company", names: ["entreprise", "company"] },
   { key: "recruiter", names: ["recruteur", "recruiter"] },
+  { key: "slotsLink", names: ["lien_creneaux", "lien_créneaux", "slots_link"] },
+  { key: "interviewDate", names: ["date_entretien", "interview_date"] },
+  { key: "interviewLocation", names: ["lieu_entretien", "interview_location"] },
 ] as const;
 
 export type TemplateValues = Partial<Record<(typeof templateVariables)[number]["key"], string>>;
@@ -30,4 +33,14 @@ export function unknownVariables(text: string): string[] {
   for (const [, name] of text.matchAll(PATTERN))
     if (name && !lookup.has(name.toLowerCase())) unknown.add(name);
   return [...unknown];
+}
+
+/** Whether `text` uses a variable, under any of its names. */
+export function usesVariable(
+  text: string,
+  key: (typeof templateVariables)[number]["key"],
+): boolean {
+  for (const [, name] of text.matchAll(PATTERN))
+    if (name && lookup.get(name.toLowerCase()) === key) return true;
+  return false;
 }

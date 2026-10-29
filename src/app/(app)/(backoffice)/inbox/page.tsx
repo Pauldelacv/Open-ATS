@@ -6,7 +6,8 @@ import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Mark } from "@/components/ui/mark";
 import { requireContext } from "@/lib/context";
-import { formatRelative } from "@/lib/format";
+import { timeZone } from "@/i18n/config";
+import { formatDayIn, formatRelative, formatTimeIn } from "@/lib/format";
 import { noteSegments } from "@/lib/mentions";
 import { listTeamDirectory } from "@/lib/services/candidates";
 import { listNotifications, markNotificationsRead } from "@/lib/services/notifications";
@@ -70,7 +71,9 @@ export default async function InboxPage() {
                         </>
                       ) : (
                         <Link href={href} className={`font-medium ${linkClass}`}>
-                          {t("reply", { candidate })}
+                          {m.type === "reply"
+                            ? t("reply", { candidate })
+                            : t("booked", { candidate })}
                         </Link>
                       )}
                       {m.jobTitle ? (
@@ -91,6 +94,12 @@ export default async function InboxPage() {
                             </span>
                           ),
                         )}
+                      </p>
+                    ) : null}
+                    {m.type === "interview_booked" && m.interviewStartsAt ? (
+                      <p className="mt-1 text-14 text-ink-muted tabular-nums first-letter:uppercase">
+                        {formatDayIn(m.interviewStartsAt, locale, timeZone())},{" "}
+                        {formatTimeIn(m.interviewStartsAt, locale, timeZone())}
                       </p>
                     ) : null}
                     {m.type === "reply" && m.replyBody ? (
