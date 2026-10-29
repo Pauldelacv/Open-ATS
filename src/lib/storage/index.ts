@@ -55,6 +55,19 @@ class LocalStorage implements Storage {
   }
 }
 
+/** Access keys when given; otherwise Vercel OIDC when a role is set; otherwise the SDK's default chain. */
+async function s3Credentials(region: string) {
+  const e = env();
+  if (e.S3_ACCESS_KEY_ID && e.S3_SECRET_ACCESS_KEY) {
+    return { accessKeyId: e.S3_ACCESS_KEY_ID, secretAccessKey: e.S3_SECRET_ACCESS_KEY };
+  }
+  if (e.AWS_ROLE_ARN) {
+    const { awsCredentialsProvider } = await import("@vercel/oidc-aws-credentials-provider");
+    return awsCredentialsProvider({ roleArn: e.AWS_ROLE_ARN, clientConfig: { region } });
+  }
+  return undefined;
+}
+
 class S3Storage implements Storage {
   private client: Promise<{
     send: (command: unknown) => Promise<unknown>;
@@ -62,16 +75,14 @@ class S3Storage implements Storage {
   }>;
 
   constructor(private readonly bucket: string) {
-    this.client = import("@aws-sdk/client-s3").then((mod) => {
+    this.client = import("@aws-sdk/client-s3").then(async (mod) => {
       const e = env();
+      const region = e.S3_REGION ?? e.AWS_REGION ?? "auto";
       const client = new mod.S3Client({
-        region: e.S3_REGION ?? "auto",
+        region,
         endpoint: e.S3_ENDPOINT,
         forcePathStyle: e.S3_FORCE_PATH_STYLE,
-        credentials:
-          e.S3_ACCESS_KEY_ID && e.S3_SECRET_ACCESS_KEY
-            ? { accessKeyId: e.S3_ACCESS_KEY_ID, secretAccessKey: e.S3_SECRET_ACCESS_KEY }
-            : undefined,
+        credentials: await s3Credentials(region),
       });
       return { send: (command: unknown) => client.send(command as never), mod };
     });
@@ -121,8 +132,9 @@ export function storage(): Storage {
   if (instance) return instance;
   const e = env();
   if (e.STORAGE_DRIVER === "s3") {
-    if (!e.S3_BUCKET) throw new Error("S3_BUCKET is required when STORAGE_DRIVER=s3");
-    instance = new S3Storage(e.S3_BUCKET);
+    const bucket = e.S3_BUCKET ?? e.S3_BUCKET_NAME;
+    if (!bucket) throw new Error("S3_BUCKET is required when STORAGE_DRIVER=s3");
+    instance = new S3Storage(bucket);
   } else {
     instance = new LocalStorage(path.resolve(uploadsDir()));
   }

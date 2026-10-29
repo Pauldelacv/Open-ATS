@@ -31,6 +31,10 @@ const schema = z.object({
   S3_ACCESS_KEY_ID: optional(z.string()),
   S3_SECRET_ACCESS_KEY: optional(z.string()),
   S3_FORCE_PATH_STYLE: boolish,
+  // Set by Vercel's AWS S3 integration, which authenticates with OIDC instead of access keys.
+  S3_BUCKET_NAME: optional(z.string()),
+  AWS_REGION: optional(z.string()),
+  AWS_ROLE_ARN: optional(z.string()),
   SMTP_URL: optional(z.string()),
   SMTP_HOST: optional(z.string()),
   SMTP_PORT: optional(z.coerce.number()),
