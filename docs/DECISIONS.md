@@ -127,6 +127,17 @@ Plan: [`PLAN-v2.md`](./PLAN-v2.md). Names of features are ours (« Diffusion »,
 - **Rule execution**: runs are rows (`automation_runs`, unique per rule, application and stay),
   claimed with `FOR UPDATE SKIP LOCKED` by an in-process worker every 30 s, retried three
   times with backoff, shown in the candidate history as done by « Règle automatique ».
+- **Rule chains stop**: a rule that moves a candidate starts the rules of the next stage one
+  level deeper; past three levels nothing more is planned, so two rules moving back and forth
+  cannot loop. Undoing a move restores the previous stay (its date included), so the reminders
+  planned for it still happen and the ones of the stage left by mistake are skipped.
+- **Rules act as their author** (sender name and reply address of their emails), or as an
+  admin once the author has left, but the history records no person: « Une règle automatique ».
+  Pausing a rule cancels what it had planned; turning it back on does not catch up.
+- **Templates a rule cannot fill are refused**: an « email » or « reject » rule cannot use a
+  template with the slots link or an interview date, and « offer slots » requires the slots
+  link. A rule that fails (template deleted, no free slot) is marked on the rules page and in
+  the candidate's history instead of retrying for ever.
 - **Libraries**: `imapflow` and `mailparser` (MIT) for mail; `ical.js` (MPL-2.0, used
   unmodified; file-level copyleft compatible with AGPL) for recurring events and time zones.
 

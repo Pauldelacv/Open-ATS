@@ -140,6 +140,26 @@ likely to change:
 | `RETENTION_JOB`                                                                     | `true`                                                 | Anonymises candidates past the retention period every 6 hours.                                         |
 | `APP_TIMEZONE`                                                                      | `Europe/Paris`                                         | Time zone of dates in emails and on the server.                                                        |
 
+### Candidates' replies, calendars and automatic rules
+
+These features need no account with Google, Microsoft or any other provider.
+
+- **Replies (IMAP)**: create a dedicated mailbox (for example `recrutement@your-company.com`)
+  and set `IMAP_HOST`, `IMAP_USER`, `IMAP_PASSWORD` (port 993 with TLS by default). Emails to
+  candidates then go out with this address as Reply-To, and Open ATS reads new messages every
+  `IMAP_POLL_SECONDS` (60 by default) without moving or flagging them. Settings › Emails shows
+  when the mailbox was last read and the last error. Without IMAP, replies go to the
+  recruiter's own address, as in v1.
+- **Calendars (ICS)**: each person pastes the secret iCalendar address of their calendar in
+  their profile (Google Calendar: Settings › your calendar › « Secret address in iCal
+  format »; Outlook: Settings › Calendar › Shared calendars › Publish a calendar). The server
+  must reach these addresses over HTTPS. They are stored encrypted with a key derived from
+  `AUTH_SECRET`: if you change it, people enter their address again.
+- **Video links**: `VIDEO_MEETING_BASE_URL` (`https://meet.jit.si` by default) is used for the
+  generated video rooms. Point it to your own Jitsi server, or set `off` to hide the button.
+- **Automatic rules** run inside the app process every `AUTOMATION_POLL_SECONDS` (30 by
+  default). Several replicas can run at once: each planned action is taken by one of them.
+
 ## Backups
 
 Two things hold data:

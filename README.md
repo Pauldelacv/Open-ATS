@@ -50,6 +50,18 @@ For a real deployment (Docker on a server, Coolify, reverse proxy, backups), rea
   with a reason and an email. Shortcuts J / K, 1–5, E, R and `?`.
 - **Emails**: templates with `{{prénom}}`, `{{offre}}`, `{{entreprise}}` and their English
   names, sent over SMTP. Without SMTP every email is kept in a journal instead.
+- **Distribution**: one tracked link per channel (LinkedIn, Indeed, Welcome to the Jungle,
+  referral… editable), the ad text ready to paste, an XML feed for job aggregators, and the
+  number of applications from each channel.
+- **Candidates' replies**: with a shared mailbox read over IMAP, replies land in the
+  candidate's « Échanges » tab next to the emails sent, with attachments, an unread marker on
+  the card and a notification to the sender.
+- **Interviews**: free times computed from each interviewer's calendar (secret ICS address,
+  no OAuth), a page where the candidate picks a slot, invitations that any calendar accepts,
+  video rooms on Jitsi, and an « Entretiens » page for the week.
+- **Automatic rules** per stage: when an application arrives, after a delay and if an answer
+  matches, send an email, reject with a reason, tell the team, add a tag, move it or offer
+  interview slots. Written as sentences, paused with a switch, shown in the history.
 - **Talent pool**: full-text search on names, emails, notes and CV text, one profile per
   email address across applications.
 - **Team**: admins, recruiters, and members who only see the jobs they are assigned to.
@@ -59,8 +71,10 @@ For a real deployment (Docker on a server, Coolify, reverse proxy, backups), rea
   career site.
 - **⌘K / Ctrl K** palette to jump to a candidate or a job, or create a job.
 
-Not in v1: automations, interview scheduling, analytics, a public API. There is no AI in the
+Not built yet: analytics, a public API, two-way calendar sync, SMS. There is no AI in the
 product.
+
+![Automatic rules of a job, one sentence per rule, grouped by stage](docs/screenshots/rules.png)
 
 ## Develop
 
@@ -99,6 +113,7 @@ docker exec open-ats-pg createdb -U openats openats_e2e
   writing rules. Every component is shown in all its states at `/design`.
 - [docs/DECISIONS.md](docs/DECISIONS.md): technical and design decisions, with the reasons.
 - [docs/PLAN.md](docs/PLAN.md): the v1 build plan.
+- [docs/PLAN-v2.md](docs/PLAN-v2.md): the v2 plan (distribution, replies, interviews, rules).
 
 ## Stack
 
