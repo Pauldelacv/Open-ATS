@@ -11,7 +11,9 @@ const nextConfig: NextConfig = {
     globalNotFound: true,
   },
   // Packages that read files or use native-ish APIs at runtime stay external to the server bundle.
-  serverExternalPackages: ["unpdf", "mammoth", "pdf-lib", "nodemailer", "sanitize-html"],
+  // sanitize-html stays bundled: it require()s the ESM-only htmlparser2, which fails where
+  // the runtime cannot require ES modules (Vercel functions).
+  serverExternalPackages: ["unpdf", "mammoth", "pdf-lib", "nodemailer"],
   // Migration files are read at runtime by the migrator.
   outputFileTracingIncludes: {
     "/**": ["./drizzle/**/*"],
