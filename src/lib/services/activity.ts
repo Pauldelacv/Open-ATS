@@ -5,7 +5,7 @@ import type { Ctx } from "./types";
 
 export async function logActivity(
   tx: Tx | typeof db,
-  ctx: Pick<Ctx, "orgId"> & { userId?: string | null },
+  ctx: Pick<Ctx, "orgId" | "rule"> & { userId?: string | null },
   entry: {
     candidateId: string;
     applicationId?: string | null;
@@ -16,12 +16,12 @@ export async function logActivity(
 ) {
   await tx.insert(activities).values({
     organizationId: ctx.orgId,
-    actorId: ctx.userId ?? null,
+    actorId: ctx.rule ? null : (ctx.userId ?? null),
     candidateId: entry.candidateId,
     applicationId: entry.applicationId ?? null,
     jobId: entry.jobId ?? null,
     type: entry.type,
-    data: entry.data ?? {},
+    data: ctx.rule ? { ...entry.data, rule: true } : (entry.data ?? {}),
   });
 }
 

@@ -155,6 +155,11 @@
     "reply": {
       "subject": "{candidate} a répondu",
       "body": "{candidate} a répondu :\n\n{excerpt}\n\nLire la conversation : {url}"
+    },
+    "rule": {
+      "subject": "Rappel : {candidate}",
+      "defaultMessage": "{candidate} est à l'étape {stage} pour l'offre {job}.",
+      "body": "Bonjour,\n\n{message}\n\nCandidature de {candidate} pour {job}, étape {stage} : {url}\n\nCe message vient d'une règle automatique de l'offre."
     }
   },
   "defaults": {
@@ -715,7 +720,8 @@
       "moved": "{count, plural, one {Candidat déplacé vers {stage}} other {# candidats déplacés vers {stage}}}",
       "undone": "Déplacement annulé",
       "tagged": "Tag ajouté",
-      "moveFailed": "Le déplacement n'a pas été enregistré. Les cartes ont repris leur place."
+      "moveFailed": "Le déplacement n'a pas été enregistré. Les cartes ont repris leur place.",
+      "movedRules": "{count, plural, one {Candidat déplacé vers {stage}} other {# candidats déplacés vers {stage}}}. {rules, plural, one {# règle automatique s'applique} other {# règles automatiques s'appliquent}}."
     },
     "dnd": {
       "pickedUp": "{name} saisi. Utilisez les flèches pour le déplacer, Espace pour le déposer, Échap pour annuler.",
@@ -746,7 +752,8 @@
       "exists": "Ce candidat a déjà postulé à cette offre."
     },
     "unreadReplies": "{count, plural, one {# réponse} other {# réponses}}",
-    "nextInterview": "Entretien {date}"
+    "nextInterview": "Entretien {date}",
+    "rules": "{count, plural, one {# règle automatique} other {# règles automatiques}}"
   },
   "reject": {
     "title": "{count, plural, one {Refuser le candidat} other {Refuser # candidats}}",
@@ -897,11 +904,14 @@
         "email_received": "Email reçu : {subject}",
         "slots_proposed": "Créneaux d'entretien proposés",
         "interview_scheduled": "Entretien planifié",
-        "interview_cancelled": "Entretien annulé"
+        "interview_cancelled": "Entretien annulé",
+        "rule_failed": "Une règle automatique n'a pas pu s'appliquer"
       },
       "system": "Open ATS",
       "emailLogged": "journalisé",
-      "emailFailed": "échec de l'envoi"
+      "emailFailed": "échec de l'envoi",
+      "rule": "Une règle automatique",
+      "byRule": "règle automatique"
     },
     "cv": {
       "title": "CV",
@@ -1005,7 +1015,7 @@
   },
   "inbox": {
     "title": "Notifications",
-    "description": "Les mentions dans les notes, les réponses des candidats et les créneaux choisis.",
+    "description": "Les mentions dans les notes, les réponses des candidats, les créneaux choisis et les rappels des règles automatiques.",
     "empty": "Aucune notification",
     "emptyBody": "Quand un collègue écrit @{name} dans une note, ou qu'un candidat répond à un de vos emails, cela apparaît ici et vous recevez un email.",
     "unread": "Non lue",
@@ -1015,7 +1025,9 @@
     "mention": "{author} vous a mentionné à propos de {candidate}",
     "reply": "{candidate} a répondu",
     "booked": "{candidate} a choisi un créneau d'entretien",
-    "bookedBody": "{date}"
+    "bookedBody": "{date}",
+    "rule": "Rappel automatique : {candidate}",
+    "ruleDefault": "{candidate} est à l'étape {stage}."
   },
   "distribution": {
     "title": "Diffusion",
@@ -1217,6 +1229,136 @@
         "slots": "Ce créneau n'est plus proposé. Choisissez-en un autre.",
         "server": "La confirmation n'a pas abouti. Réessayez dans un instant."
       }
+    }
+  },
+  "rules": {
+    "title": "Règles automatiques",
+    "intro": "Quand une candidature arrive dans une étape, une règle attend le délai choisi puis agit si la candidature y est toujours. Les règles s'appliquent aux candidatures qui arrivent après leur création, et chaque action apparaît dans l'historique du candidat.",
+    "count": "{count, plural, one {# règle} other {# règles}}",
+    "none": "Aucune règle",
+    "add": "Ajouter une règle",
+    "addTo": "Ajouter une règle à l'étape {stage}",
+    "actions": "Actions de la règle",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "toggle": "Activer la règle : {rule}",
+    "paused": "En pause",
+    "notYet": "Pas encore appliquée",
+    "done": "{count, plural, one {Appliquée # fois} other {Appliquée # fois}}",
+    "pending": "{count, plural, one {# en attente} other {# en attente}}",
+    "lastDone": "dernière {date}",
+    "failed": "{count, plural, one {# échec} other {# échecs}}, le dernier {date} : {reason}",
+    "enabledToast": "Règle activée",
+    "pausedToast": "Règle en pause. Les actions prévues sont annulées.",
+    "deletedToast": "Règle supprimée",
+    "createdToast": "Règle créée",
+    "savedToast": "Règle enregistrée",
+    "deleteTitle": "Supprimer la règle",
+    "deleteBody": "Les actions qu'elle avait prévues sont annulées. Ce qu'elle a déjà fait reste dans l'historique des candidats.",
+    "failures": {
+      "template": "le modèle d'email n'existe plus",
+      "slots": "aucun créneau libre dans les 14 jours",
+      "send": "l'email n'a pas pu partir",
+      "people": "personne à prévenir dans l'équipe",
+      "target": "l'étape de destination n'existe plus",
+      "slotsLink": "le modèle n'a plus le lien des créneaux",
+      "other": "erreur technique, voir les journaux du serveur"
+    },
+    "errors": {
+      "stage": "Choisissez une étape de l'offre.",
+      "delay": "Le délai va de 1 heure à 90 jours.",
+      "condition": "Choisissez une question et une réponse.",
+      "action": "Cette action n'est pas possible dans cette étape.",
+      "template": "Choisissez un modèle d'email.",
+      "slotsLink": "Le modèle doit contenir la variable du lien des créneaux. Modifiez-le dans Paramètres, Emails.",
+      "reason": "Choisissez un motif de refus.",
+      "people": "Choisissez au moins une personne de l'équipe.",
+      "tag": "Écrivez le tag à ajouter.",
+      "target": "Choisissez une autre étape, hors refus. Pour refuser, utilisez l'action « Refuser ».",
+      "duration": "Choisissez une durée.",
+      "link": "Le lien de visio doit commencer par https://.",
+      "slots": "Aucun créneau libre.",
+      "send": "L'email n'a pas pu partir.",
+      "templateVariables": "Ce modèle utilise le lien des créneaux ou la date d'un entretien, qu'une règle ne peut pas remplir. Choisissez-en un autre."
+    },
+    "sentence": {
+      "full": "{when}{condition} : {action}.",
+      "now": "Dès l'arrivée",
+      "hours": "{count, plural, one {Après # heure} other {Après # heures}}",
+      "days": "{count, plural, one {Après # jour} other {Après # jours}}",
+      "condition": ", si la réponse à « {question} » est « {answer} »",
+      "yes": "Oui",
+      "no": "Non",
+      "missingQuestion": "question supprimée",
+      "missingTemplate": "modèle supprimé",
+      "missingStage": "étape supprimée",
+      "nobody": "personne",
+      "email": "envoyer l'email « {template} »",
+      "reject": "refuser ({reason})",
+      "rejectEmail": "refuser ({reason}) et envoyer « {template} »",
+      "notify": "prévenir {people}",
+      "notifyMessage": "prévenir {people} avec le message « {message} »",
+      "tag": "ajouter le tag « {tag} »",
+      "move": "déplacer vers {stage}",
+      "proposeSlots": "proposer des créneaux de {minutes} min avec {people}, {place}, par l'email « {template} »",
+      "place": {
+        "video": "en visio",
+        "onsite": "sur place",
+        "phone": "par téléphone"
+      }
+    },
+    "editor": {
+      "newTitle": "Nouvelle règle",
+      "editTitle": "Modifier la règle",
+      "description": "Une règle agit une fois par passage d'une candidature dans l'étape.",
+      "stage": "Quand une candidature arrive dans l'étape",
+      "when": "Délai",
+      "whenHint": "La règle n'agit que si la candidature est toujours dans l'étape à ce moment-là.",
+      "now": "Dès l'arrivée (une minute après, le temps d'annuler un déplacement)",
+      "after": "Après",
+      "amount": "Durée du délai",
+      "unit": "Unité du délai",
+      "hours": "{count, plural, one {heure} other {heures}}",
+      "days": "{count, plural, one {jour} other {jours}}",
+      "condition": "Condition",
+      "noQuestions": "Ajoutez une question oui/non ou à choix à l'offre pour poser une condition.",
+      "always": "Pour toutes les candidatures",
+      "onlyIf": "Seulement si une réponse au formulaire correspond",
+      "question": "Question",
+      "answer": "Réponse",
+      "action": "Action",
+      "actions": {
+        "email": "Envoyer un email",
+        "reject": "Refuser la candidature",
+        "notify": "Prévenir l'équipe",
+        "tag": "Ajouter un tag",
+        "move": "Déplacer vers une autre étape",
+        "propose_slots": "Proposer des créneaux d'entretien"
+      },
+      "template": "Modèle d'email",
+      "reason": "Motif de refus",
+      "reasonHint": "Le motif reste interne, le candidat ne le voit pas.",
+      "rejectEmail": "Envoyer un email au candidat",
+      "people": "Personnes à prévenir",
+      "message": "Message",
+      "messageHint": "Par exemple : « Relancer pour la réponse à l'offre ». Envoyé dans Notifications et par email.",
+      "tag": "Tag",
+      "target": "Étape de destination",
+      "slotsHint": "Open ATS cherche les créneaux libres des 14 prochains jours dans les agendas des personnes choisies et en propose jusqu'à six. Si aucun n'est libre, rien n'est envoyé et l'échec apparaît ici.",
+      "interviewers": "Avec",
+      "duration": "Durée",
+      "minutes": "{count} min",
+      "place": "Lieu",
+      "location": {
+        "video": "Lien de visio",
+        "onsite": "Adresse",
+        "phone": "Numéro à appeler"
+      },
+      "videoHint": "Sans lien, celui de l'agenda du premier intervenant est utilisé, sinon une salle est créée.",
+      "slotsTemplateHint": "Seuls les modèles qui contiennent le lien des créneaux sont proposés.",
+      "summary": "En clair",
+      "save": "Enregistrer",
+      "create": "Créer la règle"
     }
   }
 }

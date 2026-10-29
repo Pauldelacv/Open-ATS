@@ -177,6 +177,7 @@ export async function sendCandidateEmails(
   } = {},
 ) {
   if (!options.skipPermission) assertCan(ctx.role, "candidate:email");
+  const automatic = options.automatic || Boolean(ctx.rule);
   const list = await recipients(ctx, input.applicationIds);
   const [org] = await db.select().from(organizations).where(eq(organizations.id, ctx.orgId));
   const [sender] = await db
@@ -228,14 +229,14 @@ export async function sendCandidateEmails(
       body,
       status: result.status,
       error: result.error,
-      sentById: options.automatic ? null : ctx.userId,
+      sentById: automatic ? null : ctx.userId,
     });
-    await logActivity(db, options.automatic ? { orgId: ctx.orgId } : ctx, {
+    await logActivity(db, automatic ? { orgId: ctx.orgId, rule: ctx.rule } : ctx, {
       candidateId: r.candidateId,
       applicationId: r.applicationId,
       jobId: r.jobId,
       type: "email_sent",
-      data: { subject, status: result.status, ...(options.automatic ? { automatic: true } : {}) },
+      data: { subject, status: result.status, ...(automatic ? { automatic: true } : {}) },
     });
     results.push({ applicationId: r.applicationId, status: result.status });
   }

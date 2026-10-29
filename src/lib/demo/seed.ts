@@ -3,6 +3,7 @@ import { hashPassword } from "better-auth/crypto";
 import { db } from "@/lib/db";
 import {
   account,
+  automationRules,
   activities,
   applications,
   candidates,
@@ -763,9 +764,62 @@ export async function seedDemo(): Promise<{ created: boolean }> {
       .where(eq(candidates.id, old));
 
   await seedInterviews(orgId, users, seeded);
+  const dev = jobInfo.get("dev");
+  if (dev) await seedRules(orgId, users, dev, rejection.id);
 
   for (const id of candidateIds.values()) await refreshSearchText(db, id);
   return { created: true };
+}
+
+/** Rules of the developer job: a knock-out question, reminders and a tag for the pool. */
+async function seedRules(
+  orgId: string,
+  users: Record<string, string>,
+  job: {
+    id: string;
+    stages: Record<StageKey, string>;
+    questions: Array<{ id: string; label: string }>;
+  },
+  rejectionTemplateId: string,
+) {
+  const postgres = job.questions.find((q) => q.label.includes("PostgreSQL"));
+  const base = { organizationId: orgId, jobId: job.id, createdById: users.admin! };
+  await db.insert(automationRules).values([
+    ...(postgres
+      ? [
+          {
+            ...base,
+            stageId: job.stages.new,
+            delayMinutes: 2 * 24 * 60,
+            condition: { questionId: postgres.id, equals: "no" },
+            action: "reject" as const,
+            params: { reason: "experience", templateId: rejectionTemplateId },
+          },
+        ]
+      : []),
+    {
+      ...base,
+      stageId: job.stages.interview,
+      delayMinutes: 0,
+      action: "notify" as const,
+      params: { userIds: [users.recruiter!], message: "Préparer la grille d'entretien avec Inès" },
+    },
+    {
+      ...base,
+      stageId: job.stages.offer,
+      delayMinutes: 5 * 24 * 60,
+      action: "notify" as const,
+      params: { userIds: [users.admin!], message: "Relancer pour la réponse à l'offre" },
+    },
+    {
+      ...base,
+      stageId: job.stages.rejected,
+      delayMinutes: 24 * 60,
+      action: "tag" as const,
+      params: { tag: "Vivier 2027" },
+      enabled: false,
+    },
+  ]);
 }
 
 /** The next weekday `daysAhead` days from today (negative for the past), in the app's zone. */

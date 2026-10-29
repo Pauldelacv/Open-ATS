@@ -75,6 +75,7 @@ export async function JobPageTop({
     ? [
         { href: `/jobs/${job.id}`, label: t("pipeline") },
         { href: `/jobs/${job.id}/distribution`, label: t("distribution") },
+        { href: `/jobs/${job.id}/rules`, label: t("rules") },
       ]
     : [];
   return (

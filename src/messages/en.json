@@ -155,6 +155,11 @@
     "reply": {
       "subject": "{candidate} replied",
       "body": "{candidate} replied:\n\n{excerpt}\n\nRead the conversation: {url}"
+    },
+    "rule": {
+      "subject": "Reminder: {candidate}",
+      "defaultMessage": "{candidate} is at the {stage} stage for the {job} job.",
+      "body": "Hello,\n\n{message}\n\nApplication of {candidate} for {job}, {stage} stage: {url}\n\nThis message comes from an automatic rule of the job."
     }
   },
   "defaults": {
@@ -715,7 +720,8 @@
       "moved": "{count, plural, one {Candidate moved to {stage}} other {# candidates moved to {stage}}}",
       "undone": "Move undone",
       "tagged": "Tag added",
-      "moveFailed": "The move was not saved. The cards are back in place."
+      "moveFailed": "The move was not saved. The cards are back in place.",
+      "movedRules": "{count, plural, one {Candidate moved to {stage}} other {# candidates moved to {stage}}}. {rules, plural, one {# automatic rule applies} other {# automatic rules apply}}."
     },
     "dnd": {
       "pickedUp": "Picked up {name}. Use the arrow keys to move, Space to drop, Esc to cancel.",
@@ -746,7 +752,8 @@
       "exists": "This candidate has already applied for this job."
     },
     "unreadReplies": "{count, plural, one {# reply} other {# replies}}",
-    "nextInterview": "Interview {date}"
+    "nextInterview": "Interview {date}",
+    "rules": "{count, plural, one {# automatic rule} other {# automatic rules}}"
   },
   "reject": {
     "title": "{count, plural, one {Reject the candidate} other {Reject # candidates}}",
@@ -897,11 +904,14 @@
         "email_received": "Email received: {subject}",
         "slots_proposed": "Interview time slots offered",
         "interview_scheduled": "Interview planned",
-        "interview_cancelled": "Interview cancelled"
+        "interview_cancelled": "Interview cancelled",
+        "rule_failed": "An automatic rule could not be applied"
       },
       "system": "Open ATS",
       "emailLogged": "logged",
-      "emailFailed": "sending failed"
+      "emailFailed": "sending failed",
+      "rule": "An automatic rule",
+      "byRule": "automatic rule"
     },
     "cv": {
       "title": "CV",
@@ -1005,7 +1015,7 @@
   },
   "inbox": {
     "title": "Notifications",
-    "description": "Mentions in notes, candidates' replies and chosen interview times.",
+    "description": "Mentions in notes, candidates' replies, chosen interview times and reminders from automatic rules.",
     "empty": "No notifications",
     "emptyBody": "When a colleague writes @{name} in a note, or a candidate replies to one of your emails, it shows here and you receive an email.",
     "unread": "Unread",
@@ -1015,7 +1025,9 @@
     "mention": "{author} mentioned you about {candidate}",
     "reply": "{candidate} replied",
     "booked": "{candidate} chose an interview time",
-    "bookedBody": "{date}"
+    "bookedBody": "{date}",
+    "rule": "Automatic reminder: {candidate}",
+    "ruleDefault": "{candidate} is at the {stage} stage."
   },
   "distribution": {
     "title": "Distribution",
@@ -1217,6 +1229,136 @@
         "slots": "This time is no longer offered. Choose another one.",
         "server": "The confirmation did not go through. Try again in a moment."
       }
+    }
+  },
+  "rules": {
+    "title": "Automatic rules",
+    "intro": "When an application arrives in a stage, a rule waits for the chosen delay and then acts if the application is still there. Rules apply to applications that arrive after they are created, and every action shows in the candidate's history.",
+    "count": "{count, plural, one {# rule} other {# rules}}",
+    "none": "No rules",
+    "add": "Add a rule",
+    "addTo": "Add a rule to the {stage} stage",
+    "actions": "Rule actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "toggle": "Turn on the rule: {rule}",
+    "paused": "Paused",
+    "notYet": "Not applied yet",
+    "done": "{count, plural, one {Applied once} other {Applied # times}}",
+    "pending": "{count, plural, one {# waiting} other {# waiting}}",
+    "lastDone": "last {date}",
+    "failed": "{count, plural, one {# failure} other {# failures}}, the last {date}: {reason}",
+    "enabledToast": "Rule turned on",
+    "pausedToast": "Rule paused. Planned actions are cancelled.",
+    "deletedToast": "Rule deleted",
+    "createdToast": "Rule created",
+    "savedToast": "Rule saved",
+    "deleteTitle": "Delete the rule",
+    "deleteBody": "The actions it had planned are cancelled. What it already did stays in the candidates' history.",
+    "failures": {
+      "template": "the email template no longer exists",
+      "slots": "no free time in the next 14 days",
+      "send": "the email could not be sent",
+      "people": "nobody in the team to tell",
+      "target": "the destination stage no longer exists",
+      "slotsLink": "the template no longer has the slots link",
+      "other": "technical error, see the server logs"
+    },
+    "errors": {
+      "stage": "Choose a stage of the job.",
+      "delay": "The delay goes from 1 hour to 90 days.",
+      "condition": "Choose a question and an answer.",
+      "action": "This action is not possible in this stage.",
+      "template": "Choose an email template.",
+      "slotsLink": "The template must contain the slots link variable. Edit it in Settings, Emails.",
+      "reason": "Choose a rejection reason.",
+      "people": "Choose at least one person of the team.",
+      "tag": "Write the tag to add.",
+      "target": "Choose another stage, other than rejected. To reject, use the “Reject” action.",
+      "duration": "Choose a duration.",
+      "link": "The video link must start with https://.",
+      "slots": "No free time.",
+      "send": "The email could not be sent.",
+      "templateVariables": "This template uses the slots link or an interview date, which a rule cannot fill. Choose another one."
+    },
+    "sentence": {
+      "full": "{when}{condition}: {action}.",
+      "now": "As soon as it arrives",
+      "hours": "{count, plural, one {After # hour} other {After # hours}}",
+      "days": "{count, plural, one {After # day} other {After # days}}",
+      "condition": ", if the answer to “{question}” is “{answer}”",
+      "yes": "Yes",
+      "no": "No",
+      "missingQuestion": "deleted question",
+      "missingTemplate": "deleted template",
+      "missingStage": "deleted stage",
+      "nobody": "nobody",
+      "email": "send the email “{template}”",
+      "reject": "reject ({reason})",
+      "rejectEmail": "reject ({reason}) and send “{template}”",
+      "notify": "tell {people}",
+      "notifyMessage": "tell {people} with the message “{message}”",
+      "tag": "add the tag “{tag}”",
+      "move": "move to {stage}",
+      "proposeSlots": "offer {minutes}-minute slots with {people}, {place}, with the email “{template}”",
+      "place": {
+        "video": "by video",
+        "onsite": "on site",
+        "phone": "by phone"
+      }
+    },
+    "editor": {
+      "newTitle": "New rule",
+      "editTitle": "Edit the rule",
+      "description": "A rule acts once each time an application goes through the stage.",
+      "stage": "When an application arrives in the stage",
+      "when": "Delay",
+      "whenHint": "The rule only acts if the application is still in the stage at that time.",
+      "now": "As soon as it arrives (one minute later, time to undo a move)",
+      "after": "After",
+      "amount": "Length of the delay",
+      "unit": "Unit of the delay",
+      "hours": "{count, plural, one {hour} other {hours}}",
+      "days": "{count, plural, one {day} other {days}}",
+      "condition": "Condition",
+      "noQuestions": "Add a yes/no or choice question to the job to set a condition.",
+      "always": "For every application",
+      "onlyIf": "Only if an answer to the form matches",
+      "question": "Question",
+      "answer": "Answer",
+      "action": "Action",
+      "actions": {
+        "email": "Send an email",
+        "reject": "Reject the application",
+        "notify": "Tell the team",
+        "tag": "Add a tag",
+        "move": "Move to another stage",
+        "propose_slots": "Offer interview slots"
+      },
+      "template": "Email template",
+      "reason": "Rejection reason",
+      "reasonHint": "The reason stays internal, the candidate does not see it.",
+      "rejectEmail": "Send an email to the candidate",
+      "people": "People to tell",
+      "message": "Message",
+      "messageHint": "For example: “Follow up on the offer”. Sent in Notifications and by email.",
+      "tag": "Tag",
+      "target": "Destination stage",
+      "slotsHint": "Open ATS looks for free times in the next 14 days in the chosen people's calendars and offers up to six. If none is free, nothing is sent and the failure shows here.",
+      "interviewers": "With",
+      "duration": "Duration",
+      "minutes": "{count} min",
+      "place": "Place",
+      "location": {
+        "video": "Video link",
+        "onsite": "Address",
+        "phone": "Number to call"
+      },
+      "videoHint": "Without a link, the first interviewer's calendar link is used, otherwise a room is created.",
+      "slotsTemplateHint": "Only templates that contain the slots link are offered.",
+      "summary": "In plain words",
+      "save": "Save",
+      "create": "Create the rule"
     }
   }
 }

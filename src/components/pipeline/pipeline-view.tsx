@@ -53,7 +53,13 @@ import { CardOverlay, KanbanCard } from "./kanban-card";
 import { KanbanColumn } from "./kanban-column";
 import { ManualCandidateDialog } from "./manual-candidate";
 
-export type StageInfo = { id: string; name: string; kind: StageKind };
+export type StageInfo = {
+  id: string;
+  name: string;
+  kind: StageKind;
+  /** Enabled automatic rules, shown to people who manage the job. */
+  rules?: number;
+};
 
 type Columns = Record<string, string[]>;
 
@@ -257,9 +263,12 @@ export function PipelineView({
         return;
       }
       const stage = stageById.get(stageId)?.name ?? "";
-      const previous = result.data;
+      const { previous, rules } = result.data;
       toast({
-        message: t("toasts.moved", { count: ids.length, stage }),
+        message:
+          rules > 0
+            ? t("toasts.movedRules", { count: ids.length, stage, rules })
+            : t("toasts.moved", { count: ids.length, stage }),
         action: {
           label: tx("common.undo"),
           onClick: () => {
@@ -537,6 +546,8 @@ export function PipelineView({
                     itemIds={visible}
                     count={ids.length}
                     newCount={newCount}
+                    rules={stage.rules ?? 0}
+                    rulesHref={`/jobs/${job.id}/rules#stage-${stage.id}`}
                     collapsed={isRejected && !rejectedOpen}
                     onToggleCollapsed={isRejected ? () => setRejectedOpen((v) => !v) : undefined}
                   >

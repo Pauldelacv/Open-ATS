@@ -55,6 +55,11 @@ const schema = z.object({
     (v) => v || undefined,
     z.coerce.number().int().min(10).default(60),
   ),
+  // How often due automatic rules are run.
+  AUTOMATION_POLL_SECONDS: z.preprocess(
+    (v) => v || undefined,
+    z.coerce.number().int().min(10).default(30),
+  ),
   // Base of generated video call links (Jitsi rooms); "off" hides the button.
   VIDEO_MEETING_BASE_URL: z.preprocess(
     (v) => v || undefined,

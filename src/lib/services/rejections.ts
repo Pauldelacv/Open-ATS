@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { applications, candidates, pipelineStages } from "@/lib/db/schema";
 import { assertCan, NotFoundError } from "@/lib/permissions";
 import { logActivity } from "./activity";
+import { enqueueStageRules } from "./automation-queue";
 import { sendCandidateEmails } from "./emails";
 import type { Ctx } from "./types";
 
@@ -80,6 +81,10 @@ export async function rejectApplications(
         type: "rejected",
         data: { reason: input.reason, from: app.stageName, emailed: Boolean(input.email) },
       });
+      if (app.stageId !== stage.id)
+        await enqueueStageRules(tx, ctx, [
+          { applicationId: app.id, stageId: stage.id, enteredAt: now },
+        ]);
     }
   });
 

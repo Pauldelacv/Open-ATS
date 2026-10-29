@@ -8,6 +8,7 @@ import {
   jobs,
   notes,
   notifications,
+  pipelineStages,
   user,
 } from "@/lib/db/schema";
 import type { Ctx } from "./types";
@@ -26,7 +27,7 @@ export async function unreadNotificationCount(ctx: Ctx): Promise<number> {
   return row?.total ?? 0;
 }
 
-/** Mentions in notes, candidates' replies, and the other events addressed to the viewer. */
+/** Mentions in notes, candidates' replies, rule reminders and other events for the viewer. */
 export async function listNotifications(ctx: Ctx, limit = 50) {
   return db
     .select({
@@ -43,6 +44,8 @@ export async function listNotifications(ctx: Ctx, limit = 50) {
       noteBody: notes.body,
       replyBody: emailMessages.body,
       interviewStartsAt: interviews.startsAt,
+      ruleMessage: notifications.message,
+      stageName: pipelineStages.name,
       authorName: user.name,
     })
     .from(notifications)
@@ -52,6 +55,7 @@ export async function listNotifications(ctx: Ctx, limit = 50) {
     .leftJoin(interviews, eq(interviews.id, notifications.interviewId))
     .leftJoin(applications, eq(applications.id, notifications.applicationId))
     .leftJoin(jobs, eq(jobs.id, applications.jobId))
+    .leftJoin(pipelineStages, eq(pipelineStages.id, applications.stageId))
     .leftJoin(user, eq(user.id, notifications.actorId))
     .where(and(eq(notifications.organizationId, ctx.orgId), eq(notifications.userId, ctx.userId)))
     .orderBy(desc(notifications.createdAt))

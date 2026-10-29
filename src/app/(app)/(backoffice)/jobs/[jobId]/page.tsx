@@ -6,6 +6,7 @@ import { requireContext } from "@/lib/context";
 import { appUrl } from "@/lib/env";
 import { can, NotFoundError } from "@/lib/permissions";
 import { getAccessibleJob, isUuid } from "@/lib/services/access";
+import { ruleCountsByStage } from "@/lib/services/automations";
 import { listTemplates } from "@/lib/services/emails";
 import { getOrganization } from "@/lib/services/organizations";
 import { getBoard } from "@/lib/services/pipeline";
@@ -29,7 +30,12 @@ export default async function JobPipelinePage({
     if (error instanceof NotFoundError) notFound();
     throw error;
   });
-  const [org, templates] = await Promise.all([getOrganization(ctx), listTemplates(ctx)]);
+  const canManage = can(ctx.role, "job:manage");
+  const [org, templates, ruleCounts] = await Promise.all([
+    getOrganization(ctx),
+    listTemplates(ctx),
+    canManage ? ruleCountsByStage(ctx, jobId) : new Map<string, number>(),
+  ]);
   const query = await searchParams;
   const requested = typeof query.a === "string" && isUuid(query.a) ? query.a : null;
   const openId = requested && board.cards.some((c) => c.id === requested) ? requested : null;
@@ -41,7 +47,7 @@ export default async function JobPipelinePage({
       <JobPageTop ctx={ctx} job={board.job} publicUrl={publicUrl} stages={stages} />
       <PipelineView
         job={{ id: board.job.id, title: board.job.title, status: board.job.status }}
-        stages={stages}
+        stages={stages.map((s) => ({ ...s, rules: ruleCounts.get(s.id) ?? 0 }))}
         initialCards={board.cards}
         templates={templates.map((tpl) => ({
           id: tpl.id,

@@ -13,6 +13,7 @@ import {
 import { assertCan, NotFoundError } from "@/lib/permissions";
 import { getAccessibleJob } from "./access";
 import { logActivity } from "./activity";
+import { enqueueStageRules } from "./automation-queue";
 import { nextInterviews } from "./interviews";
 import type { Ctx } from "./types";
 
@@ -111,9 +112,18 @@ export async function getBoard(ctx: Ctx, jobId: string) {
   return { job, stages, cards };
 }
 
+export type PreviousPosition = {
+  id: string;
+  stageId: string;
+  position: number;
+  /** When the application entered its stage: undo restores the stay and its planned rules. */
+  stageChangedAt?: string;
+};
+
 /**
  * Moves applications to `stageId`, inserted before the card at `index` of that column
- * (cards being moved excluded). Returns where each application was, for undo.
+ * (cards being moved excluded). Returns where each application was, for undo, and how many
+ * automatic rules of the new stage will apply.
  */
 export async function moveApplications(
   ctx: Ctx,
@@ -122,7 +132,7 @@ export async function moveApplications(
   index: number,
 ) {
   assertCan(ctx.role, "pipeline:move");
-  if (applicationIds.length === 0) return [];
+  if (applicationIds.length === 0) return { previous: [] as PreviousPosition[], rules: 0 };
   return db.transaction(async (tx) => {
     const [stage] = await tx
       .select()
@@ -138,6 +148,7 @@ export async function moveApplications(
         position: applications.position,
         candidateId: applications.candidateId,
         rejectedAt: applications.rejectedAt,
+        stageChangedAt: applications.stageChangedAt,
         stageName: pipelineStages.name,
       })
       .from(applications)
@@ -175,8 +186,10 @@ export async function moveApplications(
     const order = new Map(applicationIds.map((id, i) => [id, i]));
     const sorted = [...moving].sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
     const now = new Date();
+    const entered: Array<{ applicationId: string; stageId: string; enteredAt: Date }> = [];
     for (const [i, app] of sorted.entries()) {
       const changedStage = app.stageId !== stageId;
+      if (changedStage) entered.push({ applicationId: app.id, stageId, enteredAt: now });
       await tx
         .update(applications)
         .set({
@@ -209,15 +222,19 @@ export async function moveApplications(
         });
       }
     }
-    return moving.map((m) => ({ id: m.id, stageId: m.stageId, position: m.position }));
+    const rules = await enqueueStageRules(tx, ctx, entered);
+    const previous: PreviousPosition[] = moving.map((m) => ({
+      id: m.id,
+      stageId: m.stageId,
+      position: m.position,
+      stageChangedAt: m.stageChangedAt.toISOString(),
+    }));
+    return { previous, rules };
   });
 }
 
 /** Restores positions returned by `moveApplications` (undo). */
-export async function restorePositions(
-  ctx: Ctx,
-  previous: Array<{ id: string; stageId: string; position: number }>,
-) {
+export async function restorePositions(ctx: Ctx, previous: PreviousPosition[]) {
   assertCan(ctx.role, "pipeline:move");
   await db.transaction(async (tx) => {
     for (const p of previous) {
@@ -241,7 +258,9 @@ export async function restorePositions(
         .set({
           stageId: p.stageId,
           position: p.position,
-          stageChangedAt: new Date(),
+          // Back in the same stay: rules planned for it still apply, the new stage's do not.
+          stageChangedAt:
+            app.stageId !== p.stageId && p.stageChangedAt ? new Date(p.stageChangedAt) : new Date(),
           ...(stage.kind !== "rejected" ? { rejectedAt: null, rejectionReason: null } : {}),
           ...(stage.kind !== "hired" ? { hiredAt: null } : {}),
         })

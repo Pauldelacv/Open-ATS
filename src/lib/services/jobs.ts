@@ -2,6 +2,7 @@ import { and, asc, desc, eq, inArray, isNotNull, ne, notInArray, sql } from "dri
 import { db, type Tx } from "@/lib/db";
 import {
   applications,
+  automationRules,
   jobMembers,
   jobQuestions,
   jobs,
@@ -274,10 +275,13 @@ export async function deleteDraftJob(ctx: Ctx, jobId: string) {
   await db.delete(jobs).where(and(eq(jobs.id, jobId), eq(jobs.organizationId, ctx.orgId)));
 }
 
-/** Copies a job as a new draft; `title` is the translated « copy » title chosen by the caller. */
+/**
+ * Copies a job as a new draft with its pipeline and automatic rules; `title` is the
+ * translated « copy » title chosen by the caller.
+ */
 export async function duplicateJob(ctx: Ctx, jobId: string, title: string) {
   const job = await getJob(ctx, jobId);
-  return createJob(ctx, {
+  const copy = await createJob(ctx, {
     title,
     descriptionHtml: job.descriptionHtml,
     department: job.department ?? undefined,
@@ -295,6 +299,64 @@ export async function duplicateJob(ctx: Ctx, jobId: string, title: string) {
       required: q.required,
     })),
     memberIds: job.memberIds,
+  });
+  await copyPipeline(ctx, job.id, copy.id);
+  return copy;
+}
+
+/** Gives a new job the stages and rules of another; questions are matched by position. */
+async function copyPipeline(ctx: Ctx, fromJobId: string, toJobId: string) {
+  await db.transaction(async (tx) => {
+    const byPosition = <T extends { position: number }>(rows: T[]) =>
+      [...rows].sort((a, b) => a.position - b.position);
+    const sourceStages = byPosition(
+      await tx.select().from(pipelineStages).where(eq(pipelineStages.jobId, fromJobId)),
+    );
+    await tx.delete(pipelineStages).where(eq(pipelineStages.jobId, toJobId));
+    const stageIds = new Map<string, string>();
+    for (const stage of sourceStages) {
+      const [created] = await tx
+        .insert(pipelineStages)
+        .values({
+          organizationId: ctx.orgId,
+          jobId: toJobId,
+          name: stage.name,
+          kind: stage.kind,
+          position: stage.position,
+        })
+        .returning({ id: pipelineStages.id });
+      stageIds.set(stage.id, created!.id);
+    }
+    const questionsOf = async (id: string) =>
+      byPosition(await tx.select().from(jobQuestions).where(eq(jobQuestions.jobId, id)));
+    const fromQuestions = await questionsOf(fromJobId);
+    const toQuestions = await questionsOf(toJobId);
+    const questionIds = new Map(fromQuestions.map((q, i) => [q.id, toQuestions[i]?.id]));
+    const rules = await tx
+      .select()
+      .from(automationRules)
+      .where(eq(automationRules.jobId, fromJobId))
+      .orderBy(asc(automationRules.position));
+    for (const rule of rules) {
+      const stageId = stageIds.get(rule.stageId);
+      if (!stageId) continue;
+      const questionId = rule.condition ? questionIds.get(rule.condition.questionId) : null;
+      if (rule.condition && !questionId) continue;
+      const params = { ...rule.params };
+      if (params.stageId) params.stageId = stageIds.get(params.stageId) ?? params.stageId;
+      await tx.insert(automationRules).values({
+        organizationId: ctx.orgId,
+        jobId: toJobId,
+        stageId,
+        delayMinutes: rule.delayMinutes,
+        condition: rule.condition && questionId ? { ...rule.condition, questionId } : null,
+        action: rule.action,
+        params,
+        enabled: rule.enabled,
+        position: rule.position,
+        createdById: ctx.userId,
+      });
+    }
   });
 }
 
@@ -381,6 +443,20 @@ export async function saveStages(
               removed.map((s) => s.id),
             ),
             eq(applications.organizationId, ctx.orgId),
+          ),
+        );
+      // Rules of a removed stage go with it; rules that moved candidates there stop.
+      await tx
+        .update(automationRules)
+        .set({ enabled: false })
+        .where(
+          and(
+            eq(automationRules.jobId, jobId),
+            eq(automationRules.action, "move"),
+            inArray(
+              sql`${automationRules.params}->>'stageId'`,
+              removed.map((s) => s.id),
+            ),
           ),
         );
       await tx.delete(pipelineStages).where(

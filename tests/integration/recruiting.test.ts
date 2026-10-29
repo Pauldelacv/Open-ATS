@@ -132,7 +132,7 @@ describe("pipeline", () => {
   it("moves cards to a position and can undo", async () => {
     const before = await getBoard(ctx, job.id);
     const interview = before.stages.find((s) => s.name === "Entretien")!;
-    const previous = await moveApplications(ctx, [ids[0]!, ids[1]!], interview.id, 0);
+    const { previous } = await moveApplications(ctx, [ids[0]!, ids[1]!], interview.id, 0);
     let board = await getBoard(ctx, job.id);
     const column = board.cards
       .filter((c) => c.stageId === interview.id)

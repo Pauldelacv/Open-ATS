@@ -18,6 +18,7 @@ import {
   type PublicQuestion,
 } from "@/lib/validation/application";
 import { logActivity } from "./activity";
+import { enqueueStageRules } from "./automation-queue";
 import { channelForSource } from "./distribution";
 import { sendConfirmationEmail } from "./emails";
 import { refreshSearchText } from "./search-index";
@@ -179,8 +180,12 @@ export async function submitPublicApplication(input: {
         answers,
         consentAt: now,
         consentText: input.consentText,
+        stageChangedAt: now,
       })
       .returning({ id: applications.id });
+    await enqueueStageRules(tx, { orgId }, [
+      { applicationId: created!.id, stageId: firstStage.id, enteredAt: now },
+    ]);
     return { candidateId: candidate!.id, applicationId: created!.id, reapplied: false };
   });
 

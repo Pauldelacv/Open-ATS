@@ -73,7 +73,9 @@ export default async function InboxPage() {
                         <Link href={href} className={`font-medium ${linkClass}`}>
                           {m.type === "reply"
                             ? t("reply", { candidate })
-                            : t("booked", { candidate })}
+                            : m.type === "rule"
+                              ? t("rule", { candidate })
+                              : t("booked", { candidate })}
                         </Link>
                       )}
                       {m.jobTitle ? (
@@ -100,6 +102,11 @@ export default async function InboxPage() {
                       <p className="mt-1 text-14 text-ink-muted tabular-nums first-letter:uppercase">
                         {formatDayIn(m.interviewStartsAt, locale, timeZone())},{" "}
                         {formatTimeIn(m.interviewStartsAt, locale, timeZone())}
+                      </p>
+                    ) : null}
+                    {m.type === "rule" ? (
+                      <p className="mt-1 line-clamp-2 text-14 text-ink-muted">
+                        {m.ruleMessage || t("ruleDefault", { candidate, stage: m.stageName ?? "" })}
                       </p>
                     ) : null}
                     {m.type === "reply" && m.replyBody ? (

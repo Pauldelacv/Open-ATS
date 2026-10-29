@@ -44,3 +44,12 @@ export function usesVariable(
     if (name && lookup.get(name.toLowerCase()) === key) return true;
   return false;
 }
+
+/** Variables only a scheduling email can fill: a rule sending the template alone cannot. */
+export function usesSchedulingVariables(text: string): boolean {
+  return (
+    usesVariable(text, "slotsLink") ||
+    usesVariable(text, "interviewDate") ||
+    usesVariable(text, "interviewLocation")
+  );
+}

@@ -2,7 +2,7 @@ import { env } from "@/lib/env";
 
 const globalForTasks = globalThis as unknown as { __openAtsTasksStarted?: boolean };
 
-/** Runs once per server process: migrations, optional demo data, retention schedule. */
+/** Runs once per server process: migrations, demo data, mailbox, rules and retention. */
 export async function startServerTasks() {
   if (globalForTasks.__openAtsTasksStarted) return;
   globalForTasks.__openAtsTasksStarted = true;
@@ -32,6 +32,8 @@ export async function startServerTasks() {
   if (e.NODE_ENV !== "test") {
     const { scheduleMailbox } = await import("@/lib/mail/imap");
     scheduleMailbox();
+    const { scheduleRules } = await import("@/lib/services/automations");
+    scheduleRules();
   }
 
   if (e.RETENTION_JOB && e.NODE_ENV !== "test") {

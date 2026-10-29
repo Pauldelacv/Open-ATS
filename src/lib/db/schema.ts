@@ -483,7 +483,8 @@ export type ActivityType =
   | "anonymized"
   | "slots_proposed"
   | "interview_scheduled"
-  | "interview_cancelled";
+  | "interview_cancelled"
+  | "rule_failed";
 
 export const activities = pgTable(
   "activities",
@@ -622,6 +623,96 @@ export const interviewAttendees = pgTable(
 );
 
 /* -------------------------------------------------------------------------- */
+/* Automatic rules                                                            */
+/* -------------------------------------------------------------------------- */
+
+export type RuleAction = "email" | "reject" | "notify" | "tag" | "move" | "propose_slots";
+
+/** Only answers to yes/no and single-choice questions can be tested. */
+export type RuleCondition = { questionId: string; equals: string };
+
+/** Settings of the rule's action; each action reads its own keys. */
+export type RuleParams = {
+  templateId?: string | null;
+  reason?: string;
+  userIds?: string[];
+  message?: string;
+  tag?: string;
+  stageId?: string;
+  interviewerIds?: string[];
+  durationMinutes?: number;
+  locationKind?: LocationKind;
+  location?: string | null;
+};
+
+/**
+ * When an application arrives in `stageId`, after `delayMinutes`, if it is still there and the
+ * condition holds, do the action once.
+ */
+export const automationRules = pgTable(
+  "automation_rules",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    jobId: uuid()
+      .notNull()
+      .references(() => jobs.id, { onDelete: "cascade" }),
+    stageId: uuid()
+      .notNull()
+      .references(() => pipelineStages.id, { onDelete: "cascade" }),
+    delayMinutes: integer().notNull().default(0),
+    condition: jsonb().$type<RuleCondition | null>(),
+    action: text().$type<RuleAction>().notNull(),
+    params: jsonb().$type<RuleParams>().notNull().default({}),
+    enabled: boolean().notNull().default(true),
+    position: integer().notNull().default(0),
+    createdById: text().references(() => user.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (t) => [
+    index("automation_rules_job_idx").on(t.jobId),
+    index("automation_rules_stage_idx").on(t.stageId),
+  ],
+);
+
+export type RunStatus = "pending" | "running" | "done" | "skipped" | "failed" | "cancelled";
+
+/** One planned execution of a rule for one stay of an application in the rule's stage. */
+export const automationRuns = pgTable(
+  "automation_runs",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    ruleId: uuid()
+      .notNull()
+      .references(() => automationRules.id, { onDelete: "cascade" }),
+    applicationId: uuid()
+      .notNull()
+      .references(() => applications.id, { onDelete: "cascade" }),
+    // applications.stage_changed_at when the run was planned: the stay it belongs to.
+    stageEnteredAt: timestamp({ withTimezone: true }).notNull(),
+    dueAt: timestamp({ withTimezone: true }).notNull(),
+    // Rules started by other rules (a move) go one level deeper; chains stop at a limit.
+    depth: integer().notNull().default(0),
+    status: text().$type<RunStatus>().notNull().default("pending"),
+    attempts: integer().notNull().default(0),
+    error: text(),
+    startedAt: timestamp({ withTimezone: true }),
+    finishedAt: timestamp({ withTimezone: true }),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("automation_runs_stay_uq").on(t.ruleId, t.applicationId, t.stageEnteredAt),
+    index("automation_runs_due_idx").on(t.status, t.dueAt),
+    index("automation_runs_rule_idx").on(t.ruleId, t.status),
+  ],
+);
+
+/* -------------------------------------------------------------------------- */
 /* Emails and notifications                                                   */
 /* -------------------------------------------------------------------------- */
 
@@ -694,7 +785,7 @@ export const mailboxState = pgTable("mailbox_state", {
   unmatched: integer().notNull().default(0),
 });
 
-export type NotificationType = "mention" | "reply" | "interview_booked";
+export type NotificationType = "mention" | "reply" | "interview_booked" | "rule";
 
 export const notifications = pgTable(
   "notifications",
@@ -711,6 +802,9 @@ export const notifications = pgTable(
     noteId: uuid().references(() => notes.id, { onDelete: "cascade" }),
     emailMessageId: uuid().references(() => emailMessages.id, { onDelete: "cascade" }),
     interviewId: uuid().references(() => interviews.id, { onDelete: "cascade" }),
+    ruleId: uuid().references(() => automationRules.id, { onDelete: "set null" }),
+    // Text written in the rule, for « notify » rules.
+    message: text(),
     candidateId: uuid()
       .notNull()
       .references(() => candidates.id, { onDelete: "cascade" }),
@@ -826,4 +920,6 @@ export const tenantTables = {
   slotProposals,
   interviews,
   interviewAttendees,
+  automationRules,
+  automationRuns,
 };
