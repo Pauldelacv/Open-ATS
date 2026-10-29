@@ -71,3 +71,26 @@ export function formatSalary(
   else range = `${labels.upTo} ${f(max!)}`;
   return `${range} ${labels.period}`;
 }
+
+/** « jeudi 5 novembre » (year added when it is not the current one), in `timeZone`. */
+export function formatDayIn(value: Date | string, locale: string, timeZone: string): string {
+  const date = typeof value === "string" ? new Date(value) : value;
+  const sameYear =
+    new Intl.DateTimeFormat("en", { timeZone, year: "numeric" }).format(date) ===
+    new Intl.DateTimeFormat("en", { timeZone, year: "numeric" }).format(new Date());
+  return new Intl.DateTimeFormat(locale, {
+    timeZone,
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: sameYear ? undefined : "numeric",
+  }).format(date);
+}
+
+/** « 14:00 », in `timeZone`. */
+export function formatTimeIn(value: Date | string, locale: string, timeZone: string): string {
+  const date = typeof value === "string" ? new Date(value) : value;
+  return new Intl.DateTimeFormat(locale, { timeZone, hour: "2-digit", minute: "2-digit" }).format(
+    date,
+  );
+}

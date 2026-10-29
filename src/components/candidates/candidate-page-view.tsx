@@ -53,6 +53,8 @@ export function CandidatePageView({
         onChanged={() => router.refresh()}
         onReject={() => setDialog("reject")}
         onEmail={() => setDialog("email")}
+        companyName={companyName}
+        recruiterName={recruiterName}
         permissions={permissions}
         meId={meId}
       />

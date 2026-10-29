@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import {
+  checkMailboxAction,
   deleteTemplateAction,
   saveTemplateAction,
 } from "@/app/(app)/(backoffice)/settings/actions";
@@ -26,7 +27,7 @@ import { Input, Select } from "@/components/ui/input";
 import { toast } from "@/components/ui/toast";
 import { loose } from "@/i18n/loose";
 import type { EmailTemplateKind } from "@/lib/db/schema";
-import { formatDateTime } from "@/lib/format";
+import { formatDateTime, formatRelative } from "@/lib/format";
 
 type Template = {
   id: string;
@@ -47,23 +48,82 @@ type JournalEntry = {
   senderName: string | null;
 };
 
-const kinds: EmailTemplateKind[] = ["confirmation", "rejection", "interview", "other"];
+const kinds: EmailTemplateKind[] = [
+  "confirmation",
+  "interview",
+  "slots",
+  "booked",
+  "rejection",
+  "other",
+];
 const statusTone: Record<JournalEntry["status"], BadgeTone> = {
   sent: "success",
   logged: "warning",
   failed: "danger",
 };
 
+type MailboxStatus = {
+  configured: boolean;
+  address: string | null;
+  lastCheckAt: string | null;
+  lastError: string | null;
+  imported: number;
+};
+
+function MailboxBanner({ mailbox }: { mailbox: MailboxStatus }) {
+  const t = useTranslations("settings.emails.mailbox");
+  const tx = loose(useTranslations());
+  const locale = useLocale();
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  if (!mailbox.configured) return <Banner title={t("off")}>{t("offBody")}</Banner>;
+  const check = (
+    <Button
+      size="sm"
+      loading={pending}
+      onClick={() =>
+        start(async () => {
+          const result = await checkMailboxAction();
+          if (!result.ok) return void toast({ message: tx(result.error), tone: "danger" });
+          toast(t("checked", { count: result.data.stored }));
+          router.refresh();
+        })
+      }
+    >
+      {t("check")}
+    </Button>
+  );
+  if (mailbox.lastError)
+    return (
+      <Banner tone="danger" title={t("error", { address: mailbox.address ?? "" })} action={check}>
+        {t("errorBody", { error: mailbox.lastError })}
+      </Banner>
+    );
+  return (
+    <Banner action={check}>
+      {mailbox.lastCheckAt
+        ? t("on", {
+            address: mailbox.address ?? "",
+            when: formatRelative(mailbox.lastCheckAt, locale),
+            count: mailbox.imported,
+          })
+        : t("onPending", { address: mailbox.address ?? "" })}
+    </Banner>
+  );
+}
+
 export function EmailSettings({
   templates,
   journal,
   smtp,
+  mailbox,
   companyName,
   recruiterName,
 }: {
   templates: Template[];
   journal: JournalEntry[];
   smtp: { configured: boolean; from: string };
+  mailbox: MailboxStatus;
   companyName: string;
   recruiterName: string;
 }) {
@@ -95,6 +155,7 @@ export function EmailSettings({
           {t("smtpMissingBody")}
         </Banner>
       )}
+      <MailboxBanner mailbox={mailbox} />
 
       <section
         className="overflow-hidden rounded-md border border-line bg-paper"
@@ -347,6 +408,20 @@ function TemplateDialog({
                 ...(errors.body ? { body: errors.body } : {}),
               }}
               locale={locale}
+              extraVariables={
+                kind === "slots"
+                  ? [locale.startsWith("fr") ? "lien_creneaux" : "slots_link"]
+                  : kind === "booked"
+                    ? locale.startsWith("fr")
+                      ? ["date_entretien", "lieu_entretien"]
+                      : ["interview_date", "interview_location"]
+                    : []
+              }
+              extraValues={{
+                slotsLink: tx("interviews.dialog.previewLink"),
+                interviewDate: t("sampleInterviewDate"),
+                interviewLocation: t("sampleInterviewLocation"),
+              }}
             />
           </DialogBody>
           <DialogFooter>

@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db";
-import { candidates, candidateTags, files, notes, tags } from "@/lib/db/schema";
+import { candidates, candidateTags, emailMessages, files, notes, tags } from "@/lib/db/schema";
 import { searchable } from "@/lib/utils/text";
 
 /** Rebuilds the folded text behind a candidate's full-text index. */
@@ -16,7 +16,7 @@ export async function refreshSearchText(tx: Tx | typeof db, candidateId: string)
     .from(candidates)
     .where(eq(candidates.id, candidateId));
   if (!candidate) return;
-  const [noteRows, fileRows, tagRows] = await Promise.all([
+  const [noteRows, fileRows, tagRows, replyRows] = await Promise.all([
     tx.select({ body: notes.body }).from(notes).where(eq(notes.candidateId, candidateId)),
     tx.select({ text: files.textContent }).from(files).where(eq(files.candidateId, candidateId)),
     tx
@@ -24,6 +24,12 @@ export async function refreshSearchText(tx: Tx | typeof db, candidateId: string)
       .from(candidateTags)
       .innerJoin(tags, eq(tags.id, candidateTags.tagId))
       .where(eq(candidateTags.candidateId, candidateId)),
+    tx
+      .select({ body: emailMessages.body })
+      .from(emailMessages)
+      .where(
+        and(eq(emailMessages.candidateId, candidateId), eq(emailMessages.direction, "inbound")),
+      ),
   ]);
   const text = searchable(
     candidate.firstName,
@@ -36,6 +42,7 @@ export async function refreshSearchText(tx: Tx | typeof db, candidateId: string)
     ...tagRows.map((t) => t.name),
     ...noteRows.map((n) => n.body),
     ...fileRows.map((f) => f.text),
+    ...replyRows.map((r) => r.body),
   );
   await tx.update(candidates).set({ searchText: text }).where(eq(candidates.id, candidateId));
 }

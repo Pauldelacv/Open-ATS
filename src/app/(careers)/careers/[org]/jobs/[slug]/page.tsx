@@ -6,7 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { ApplyForm } from "@/components/careers/apply-form";
 import { BrandBar, CareersContainer, CareersFooter } from "@/components/careers/chrome";
 import { StickyApply } from "@/components/careers/sticky-apply";
-import { getCareerOrganization } from "@/lib/careers";
+import { getCareerOrganization, trackedSource } from "@/lib/careers";
 import { appUrl } from "@/lib/env";
 import { formatDate, formatSalary } from "@/lib/format";
 import { richTextToPlain } from "@/lib/sanitize";
@@ -46,8 +46,12 @@ export async function generateMetadata({
   };
 }
 
-export default async function CareerJobPage({ params }: PageProps<"/careers/[org]/jobs/[slug]">) {
+export default async function CareerJobPage({
+  params,
+  searchParams,
+}: PageProps<"/careers/[org]/jobs/[slug]">) {
   const data = await load(params);
+  const source = trackedSource((await searchParams).src);
   if (!data) notFound();
   const { org, job } = data;
   const t = await getTranslations({ locale: org.locale, namespace: "careers" });
@@ -76,7 +80,7 @@ export default async function CareerJobPage({ params }: PageProps<"/careers/[org
       <main className="flex-1 pb-24 lg:pb-0">
         <CareersContainer className="pt-5 md:pt-10">
           <Link
-            href={`/careers/${org.slug}`}
+            href={`/careers/${org.slug}${source ? `?src=${source}` : ""}`}
             className="inline-flex items-center gap-1 rounded-sm text-14 text-ink-muted hover:text-ink"
           >
             <ChevronLeft className="size-4" aria-hidden="true" />
@@ -115,6 +119,7 @@ export default async function CareerJobPage({ params }: PageProps<"/careers/[org
                     company={org.name}
                     retentionMonths={org.retentionMonths}
                     locale={org.locale}
+                    source={source}
                     questions={job.questions.map((q) => ({
                       id: q.id,
                       label: q.label,

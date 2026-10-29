@@ -10,9 +10,7 @@ const admin = {
 const candidate = { firstName: "Marion", lastName: "Lefort", email: "marion.lefort@e2e.test" };
 const jobTitle = "Développeur full-stack (F/H)";
 
-test("create a job, publish it, apply, find the candidate, move and reject with an email", async ({
-  page,
-}) => {
+test("publish a job, add a rule, apply, find the candidate, move and reject", async ({ page }) => {
   // First-run setup creates the admin account and the company.
   await page.goto("/");
   await expect(page).toHaveURL(/\/setup$/);
@@ -34,6 +32,17 @@ test("create a job, publish it, apply, find the candidate, move and reject with 
   await expect(page.getByText("Offre publiée")).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: jobTitle })).toBeVisible();
   const pipelineUrl = page.url();
+
+  // An automatic rule on the next stage: the move below says that it applies.
+  await page.getByRole("link", { name: "Règles automatiques" }).click();
+  await page.getByRole("button", { name: "Ajouter une règle à l'étape Présélection" }).click();
+  const ruleDialog = page.getByRole("dialog", { name: "Nouvelle règle" });
+  await ruleDialog.getByLabel("Action", { exact: true }).selectOption("tag");
+  await ruleDialog.getByLabel("Tag", { exact: true }).fill("À appeler");
+  await expect(ruleDialog.getByText(/Dès l'arrivée.+ajouter le tag.+À appeler/)).toBeVisible();
+  await ruleDialog.getByRole("button", { name: "Créer la règle" }).click();
+  await expect(page.getByText("Règle créée")).toBeVisible();
+  await expect(page.getByText(/ajouter le tag.+À appeler/)).toBeVisible();
 
   // Apply from the career site, in a separate anonymous context.
   const visitor = await page.context().browser()!.newContext({ locale: "fr-FR" });
@@ -73,7 +82,9 @@ test("create a job, publish it, apply, find the candidate, move and reject with 
   await page.keyboard.press("ArrowRight");
   await expect(announcements).toContainText("au-dessus de la colonne Présélection");
   await page.keyboard.press("Space");
-  await expect(page.getByText("Candidat déplacé vers Présélection")).toBeVisible();
+  await expect(
+    page.getByText(/Candidat déplacé vers Présélection. 1 règle automatique s'applique/),
+  ).toBeVisible();
   const screening = page.locator("section", {
     has: page.getByRole("heading", { name: /^Présélection/ }),
   });

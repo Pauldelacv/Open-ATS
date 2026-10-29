@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { BrandBar, CareersContainer, CareersFooter } from "@/components/careers/chrome";
 import { CareersJobList } from "@/components/careers/job-list";
-import { getCareerOrganization } from "@/lib/careers";
+import { getCareerOrganization, trackedSource } from "@/lib/careers";
 import { appUrl } from "@/lib/env";
 import { richTextToPlain } from "@/lib/sanitize";
 import { listPublishedJobs } from "@/lib/services/jobs";
@@ -31,8 +31,9 @@ export async function generateMetadata({ params }: PageProps<"/careers/[org]">):
   };
 }
 
-export default async function CareersHome({ params }: PageProps<"/careers/[org]">) {
+export default async function CareersHome({ params, searchParams }: PageProps<"/careers/[org]">) {
   const { org: slug } = await params;
+  const source = trackedSource((await searchParams).src);
   const org = (await getCareerOrganization(slug))!;
   const t = await getTranslations({ locale: org.locale, namespace: "careers" });
   const jobs = await listPublishedJobs(org.id);
@@ -69,7 +70,7 @@ export default async function CareersHome({ params }: PageProps<"/careers/[org]"
                   <p className="mt-1 text-14 text-ink-muted">{t("emptyBody")}</p>
                 </div>
               ) : (
-                <CareersJobList orgSlug={org.slug} jobs={jobs} />
+                <CareersJobList orgSlug={org.slug} jobs={jobs} source={source} />
               )}
             </section>
             {hasAbout ? (

@@ -35,7 +35,7 @@ import {
   deleteDraftJob,
 } from "@/lib/services/jobs";
 import { addCandidateToJob } from "@/lib/services/manual-candidate";
-import { unreadMentionCount } from "@/lib/services/notifications";
+import { unreadNotificationCount } from "@/lib/services/notifications";
 import { getBoard, moveApplications, markViewed } from "@/lib/services/pipeline";
 import { rejectApplications } from "@/lib/services/rejections";
 import { quickSearch, searchPool } from "@/lib/services/search";
@@ -142,7 +142,7 @@ describe("tenant isolation", () => {
     expect((await listMembers(a)).every((m) => m.userId === a.userId)).toBe(true);
     expect((await listTemplates(a)).map((t) => t.id)).not.toContain(bTemplateId);
     expect((await listEmailJournal(a)).some((e) => e.toEmail.endsWith("@beta.test"))).toBe(false);
-    expect(await unreadMentionCount(a)).toBe(0);
+    expect(await unreadNotificationCount(a)).toBe(0);
     expect((await retentionOverview(a)).due).toBe(0);
   });
 

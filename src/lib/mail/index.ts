@@ -8,7 +8,18 @@ export type OutgoingMail = {
   html?: string;
   replyTo?: string;
   fromName?: string;
+  /** Message-ID without brackets; replies quote it, which is how they are matched. */
+  messageId?: string;
+  /** Message-ID of the message answered, to keep the thread in the recipient's client. */
+  inReplyTo?: string;
+  /** Calendar invitation, sent as the text/calendar alternative clients turn into an event. */
+  icalEvent?: { method: "REQUEST" | "CANCEL" | "PUBLISH"; content: string };
 };
+
+/** A Message-ID of ours: the row id at the public host name. */
+export function messageIdFor(id: string): string {
+  return `${id}@${new URL(env().APP_URL).hostname}`;
+}
 
 export type DeliveryResult = { status: "sent" | "logged" | "failed"; error?: string };
 
@@ -48,6 +59,7 @@ export async function deliver(mail: OutgoingMail): Promise<DeliveryResult> {
           "[mail] SMTP not configured, email logged instead of sent",
           `  To: ${mail.to}`,
           `  Subject: ${mail.subject}`,
+          ...(mail.icalEvent ? [`  Calendar: ${mail.icalEvent.method} invitation attached`] : []),
           ...mail.text.split("\n").map((line) => `  | ${line}`),
         ].join("\n"),
       );
@@ -62,6 +74,10 @@ export async function deliver(mail: OutgoingMail): Promise<DeliveryResult> {
       text: mail.text,
       html: mail.html,
       replyTo: mail.replyTo,
+      messageId: mail.messageId ? `<${mail.messageId}>` : undefined,
+      inReplyTo: mail.inReplyTo ? `<${mail.inReplyTo}>` : undefined,
+      references: mail.inReplyTo ? [`<${mail.inReplyTo}>`] : undefined,
+      icalEvent: mail.icalEvent ? { ...mail.icalEvent, filename: "invitation.ics" } : undefined,
     });
     return { status: "sent" };
   } catch (error) {

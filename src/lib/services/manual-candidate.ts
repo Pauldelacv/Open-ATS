@@ -4,6 +4,7 @@ import { applications, candidates, pipelineStages } from "@/lib/db/schema";
 import { assertCan } from "@/lib/permissions";
 import { getAccessibleJob } from "./access";
 import { logActivity } from "./activity";
+import { enqueueStageRules } from "./automation-queue";
 import { storeCv, type IncomingCv } from "./public-application";
 import { refreshSearchText } from "./search-index";
 import type { Ctx } from "./types";
@@ -83,8 +84,12 @@ export async function addCandidateToJob(
         position: (top?.value ?? 1) - 1,
         source: "manual",
         viewedAt: now,
+        stageChangedAt: now,
       })
       .returning({ id: applications.id });
+    await enqueueStageRules(tx, ctx, [
+      { applicationId: app!.id, stageId: firstStage!.id, enteredAt: now },
+    ]);
     return { candidateId, applicationId: app!.id };
   });
   if (cv) await storeCv(ctx.orgId, candidateId, applicationId, cv);

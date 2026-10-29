@@ -8,6 +8,34 @@
       "when": 1793223811227,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793255081600,
+      "tag": "0001_distribution",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793255850632,
+      "tag": "0002_candidate_replies",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793257120934,
+      "tag": "0003_interviews",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793258862646,
+      "tag": "0004_automatic_rules",
+      "breakpoints": true
     }
   ]
 }

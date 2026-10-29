@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CalendarPlus,
   ChevronDown,
   ChevronUp,
   Download,
@@ -60,9 +61,12 @@ import {
   EvaluationsSection,
   NotesSection,
 } from "./panel-sections";
+import { ScheduleDialog } from "@/components/interviews/schedule-dialog";
+import { SchedulingSummary } from "@/components/interviews/scheduling-summary";
+import { ConversationSection } from "./conversation";
 import { ShortcutsDialog } from "./shortcuts-dialog";
 
-type Tab = "application" | "notes" | "evaluations" | "activity";
+type Tab = "application" | "conversation" | "notes" | "evaluations" | "activity";
 let rememberedTab: Tab = "application";
 
 type Permissions = {
@@ -97,6 +101,8 @@ export function CandidatePanel({
   meId,
   mode = "panel",
   onDeleted,
+  companyName = "",
+  recruiterName = "",
 }: {
   onDeleted?: (candidateId: string) => void;
   applicationId: string;
@@ -126,6 +132,7 @@ export function CandidatePanel({
   const tx = loose(useTranslations());
   const locale = useLocale();
   const [detail, setDetail] = useState<ApplicationDetail | null>(null);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
   const [error, setError] = useState(false);
   const [tab, setTab] = useState<Tab>(rememberedTab);
   const [view, setView] = useState<"details" | "cv">("details");
@@ -229,6 +236,8 @@ export function CandidatePanel({
         if (permissions.email && detail?.candidate.email) onEmail(applicationId);
       } else if (key === "r" || key === "R") {
         if (permissions.reject && !isRejected) onReject(applicationId);
+      } else if (key === "p" || key === "P") {
+        if (permissions.email && detail?.candidate.email) setScheduleOpen(true);
       } else if (key === "?") {
         setHelp(true);
       } else return;
@@ -376,6 +385,16 @@ export function CandidatePanel({
                 >
                   <Mail aria-hidden="true" />
                   {t("email")}
+                </Button>
+              ) : null}
+              {permissions.email ? (
+                <Button
+                  onClick={() => setScheduleOpen(true)}
+                  disabled={!detail.candidate.email}
+                  title="P"
+                >
+                  <CalendarPlus aria-hidden="true" />
+                  {t("actions.schedule")}
                 </Button>
               ) : null}
               {permissions.reject && !isRejected ? (
@@ -552,6 +571,26 @@ export function CandidatePanel({
               <Tabs value={tab} onValueChange={changeTab}>
                 <TabsList>
                   <TabsTrigger value="application">{t("tabs.application")}</TabsTrigger>
+                  <TabsTrigger value="conversation">
+                    {t("tabs.conversation")}
+                    {detail.emails.length > 0 ? (
+                      <span className="font-normal text-ink-muted tabular-nums">
+                        {detail.emails.length}
+                      </span>
+                    ) : null}
+                    {detail.emails.some((m) => m.direction === "inbound" && !m.readAt) ? (
+                      <>
+                        <span aria-hidden="true" className="size-1.5 rounded-full bg-cobalt" />
+                        <span className="sr-only">
+                          {tx("panel.conversation.unreadCount", {
+                            count: detail.emails.filter(
+                              (m) => m.direction === "inbound" && !m.readAt,
+                            ).length,
+                          })}
+                        </span>
+                      </>
+                    ) : null}
+                  </TabsTrigger>
                   <TabsTrigger value="notes">
                     {t("tabs.notes")}
                     {detail.notes.length > 0 ? (
@@ -564,7 +603,27 @@ export function CandidatePanel({
                   <TabsTrigger value="activity">{t("tabs.activity")}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="application" className="pt-4">
+                  <SchedulingSummary
+                    scheduling={detail.scheduling}
+                    candidateName={detail.candidate.firstName}
+                    canManage={permissions.email}
+                    onChanged={() => {
+                      void load();
+                      onChanged?.();
+                    }}
+                  />
                   <ApplicationSection detail={detail} />
+                </TabsContent>
+                <TabsContent value="conversation" className="pt-4">
+                  <ConversationSection
+                    detail={detail}
+                    canEmail={permissions.email}
+                    onRead={() => onChanged?.()}
+                    onSent={() => {
+                      void load();
+                      onChanged?.();
+                    }}
+                  />
                 </TabsContent>
                 <TabsContent value="notes" className="pt-4">
                   <NotesSection
@@ -602,6 +661,30 @@ export function CandidatePanel({
         </div>
       )}
       <ShortcutsDialog open={help} onOpenChange={setHelp} />
+      {detail && scheduleOpen ? (
+        <ScheduleDialog
+          open
+          onOpenChange={setScheduleOpen}
+          applicationId={applicationId}
+          recipient={{
+            applicationId,
+            firstName: detail.candidate.firstName,
+            lastName: detail.candidate.lastName,
+            jobTitle: detail.job.title,
+            email: detail.candidate.email,
+          }}
+          phone={detail.candidate.phone}
+          jobLocation={detail.job.location}
+          team={detail.team}
+          meId={meId}
+          companyName={companyName}
+          recruiterName={recruiterName}
+          onDone={() => {
+            void load();
+            onChanged?.();
+          }}
+        />
+      ) : null}
       {detail && permissions.delete ? (
         <Dialog
           open={deleteOpen}

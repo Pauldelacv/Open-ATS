@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
+import { timeZone } from "@/i18n/config";
 import { getMessages } from "next-intl/server";
 import { getCareerOrganization } from "@/lib/careers";
 import { cn } from "@/lib/cn";
@@ -56,7 +57,7 @@ export default async function CareersRootLayout({
       style={style}
     >
       <body className="flex min-h-dvh flex-col bg-paper text-ink">
-        <NextIntlClientProvider locale={org.locale} messages={messages}>
+        <NextIntlClientProvider locale={org.locale} messages={messages} timeZone={timeZone()}>
           {children}
         </NextIntlClientProvider>
       </body>

@@ -1,5 +1,7 @@
 import { relations, sql, type SQL } from "drizzle-orm";
 import {
+  type AnyPgColumn,
+  bigint,
   boolean,
   customType,
   doublePrecision,
@@ -184,6 +186,8 @@ export const jobs = pgTable(
     salaryCurrency: text().notNull().default("EUR"),
     salaryPeriod: text().$type<SalaryPeriod>().notNull().default("year"),
     status: text().$type<JobStatus>().notNull().default("draft"),
+    // Listed in the organisation's XML feeds for job aggregators.
+    inFeeds: boolean().notNull().default(true),
     publishedAt: timestamp({ withTimezone: true }),
     archivedAt: timestamp({ withTimezone: true }),
     createdById: text().references(() => user.id, { onDelete: "set null" }),
@@ -251,6 +255,27 @@ export const pipelineStages = pgTable(
 );
 
 /* -------------------------------------------------------------------------- */
+/* Distribution                                                               */
+/* -------------------------------------------------------------------------- */
+
+/** Places where a job is published (job boards, social networks, referral…). */
+export const distributionChannels = pgTable(
+  "distribution_channels",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    // Short name used in tracked links: ?src=<slug>.
+    slug: text().notNull(),
+    position: integer().notNull().default(0),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("distribution_channels_org_slug_uq").on(t.organizationId, t.slug)],
+);
+
+/* -------------------------------------------------------------------------- */
 /* Candidates and applications                                                */
 /* -------------------------------------------------------------------------- */
 
@@ -309,6 +334,9 @@ export const applications = pgTable(
       .references(() => pipelineStages.id, { onDelete: "restrict" }),
     position: doublePrecision().notNull().default(0),
     source: text().$type<ApplicationSource>().notNull().default("career_site"),
+    // Channel of the tracked link the candidate came from; the name is kept if it is deleted.
+    channelId: uuid().references(() => distributionChannels.id, { onDelete: "set null" }),
+    channelName: text(),
     message: text(),
     answers: jsonb().$type<ApplicationAnswer[]>().notNull().default([]),
     consentAt: timestamp({ withTimezone: true }),
@@ -325,6 +353,7 @@ export const applications = pgTable(
     index("applications_org_idx").on(t.organizationId),
     index("applications_stage_idx").on(t.stageId),
     index("applications_candidate_idx").on(t.candidateId),
+    index("applications_channel_idx").on(t.channelId),
   ],
 );
 
@@ -342,6 +371,10 @@ export const files = pgTable(
       .references(() => candidates.id, { onDelete: "cascade" }),
     applicationId: uuid().references(() => applications.id, { onDelete: "set null" }),
     kind: text().$type<FileKind>().notNull().default("cv"),
+    // Attachment of a candidate's email reply.
+    emailMessageId: uuid().references((): AnyPgColumn => emailMessages.id, {
+      onDelete: "cascade",
+    }),
     storageKey: text().notNull(),
     fileName: text().notNull(),
     mimeType: text().notNull(),
@@ -442,11 +475,16 @@ export type ActivityType =
   | "note_added"
   | "evaluated"
   | "email_sent"
+  | "email_received"
   | "tag_added"
   | "tag_removed"
   | "cv_added"
   | "exported"
-  | "anonymized";
+  | "anonymized"
+  | "slots_proposed"
+  | "interview_scheduled"
+  | "interview_cancelled"
+  | "rule_failed";
 
 export const activities = pgTable(
   "activities",
@@ -469,12 +507,220 @@ export const activities = pgTable(
 );
 
 /* -------------------------------------------------------------------------- */
+/* Interviews                                                                 */
+/* -------------------------------------------------------------------------- */
+
+export type BusyInterval = { start: string; end: string };
+
+/** A person's availability: calendar feed (encrypted), working hours, own meeting room. */
+export const userCalendars = pgTable("user_calendars", {
+  userId: text()
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  icsUrlEncrypted: text(),
+  workingDays: integer()
+    .array()
+    .notNull()
+    .default(sql`'{1,2,3,4,5}'::integer[]`),
+  workStart: text().notNull().default("09:00"),
+  workEnd: text().notNull().default("18:00"),
+  meetingUrl: text(),
+  busy: jsonb().$type<BusyInterval[]>().notNull().default([]),
+  busyUntil: timestamp({ withTimezone: true }),
+  busyFetchedAt: timestamp({ withTimezone: true }),
+  busyError: text(),
+  ...timestamps,
+});
+
+export type LocationKind = "video" | "onsite" | "phone";
+export type InterviewStatus = "scheduled" | "cancelled";
+export type ProposalStatus = "open" | "booked" | "cancelled";
+
+export const slotProposals = pgTable(
+  "slot_proposals",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    applicationId: uuid()
+      .notNull()
+      .references(() => applications.id, { onDelete: "cascade" }),
+    candidateId: uuid()
+      .notNull()
+      .references(() => candidates.id, { onDelete: "cascade" }),
+    jobId: uuid()
+      .notNull()
+      .references(() => jobs.id, { onDelete: "cascade" }),
+    // The link sent to the candidate: looked up by hash, kept encrypted to copy it again.
+    tokenHash: text().notNull().unique(),
+    tokenEncrypted: text().notNull(),
+    durationMinutes: integer().notNull(),
+    slots: jsonb().$type<BusyInterval[]>().notNull(),
+    interviewerIds: text().array().notNull(),
+    locationKind: text().$type<LocationKind>().notNull(),
+    location: text(),
+    status: text().$type<ProposalStatus>().notNull().default("open"),
+    interviewId: uuid().references((): AnyPgColumn => interviews.id, { onDelete: "set null" }),
+    expiresAt: timestamp({ withTimezone: true }).notNull(),
+    createdById: text().references(() => user.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (t) => [index("slot_proposals_application_idx").on(t.applicationId)],
+);
+
+export const interviews = pgTable(
+  "interviews",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    applicationId: uuid()
+      .notNull()
+      .references(() => applications.id, { onDelete: "cascade" }),
+    candidateId: uuid()
+      .notNull()
+      .references(() => candidates.id, { onDelete: "cascade" }),
+    jobId: uuid()
+      .notNull()
+      .references(() => jobs.id, { onDelete: "cascade" }),
+    startsAt: timestamp({ withTimezone: true }).notNull(),
+    endsAt: timestamp({ withTimezone: true }).notNull(),
+    locationKind: text().$type<LocationKind>().notNull(),
+    location: text(),
+    status: text().$type<InterviewStatus>().notNull().default("scheduled"),
+    // iCalendar SEQUENCE: raised on every change so that calendars update the event.
+    sequence: integer().notNull().default(0),
+    proposalId: uuid().references((): AnyPgColumn => slotProposals.id, { onDelete: "set null" }),
+    createdById: text().references(() => user.id, { onDelete: "set null" }),
+    cancelledAt: timestamp({ withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [
+    index("interviews_org_start_idx").on(t.organizationId, t.startsAt),
+    index("interviews_application_idx").on(t.applicationId),
+  ],
+);
+
+export const interviewAttendees = pgTable(
+  "interview_attendees",
+  {
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    interviewId: uuid()
+      .notNull()
+      .references(() => interviews.id, { onDelete: "cascade" }),
+    userId: text()
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.interviewId, t.userId] }),
+    index("interview_attendees_user_idx").on(t.userId),
+  ],
+);
+
+/* -------------------------------------------------------------------------- */
+/* Automatic rules                                                            */
+/* -------------------------------------------------------------------------- */
+
+export type RuleAction = "email" | "reject" | "notify" | "tag" | "move" | "propose_slots";
+
+/** Only answers to yes/no and single-choice questions can be tested. */
+export type RuleCondition = { questionId: string; equals: string };
+
+/** Settings of the rule's action; each action reads its own keys. */
+export type RuleParams = {
+  templateId?: string | null;
+  reason?: string;
+  userIds?: string[];
+  message?: string;
+  tag?: string;
+  stageId?: string;
+  interviewerIds?: string[];
+  durationMinutes?: number;
+  locationKind?: LocationKind;
+  location?: string | null;
+};
+
+/**
+ * When an application arrives in `stageId`, after `delayMinutes`, if it is still there and the
+ * condition holds, do the action once.
+ */
+export const automationRules = pgTable(
+  "automation_rules",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    jobId: uuid()
+      .notNull()
+      .references(() => jobs.id, { onDelete: "cascade" }),
+    stageId: uuid()
+      .notNull()
+      .references(() => pipelineStages.id, { onDelete: "cascade" }),
+    delayMinutes: integer().notNull().default(0),
+    condition: jsonb().$type<RuleCondition | null>(),
+    action: text().$type<RuleAction>().notNull(),
+    params: jsonb().$type<RuleParams>().notNull().default({}),
+    enabled: boolean().notNull().default(true),
+    position: integer().notNull().default(0),
+    createdById: text().references(() => user.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (t) => [
+    index("automation_rules_job_idx").on(t.jobId),
+    index("automation_rules_stage_idx").on(t.stageId),
+  ],
+);
+
+export type RunStatus = "pending" | "running" | "done" | "skipped" | "failed" | "cancelled";
+
+/** One planned execution of a rule for one stay of an application in the rule's stage. */
+export const automationRuns = pgTable(
+  "automation_runs",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    ruleId: uuid()
+      .notNull()
+      .references(() => automationRules.id, { onDelete: "cascade" }),
+    applicationId: uuid()
+      .notNull()
+      .references(() => applications.id, { onDelete: "cascade" }),
+    // applications.stage_changed_at when the run was planned: the stay it belongs to.
+    stageEnteredAt: timestamp({ withTimezone: true }).notNull(),
+    dueAt: timestamp({ withTimezone: true }).notNull(),
+    // Rules started by other rules (a move) go one level deeper; chains stop at a limit.
+    depth: integer().notNull().default(0),
+    status: text().$type<RunStatus>().notNull().default("pending"),
+    attempts: integer().notNull().default(0),
+    error: text(),
+    startedAt: timestamp({ withTimezone: true }),
+    finishedAt: timestamp({ withTimezone: true }),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("automation_runs_stay_uq").on(t.ruleId, t.applicationId, t.stageEnteredAt),
+    index("automation_runs_due_idx").on(t.status, t.dueAt),
+    index("automation_runs_rule_idx").on(t.ruleId, t.status),
+  ],
+);
+
+/* -------------------------------------------------------------------------- */
 /* Emails and notifications                                                   */
 /* -------------------------------------------------------------------------- */
 
-export type EmailTemplateKind = "confirmation" | "rejection" | "interview" | "other";
-export type EmailStatus = "sent" | "logged" | "failed";
+export type EmailTemplateKind =
+  "confirmation" | "rejection" | "interview" | "slots" | "booked" | "other";
+export type EmailStatus = "sent" | "logged" | "failed" | "received";
 export type EmailCategory = "candidate" | "team";
+export type EmailDirection = "outbound" | "inbound";
 
 export const emailTemplates = pgTable(
   "email_templates",
@@ -500,22 +746,46 @@ export const emailMessages = pgTable(
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
     category: text().$type<EmailCategory>().notNull().default("candidate"),
+    direction: text().$type<EmailDirection>().notNull().default("outbound"),
     candidateId: uuid().references(() => candidates.id, { onDelete: "cascade" }),
     applicationId: uuid().references(() => applications.id, { onDelete: "set null" }),
     templateId: uuid().references(() => emailTemplates.id, { onDelete: "set null" }),
     toEmail: text().notNull(),
+    // Received messages: the sender, and the full text when `body` has the quote removed.
+    fromEmail: text(),
+    fromName: text(),
     subject: text().notNull(),
     body: text().notNull(),
+    fullBody: text(),
     status: text().$type<EmailStatus>().notNull(),
     error: text(),
+    // RFC 5322 Message-ID without angle brackets, and the one it answers.
+    messageId: text(),
+    inReplyTo: text(),
+    readAt: timestamp({ withTimezone: true }),
     sentById: text().references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index("email_messages_org_idx").on(t.organizationId, t.createdAt),
     index("email_messages_candidate_idx").on(t.candidateId),
+    uniqueIndex("email_messages_org_message_id_uq").on(t.organizationId, t.messageId),
   ],
 );
+
+/** Progress of the IMAP reader: last UID read in the mailbox (global, one mailbox). */
+export const mailboxState = pgTable("mailbox_state", {
+  id: text().primaryKey(),
+  uidValidity: bigint({ mode: "number" }),
+  lastUid: integer().notNull().default(0),
+  lastCheckAt: timestamp({ withTimezone: true }),
+  lastSuccessAt: timestamp({ withTimezone: true }),
+  lastError: text(),
+  imported: integer().notNull().default(0),
+  unmatched: integer().notNull().default(0),
+});
+
+export type NotificationType = "mention" | "reply" | "interview_booked" | "rule";
 
 export const notifications = pgTable(
   "notifications",
@@ -528,8 +798,13 @@ export const notifications = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     actorId: text().references(() => user.id, { onDelete: "set null" }),
-    type: text().$type<"mention">().notNull().default("mention"),
+    type: text().$type<NotificationType>().notNull().default("mention"),
     noteId: uuid().references(() => notes.id, { onDelete: "cascade" }),
+    emailMessageId: uuid().references(() => emailMessages.id, { onDelete: "cascade" }),
+    interviewId: uuid().references(() => interviews.id, { onDelete: "cascade" }),
+    ruleId: uuid().references(() => automationRules.id, { onDelete: "set null" }),
+    // Text written in the rule, for « notify » rules.
+    message: text(),
     candidateId: uuid()
       .notNull()
       .references(() => candidates.id, { onDelete: "cascade" }),
@@ -641,4 +916,10 @@ export const tenantTables = {
   emailTemplates,
   emailMessages,
   notifications,
+  distributionChannels,
+  slotProposals,
+  interviews,
+  interviewAttendees,
+  automationRules,
+  automationRuns,
 };

@@ -19,6 +19,7 @@ export function ShortcutsDialog({
     [["1", "…", "5"], t("rate")],
     [["E"], t("email")],
     [["R"], t("reject")],
+    [["P"], t("schedule")],
     [["Esc"], t("close")],
     [["X"], t("select")],
     [["Ctrl", "K"], t("palette")],

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { JobActions } from "@/components/jobs/job-actions";
-import { JobHeader } from "@/components/jobs/job-header";
+import { JobPageTop } from "@/components/jobs/job-header";
 import { PipelineView } from "@/components/pipeline/pipeline-view";
 import { requireContext } from "@/lib/context";
 import { appUrl } from "@/lib/env";
 import { can, NotFoundError } from "@/lib/permissions";
 import { getAccessibleJob, isUuid } from "@/lib/services/access";
+import { ruleCountsByStage } from "@/lib/services/automations";
 import { listTemplates } from "@/lib/services/emails";
 import { getOrganization } from "@/lib/services/organizations";
 import { getBoard } from "@/lib/services/pipeline";
@@ -30,7 +30,12 @@ export default async function JobPipelinePage({
     if (error instanceof NotFoundError) notFound();
     throw error;
   });
-  const [org, templates] = await Promise.all([getOrganization(ctx), listTemplates(ctx)]);
+  const canManage = can(ctx.role, "job:manage");
+  const [org, templates, ruleCounts] = await Promise.all([
+    getOrganization(ctx),
+    listTemplates(ctx),
+    canManage ? ruleCountsByStage(ctx, jobId) : new Map<string, number>(),
+  ]);
   const query = await searchParams;
   const requested = typeof query.a === "string" && isUuid(query.a) ? query.a : null;
   const openId = requested && board.cards.some((c) => c.id === requested) ? requested : null;
@@ -39,22 +44,10 @@ export default async function JobPipelinePage({
 
   return (
     <div className="flex h-[calc(100dvh-3rem)] flex-col md:h-dvh">
-      <div className="shrink-0 border-b border-line px-4 py-4 md:px-6">
-        <JobHeader
-          job={board.job}
-          actions={
-            <JobActions
-              job={{ id: board.job.id, title: board.job.title, status: board.job.status }}
-              publicUrl={publicUrl}
-              canManage={can(ctx.role, "job:manage")}
-              stages={can(ctx.role, "pipeline:edit-stages") ? stages : undefined}
-            />
-          }
-        />
-      </div>
+      <JobPageTop ctx={ctx} job={board.job} publicUrl={publicUrl} stages={stages} />
       <PipelineView
         job={{ id: board.job.id, title: board.job.title, status: board.job.status }}
-        stages={stages}
+        stages={stages.map((s) => ({ ...s, rules: ruleCounts.get(s.id) ?? 0 }))}
         initialCards={board.cards}
         templates={templates.map((tpl) => ({
           id: tpl.id,

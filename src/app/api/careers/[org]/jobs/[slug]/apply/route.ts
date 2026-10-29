@@ -75,6 +75,7 @@ export async function POST(
         data: Buffer.from(await cv!.arrayBuffer()),
       },
       consentText,
+      source: String(form.get("source") ?? "") || null,
     });
   } catch (error) {
     if (error instanceof CvRejectedError) {

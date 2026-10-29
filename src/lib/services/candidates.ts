@@ -14,7 +14,7 @@ import {
   pipelineStages,
   user,
 } from "@/lib/db/schema";
-import { appUrl } from "@/lib/env";
+import { appUrl, imapConfigured } from "@/lib/env";
 import { serverTranslator } from "@/i18n/server";
 import { deliver, textToHtml } from "@/lib/mail";
 import { mentionedIds, plainNote } from "@/lib/mentions";
@@ -22,6 +22,7 @@ import { assertCan, ForbiddenError, NotFoundError } from "@/lib/permissions";
 import { candidateAccess, jobAccess } from "./access";
 import { listActivity, logActivity } from "./activity";
 import { listCandidateEmails } from "./emails";
+import { listApplicationScheduling } from "./interviews";
 import { markViewed } from "./pipeline";
 import { refreshSearchText } from "./search-index";
 import { candidateTagList } from "./tags";
@@ -33,7 +34,7 @@ async function accessibleApplication(ctx: Ctx, applicationId: string) {
     .select({
       application: applications,
       candidate: candidates,
-      job: { id: jobs.id, title: jobs.title, status: jobs.status },
+      job: { id: jobs.id, title: jobs.title, status: jobs.status, location: jobs.location },
     })
     .from(applications)
     .innerJoin(candidates, eq(candidates.id, applications.candidateId))
@@ -75,7 +76,13 @@ export async function listCvFiles(ctx: Ctx, candidateId: string) {
       applicationId: files.applicationId,
     })
     .from(files)
-    .where(and(eq(files.candidateId, candidateId), eq(files.organizationId, ctx.orgId)))
+    .where(
+      and(
+        eq(files.candidateId, candidateId),
+        eq(files.organizationId, ctx.orgId),
+        eq(files.kind, "cv"),
+      ),
+    )
     .orderBy(desc(files.createdAt));
 }
 
@@ -168,17 +175,27 @@ export async function getApplicationDetail(ctx: Ctx, applicationId: string) {
     .select()
     .from(pipelineStages)
     .where(eq(pipelineStages.id, application.stageId));
-  const [cvs, tagList, noteList, evaluationData, activity, emails, otherApplications, team] =
-    await Promise.all([
-      listCvFiles(ctx, candidate.id),
-      candidateTagList(ctx, candidate.id),
-      listNotes(ctx, candidate.id),
-      listEvaluations(ctx, applicationId),
-      listActivity(ctx, candidate.id),
-      listCandidateEmails(ctx, candidate.id),
-      listCandidateApplications(ctx, candidate.id),
-      listTeamDirectory(ctx),
-    ]);
+  const [
+    cvs,
+    tagList,
+    noteList,
+    evaluationData,
+    activity,
+    emails,
+    otherApplications,
+    team,
+    scheduling,
+  ] = await Promise.all([
+    listCvFiles(ctx, candidate.id),
+    candidateTagList(ctx, candidate.id),
+    listNotes(ctx, candidate.id),
+    listEvaluations(ctx, applicationId),
+    listActivity(ctx, candidate.id),
+    listCandidateEmails(ctx, candidate.id),
+    listCandidateApplications(ctx, candidate.id),
+    listTeamDirectory(ctx),
+    listApplicationScheduling(ctx, applicationId),
+  ]);
   return {
     application: {
       id: application.id,
@@ -186,6 +203,7 @@ export async function getApplicationDetail(ctx: Ctx, applicationId: string) {
       stageName: stage?.name ?? "",
       stageKind: stage?.kind ?? "active",
       source: application.source,
+      channelName: application.channelName,
       message: application.message,
       answers: application.answers,
       consentAt: application.consentAt,
@@ -215,6 +233,9 @@ export async function getApplicationDetail(ctx: Ctx, applicationId: string) {
     emails,
     otherApplications: otherApplications.filter((a) => a.id !== applicationId),
     team,
+    scheduling,
+    // Candidates' replies come back into Open ATS only when the shared mailbox is configured.
+    repliesEnabled: imapConfigured(),
   };
 }
 

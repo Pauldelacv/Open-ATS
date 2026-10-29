@@ -2,6 +2,8 @@
 
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { Zap } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { Mark } from "@/components/ui/mark";
@@ -15,6 +17,8 @@ export function KanbanColumn({
   itemIds,
   count,
   newCount,
+  rules = 0,
+  rulesHref,
   collapsed,
   onToggleCollapsed,
   children,
@@ -25,6 +29,8 @@ export function KanbanColumn({
   itemIds: string[];
   count: number;
   newCount: number;
+  rules?: number;
+  rulesHref?: string;
   collapsed?: boolean;
   onToggleCollapsed?: () => void;
   children: ReactNode;
@@ -82,6 +88,17 @@ export function KanbanColumn({
         </h2>
         <span className="flex items-center gap-1">
           {newCount > 0 ? <Mark className="text-12">{tj("new", { count: newCount })}</Mark> : null}
+          {rules > 0 && rulesHref ? (
+            <Link
+              href={rulesHref}
+              title={t("rules", { count: rules })}
+              aria-label={t("rules", { count: rules })}
+              className="flex h-6 items-center gap-0.5 rounded-sm px-1 text-12 text-ink-muted tabular-nums hover:bg-stone hover:text-ink"
+            >
+              <Zap className="size-3.5" aria-hidden="true" />
+              {rules}
+            </Link>
+          ) : null}
           {onToggleCollapsed ? (
             <button
               type="button"

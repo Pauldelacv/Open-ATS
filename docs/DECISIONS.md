@@ -91,6 +91,56 @@ what was chosen and why, so it can be revisited.
   without SMTP they only appear in the server log.
 - Templates accept French and English variable names (`{{prénom}}` / `{{first_name}}`, …).
 
+## v2: distribution, replies, interviews, rules
+
+Plan: [`PLAN-v2.md`](./PLAN-v2.md). Names of features are ours (« Diffusion », « Échanges »,
+« Proposer des créneaux », « Règles automatiques »), not borrowed from another ATS.
+
+- **No OAuth anywhere.** Registering a Google or Microsoft application is the step that makes
+  self-hosted tools give up on calendar and mail features. Calendars are read from the secret
+  ICS address that Google Calendar and Outlook give each user, and written to by sending
+  standard iCalendar invitations, which every calendar client understands. Mail is read over
+  IMAP, which every provider offers. The cost: busy times are read-only and refreshed at most
+  every 10 minutes, and an interviewer's answer to an invitation is not read back.
+- **ICS addresses are secrets** (they give read access to a calendar): stored encrypted with
+  AES-256-GCM, key derived from the auth secret with HKDF. Changing `AUTH_SECRET` makes them
+  unreadable; users enter them again.
+- **Server-side fetches of addresses typed by users** (ICS) accept `https` only (`webcal` is
+  rewritten), refuse loopback, private, link-local and unique-local addresses at connection
+  time (not only at DNS lookup, against rebinding), stop at 5 MB and 10 s.
+- **IMAP reading leaves the mailbox untouched**: no flags, no moves. The last UID read is
+  stored with the mailbox's UIDVALIDITY; the first connection reads the last 14 days. One
+  reader at a time through a Postgres advisory lock.
+- **Reply matching**: Message-ID we generated (`In-Reply-To`, `References`) first, then the
+  sender's address. With several organisations on one instance, the sender goes to the one
+  that last emailed them. Messages from unknown senders and automatic replies are ignored.
+- **Attribution by URL parameter**, carried from the job list to the form. No cookie, so no
+  consent banner on the career site.
+- **Feed format**: the Indeed-style XML that most job aggregators read. One feed URL per
+  channel so that applications coming from each aggregator are attributed.
+- **Not built**: paid posting to job boards and « apply with LinkedIn » need partner contracts.
+- **Rules have one trigger**, arrival in a stage, plus a delay; delayed actions run only if the
+  application is still in that stage (same stay). « At once » is one minute later so that the
+  undo in the move toast cancels it. Rules apply to arrivals after their creation, never to
+  applications already in the stage. Conditions are limited to yes/no and choice answers:
+  free text cannot be tested reliably.
+- **Rule execution**: runs are rows (`automation_runs`, unique per rule, application and stay),
+  claimed with `FOR UPDATE SKIP LOCKED` by an in-process worker every 30 s, retried three
+  times with backoff, shown in the candidate history as done by « Règle automatique ».
+- **Rule chains stop**: a rule that moves a candidate starts the rules of the next stage one
+  level deeper; past three levels nothing more is planned, so two rules moving back and forth
+  cannot loop. Undoing a move restores the previous stay (its date included), so the reminders
+  planned for it still happen and the ones of the stage left by mistake are skipped.
+- **Rules act as their author** (sender name and reply address of their emails), or as an
+  admin once the author has left, but the history records no person: « Une règle automatique ».
+  Pausing a rule cancels what it had planned; turning it back on does not catch up.
+- **Templates a rule cannot fill are refused**: an « email » or « reject » rule cannot use a
+  template with the slots link or an interview date, and « offer slots » requires the slots
+  link. A rule that fails (template deleted, no free slot) is marked on the rules page and in
+  the candidate's history instead of retrying for ever.
+- **Libraries**: `imapflow` and `mailparser` (MIT) for mail; `ical.js` (MPL-2.0, used
+  unmodified; file-level copyleft compatible with AGPL) for recurring events and time zones.
+
 ## Later decisions
 
 - **Selection checkbox on kanban cards** appears on hover, on keyboard focus, or as soon as one

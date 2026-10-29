@@ -41,6 +41,32 @@ const schema = z.object({
     (v) => v || undefined,
     z.string().default("Open ATS <no-reply@localhost>"),
   ),
+  // Shared mailbox read over IMAP for candidates' replies.
+  IMAP_HOST: optional(z.string()),
+  IMAP_PORT: optional(z.coerce.number().int().positive()),
+  IMAP_SECURE: z
+    .string()
+    .optional()
+    .transform((v) => v !== "false"),
+  IMAP_USER: optional(z.string()),
+  IMAP_PASSWORD: optional(z.string()),
+  IMAP_MAILBOX: z.preprocess((v) => v || undefined, z.string().default("INBOX")),
+  IMAP_POLL_SECONDS: z.preprocess(
+    (v) => v || undefined,
+    z.coerce.number().int().min(10).default(60),
+  ),
+  // How often due automatic rules are run.
+  AUTOMATION_POLL_SECONDS: z.preprocess(
+    (v) => v || undefined,
+    z.coerce.number().int().min(10).default(30),
+  ),
+  // Base of generated video call links (Jitsi rooms); "off" hides the button.
+  VIDEO_MEETING_BASE_URL: z.preprocess(
+    (v) => v || undefined,
+    z.string().default("https://meet.jit.si"),
+  ),
+  // Address candidates reply to; the IMAP user when it is an address.
+  MAIL_REPLY_TO: optional(z.string()),
   RETENTION_JOB: z
     .string()
     .optional()
@@ -72,4 +98,23 @@ export function uploadsDir(): string {
 export function smtpConfigured(): boolean {
   const e = env();
   return Boolean(e.SMTP_URL || e.SMTP_HOST);
+}
+
+export function imapConfigured(): boolean {
+  const e = env();
+  return Boolean(e.IMAP_HOST && e.IMAP_USER && e.IMAP_PASSWORD);
+}
+
+/** Mailbox candidates reply to, when replies are read by Open ATS. */
+export function replyMailbox(): string | null {
+  if (!imapConfigured()) return null;
+  const e = env();
+  if (e.MAIL_REPLY_TO) return e.MAIL_REPLY_TO;
+  return e.IMAP_USER?.includes("@") ? e.IMAP_USER : null;
+}
+
+/** Base URL for generated video call rooms, or null when turned off. */
+export function videoMeetingBase(): string | null {
+  const base = env().VIDEO_MEETING_BASE_URL.trim().replace(/\/+$/, "");
+  return base === "off" || !/^https:\/\//.test(base) ? null : base;
 }

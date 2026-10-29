@@ -23,6 +23,16 @@ export default defineConfig({
       AUTH_SECRET: "test-secret-not-used-elsewhere",
       DATA_DIR: path.resolve(__dirname, "node_modules/.cache/open-ats-test"),
       APP_TIMEZONE: "Europe/Paris",
+      // A test IMAP server (GreenMail in CI) enables the mailbox reader tests.
+      ...(process.env.TEST_IMAP_HOST
+        ? {
+            IMAP_HOST: process.env.TEST_IMAP_HOST,
+            IMAP_PORT: process.env.TEST_IMAP_PORT ?? "3143",
+            IMAP_SECURE: "false",
+            IMAP_USER: "jobs@open-ats.test",
+            IMAP_PASSWORD: "test",
+          }
+        : {}),
     },
   },
 });

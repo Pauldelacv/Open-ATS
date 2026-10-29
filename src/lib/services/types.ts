@@ -5,4 +5,6 @@ export type Ctx = {
   orgId: string;
   userId: string;
   role: Role;
+  /** Set when an automatic rule acts: no actor is recorded, and moves may start other rules. */
+  rule?: { id: string; depth: number };
 };

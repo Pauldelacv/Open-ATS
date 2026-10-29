@@ -6,7 +6,7 @@ import { createJob } from "@/lib/services/jobs";
 import { createOrganization } from "@/lib/services/organizations";
 import { submitPublicApplication } from "@/lib/services/public-application";
 import type { Ctx } from "@/lib/services/types";
-import type { ApplicationData } from "@/lib/validation/application";
+import type { ApplicationData, PublicQuestion } from "@/lib/validation/application";
 
 export async function createUser(name: string) {
   const id = `u_${randomUUID()}`;
@@ -70,12 +70,13 @@ export async function apply(
   jobId: string,
   person: Partial<ApplicationData> & { firstName: string; lastName: string; email: string },
   cvText?: string,
+  options: { source?: string; questions?: PublicQuestion[] } = {},
 ) {
   const data = await sampleCv(cvText);
   return submitPublicApplication({
     organizationId: ctx.orgId,
     jobId,
-    questions: [],
+    questions: options.questions ?? [],
     data: {
       phone: "",
       link: "",
@@ -86,5 +87,6 @@ export async function apply(
     } as ApplicationData,
     cv: { name: "cv.pdf", type: "application/pdf", size: data.length, data },
     consentText: "consent",
+    source: options.source,
   });
 }

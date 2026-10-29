@@ -2,8 +2,13 @@ import { MapPin } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
-import type { ContractType, JobStatus, RemotePolicy } from "@/lib/db/schema";
+import { cn } from "@/lib/cn";
+import type { ContractType, JobStatus, RemotePolicy, StageKind } from "@/lib/db/schema";
+import { can } from "@/lib/permissions";
+import type { Ctx } from "@/lib/services/types";
 import { BackLink } from "./editor-page";
+import { JobActions } from "./job-actions";
+import { JobNav } from "./job-nav";
 
 const statusTone = { draft: "muted", published: "success", archived: "neutral" } as const;
 
@@ -46,5 +51,51 @@ export async function JobHeader({
       </div>
       {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
     </header>
+  );
+}
+
+/**
+ * Top of every job page: title, details, actions and, for people who manage jobs, the
+ * sections (candidates, distribution, rules) on the bottom line.
+ */
+export async function JobPageTop({
+  ctx,
+  job,
+  publicUrl,
+  stages,
+}: {
+  ctx: Ctx;
+  job: Parameters<typeof JobHeader>[0]["job"] & { id: string };
+  publicUrl: string;
+  stages?: Array<{ id: string; name: string; kind: StageKind }>;
+}) {
+  const t = await getTranslations("jobs.nav");
+  const canManage = can(ctx.role, "job:manage");
+  const items = canManage
+    ? [
+        { href: `/jobs/${job.id}`, label: t("pipeline") },
+        { href: `/jobs/${job.id}/distribution`, label: t("distribution") },
+        { href: `/jobs/${job.id}/rules`, label: t("rules") },
+      ]
+    : [];
+  return (
+    <div className={cn("shrink-0 border-b border-line px-4 pt-4 md:px-6", !canManage && "pb-4")}>
+      <JobHeader
+        job={job}
+        actions={
+          <JobActions
+            job={{ id: job.id, title: job.title, status: job.status }}
+            publicUrl={publicUrl}
+            canManage={canManage}
+            stages={can(ctx.role, "pipeline:edit-stages") ? stages : undefined}
+          />
+        }
+      />
+      {items.length > 0 ? (
+        <div className="mt-2">
+          <JobNav items={items} label={t("label")} />
+        </div>
+      ) : null}
+    </div>
   );
 }

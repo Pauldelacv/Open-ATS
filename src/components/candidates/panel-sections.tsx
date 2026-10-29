@@ -41,7 +41,14 @@ export function ApplicationSection({ detail }: { detail: Detail }) {
         </div>
         <div>
           <dt className="text-12 text-ink-muted">{t("source")}</dt>
-          <dd>{t(`sources.${application.source}`)}</dd>
+          <dd>
+            {application.channelName
+              ? t("viaChannel", {
+                  source: t(`sources.${application.source}`),
+                  channel: application.channelName,
+                })
+              : t(`sources.${application.source}`)}
+          </dd>
         </div>
         {candidate.phone ? (
           <div>
@@ -367,7 +374,7 @@ export function ActivitySection({ detail }: { detail: Detail }) {
       {detail.activity.map((a) => {
         const data = a.data as Record<string, string | number | boolean | null>;
         const values = {
-          actor: a.actorName ?? t("system"),
+          actor: data.rule ? t("rule") : (a.actorName ?? t("system")),
           job: a.jobTitle ?? "",
           to: String(data.to ?? ""),
           subject: String(data.subject ?? ""),
@@ -389,6 +396,9 @@ export function ActivitySection({ detail }: { detail: Detail }) {
               ) : null}
               {a.type === "email_sent" && data.status === "failed" ? (
                 <span className="text-danger"> ({t("emailFailed")})</span>
+              ) : null}
+              {data.rule && (a.type === "email_sent" || a.type === "slots_proposed") ? (
+                <span className="text-ink-muted"> · {t("byRule")}</span>
               ) : null}
             </p>
             <time

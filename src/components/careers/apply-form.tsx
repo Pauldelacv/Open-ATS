@@ -34,6 +34,7 @@ export function ApplyForm({
   retentionMonths,
   questions,
   locale,
+  source,
 }: {
   orgSlug: string;
   jobSlug: string;
@@ -41,6 +42,8 @@ export function ApplyForm({
   retentionMonths: number;
   questions: PublicQuestion[];
   locale: string;
+  /** Short name of the tracked link the visitor came from. */
+  source?: string | null;
 }) {
   const t = useTranslations("careers");
   const tx = loose(useTranslations());
@@ -127,6 +130,7 @@ export function ApplyForm({
     for (const key of scalarFields) body.set(key, values[key]);
     for (const q of questions) body.set(`answer:${q.id}`, answers[q.id] ?? "");
     body.set("consent", consent ? "true" : "");
+    if (source) body.set("source", source);
     body.set("cv", cv!);
     body.set(
       "website",
