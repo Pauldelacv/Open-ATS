@@ -140,6 +140,10 @@ likely to change:
 | `RETENTION_JOB`                                                                     | `true`                                                 | Anonymises candidates past the retention period every 6 hours.                                         |
 | `APP_TIMEZONE`                                                                      | `Europe/Paris`                                         | Time zone of dates in emails and on the server.                                                        |
 
+On Vercel, the AWS S3 integration works as is: set `STORAGE_DRIVER=s3` and files go to the
+bucket it creates (`S3_BUCKET_NAME`), authenticated with Vercel OIDC (`AWS_ROLE_ARN`) instead of
+access keys.
+
 ### Candidates' replies, calendars and automatic rules
 
 These features need no account with Google, Microsoft or any other provider.
